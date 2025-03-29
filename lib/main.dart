@@ -34,7 +34,7 @@ class _UserListScreenState extends State<UserListScreen> {
   List<User> users = [];
   bool isLoading = true;
   bool hasError = false;
-  final String apiUrl = "http://192.168.30.101/GoWay/api/usuarios.php"; // Cambiar por la IP de la máquina que ejecuta el servidor
+  final String apiUrl = "http://127.0.0.1/GoWay/api/usuarios.php"; // Cambiar por tu IP local
 
   @override
   void initState() {

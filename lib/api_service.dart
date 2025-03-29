@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http:/192.168.30.101"; // Cambia por tu IP local
+  static const String baseUrl = "http:/127.0.0.1"; // Cambiar por tu IP local
   static const String apiUrl = "$baseUrl/goway/api/usuarios.php";
 
   static Future<List<dynamic>> getUsers() async {
