@@ -1,9 +1,9 @@
 // ██████╗  ██████╗  ██╗    ██╗ █████╗ ██╗   ██╗
 // ██╔════╝ ██╔═══██╗██║    ██║██╔══██╗╚██╗ ██╔╝
-// ██║  ███╗██║   ██║██║ █╗ ██║███████║ ╚████╔╝ 
-// ██║   ██║██║   ██║██║███╗██║██╔══██║  ╚██╔╝  
-// ╚██████╔╝╚██████╔╝╚███╔███╔╝██║  ██║   ██║   
-//  ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝    
+// ██║  ███╗██║   ██║██║ █╗ ██║███████║ ╚████╔╝
+// ██║   ██║██║   ██║██║███╗██║██╔══██║  ╚██╔╝
+// ╚██████╔╝╚██████╔╝╚███╔███╔╝██║  ██║   ██║
+//  ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
 //
 // main.dart - Punto de entrada principal
 // Versión: 1.0.0 | Última actualización: 29-03-2025
@@ -14,17 +14,18 @@
 // Mantenido por: Hydra. Inc
 
 import 'package:flutter/material.dart';
+import 'package:goway_user/login.dart';
 import 'user_list_screen.dart';
 
 // ----------------------------------------------------------------------------
 // [ENTRY POINT]
 // ----------------------------------------------------------------------------
 /// Punto de ejecución inicial de la aplicación Flutter.
-/// 
+///
 /// Responsabilidades principales:
 /// 1. Inicializar los bindings esenciales de Flutter
 /// 2. Lanzar el widget raíz de la aplicación (MyApp)
-/// 
+///
 /// Nota técnica: WidgetsFlutterBinding.ensureInitialized() es requerido para:
 /// - Uso de plugins nativos
 /// - Llamadas a plataforma específica antes de runApp()
@@ -42,9 +43,9 @@ void main() async {
 /// - Temas visuales (claro/oscuro)
 /// - Rutas de navegación
 /// - Comportamientos globales de UI
-/// 
+///
 /// Arquitectura:
-/// 
+///
 ///     MyApp (MaterialApp)
 ///     ├── Theme
 ///     ├── Routes
@@ -63,13 +64,14 @@ class MyApp extends StatelessWidget {
       theme: _buildThemeData(),
       darkTheme: _buildThemeData(),
       themeMode: ThemeMode.light, // Puede ser cambiado a ThemeMode.system
-      home: const UserListScreen(),
+      home: const LoginScreen(),
       debugShowCheckedModeBanner: false,
 
       // ----------------------------------------------------------------------
       // CONFIGURACIÓN DE RUTAS
       // ----------------------------------------------------------------------
       routes: {
+        '/login': (context) => const LoginScreen(), // Nueva ruta
         '/users': (context) => const UserListScreen(),
         // Añadir más rutas según sea necesario
       },
@@ -80,7 +82,8 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(1.0), // Evita escalado de texto no deseado
+            textScaler:
+                TextScaler.linear(1.0), // Evita escalado de texto no deseado
           ),
           child: ScrollConfiguration(
             behavior: const ScrollBehavior().copyWith(
@@ -101,7 +104,7 @@ class MyApp extends StatelessWidget {
   /// - Material Design 3 habilitado
   /// - Paleta generada desde Colors.blue
   /// - Estilos consistentes para AppBar y Cards
-  /// 
+  ///
   /// Parámetros clave:
   /// - seedColor: Colors.blue (#4285F4)
   /// - cardRadius: 12px
