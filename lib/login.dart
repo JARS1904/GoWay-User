@@ -14,6 +14,7 @@
 // Mantenido por: Hydra. Inc
 
 import 'package:flutter/material.dart';
+import 'package:goway_user/registro_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'user_list_screen.dart';
@@ -179,9 +180,48 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             'INICIAR SESIÓN',
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
                           ),
                   ),
+                ),
+                const SizedBox(height: 20),
+
+                // Texto para el resgitro de un nuevo usuario
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '¿No tienes cuenta? ',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const RegistroScreen()),
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero, // Elimina padding interno
+                        minimumSize: Size.zero, // Reduce tamaño mínimo
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'Regístrate',
+                        style: TextStyle(
+                          color: Colors.blueAccent[700],
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
