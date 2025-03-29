@@ -15,6 +15,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:goway_user/login.dart';
+import 'package:goway_user/registro_screen.dart';
 import 'user_list_screen.dart';
 
 // ----------------------------------------------------------------------------
@@ -71,7 +72,8 @@ class MyApp extends StatelessWidget {
       // CONFIGURACIÓN DE RUTAS
       // ----------------------------------------------------------------------
       routes: {
-        '/login': (context) => const LoginScreen(), // Nueva ruta
+        '/login': (context) => const LoginScreen(),
+        '/registro': (context) => const RegistroScreen(),
         '/users': (context) => const UserListScreen(),
         // Añadir más rutas según sea necesario
       },
