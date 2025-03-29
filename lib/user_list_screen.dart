@@ -6,8 +6,12 @@
 //  ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═    ╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝
 //
 // PANTALLA DE LISTADO DE USUARIOS - GOWAY TRANSPORTE
-// Versión: 1.0.0 | Última actualización: 2023-11-20
-// Autor: [Tu Nombre] | Mantenido por: Equipo GoWay
+// Versión: 1.0.0 | Última actualización: 29-03-2025
+// Autores: José Armando Rodríguez Segovia
+//          Miguel Ángel Peralta González
+//          Santiago de Jesús Juarez Pérez
+//          Emilio Domíngez Silva
+// Mantenido por: Hydra. Inc
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
