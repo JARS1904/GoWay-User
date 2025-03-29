@@ -22,13 +22,13 @@ import '../models/user.dart';
 /// [UserListScreen]
 /// ---------------------------------------------------------------------------
 /// Pantalla principal para la gestión de usuarios del sistema de transporte.
-/// 
+///
 /// Características:
 /// - Muestra lista paginada de usuarios
 /// - Operaciones CRUD completas
 /// - Integración con API PHP mediante HTTP
 /// - Manejo de estados: loading, error, vacío
-/// 
+///
 /// Estado:
 /// - StatefulWidget para manejo de datos dinámicos
 class UserListScreen extends StatefulWidget {
@@ -42,7 +42,7 @@ class UserListScreen extends StatefulWidget {
 /// [_UserListScreenState]
 /// ---------------------------------------------------------------------------
 /// Estado y lógica de la pantalla de usuarios.
-/// 
+///
 /// Variables de estado:
 /// - users: Listado actual de usuarios
 /// - isLoading: Indicador de carga
@@ -52,7 +52,8 @@ class _UserListScreenState extends State<UserListScreen> {
   List<User> users = [];
   bool isLoading = true;
   bool hasError = false;
-  final String apiUrl = "http://192.168.30.101/GoWay/api/usuarios.php"; // Asegúrate de usar la IP correcta
+  final String apiUrl =
+      "http://192.168.0.120/GoWay/api/usuarios.php"; // Asegúrate de usar la IP correcta
 
   @override
   void initState() {
@@ -64,7 +65,7 @@ class _UserListScreenState extends State<UserListScreen> {
   /// [_fetchUsers]
   /// -------------------------------------------------------------------------
   /// Obtiene el listado de usuarios desde la API.
-  /// 
+  ///
   /// Flujo:
   /// 1. Activa estado de carga
   /// 2. Realiza petición GET
@@ -78,7 +79,7 @@ class _UserListScreenState extends State<UserListScreen> {
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
-      
+
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -101,7 +102,7 @@ class _UserListScreenState extends State<UserListScreen> {
   /// [_addUser]
   /// -------------------------------------------------------------------------
   /// Agrega un nuevo usuario mediante POST.
-  /// 
+  ///
   /// Parámetros:
   /// - user: Objeto User con datos básicos
   /// - password: Contraseña en texto plano (se hashea en backend)
@@ -110,21 +111,23 @@ class _UserListScreenState extends State<UserListScreen> {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'nombre': user.name,
-          'email': user.email,
-          'password': password
-        }),
+        body: json.encode(
+            {'nombre': user.name, 'email': user.email, 'password': password}),
       );
 
-      if (response.statusCode == 200) {
-        await _fetchUsers();
+      print('Response status: ${response.statusCode}'); // Debug
+      print('Response body: ${response.body}'); // Debug
+
+      if (response.statusCode == 201) {
+        // 201 es el código para creación exitosa
+        await _fetchUsers(); // Actualiza la lista
         _showSnackbar('Usuario agregado correctamente');
       } else {
-        throw Exception('Error al agregar usuario: ${response.statusCode}');
+        throw Exception('Error: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      _showSnackbar('Error al agregar usuario: $e');
+      _showSnackbar('Error al agregar: $e');
+      print('Error detallado: $e'); // Debug
     }
   }
 
@@ -132,7 +135,7 @@ class _UserListScreenState extends State<UserListScreen> {
   /// [_updateUser]
   /// -------------------------------------------------------------------------
   /// Actualiza un usuario existente mediante PUT.
-  /// 
+  ///
   /// Parámetros:
   /// - user: Objeto User con datos actualizados
   /// - password: Nueva contraseña (opcional)
@@ -164,7 +167,7 @@ class _UserListScreenState extends State<UserListScreen> {
   /// [_deleteUser]
   /// -------------------------------------------------------------------------
   /// Elimina un usuario mediante DELETE.
-  /// 
+  ///
   /// Parámetros:
   /// - id: ID del usuario a eliminar
   Future<void> _deleteUser(int id) async {
@@ -188,7 +191,7 @@ class _UserListScreenState extends State<UserListScreen> {
   /// [_showSnackbar]
   /// -------------------------------------------------------------------------
   /// Muestra un mensaje temporal en la parte inferior.
-  /// 
+  ///
   /// Parámetros:
   /// - message: Texto a mostrar
   void _showSnackbar(String message) {
@@ -259,7 +262,7 @@ class _UserListScreenState extends State<UserListScreen> {
   /// [_showEditUserDialog]
   /// -------------------------------------------------------------------------
   /// Muestra diálogo modal para editar usuario existente.
-  /// 
+  ///
   /// Parámetros:
   /// - user: Usuario a editar
   void _showEditUserDialog(User user) {
@@ -321,7 +324,7 @@ class _UserListScreenState extends State<UserListScreen> {
   /// [_showDeleteDialog]
   /// -------------------------------------------------------------------------
   /// Muestra diálogo de confirmación para eliminar usuario.
-  /// 
+  ///
   /// Parámetros:
   /// - userId: ID del usuario a eliminar
   void _showDeleteDialog(int userId) {
@@ -330,7 +333,8 @@ class _UserListScreenState extends State<UserListScreen> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Eliminar Usuario'),
-          content: const Text('¿Estás seguro de que quieres eliminar este usuario?'),
+          content:
+              const Text('¿Estás seguro de que quieres eliminar este usuario?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -378,7 +382,7 @@ class _UserListScreenState extends State<UserListScreen> {
   /// [_buildBody]
   /// -------------------------------------------------------------------------
   /// Construye el cuerpo principal según el estado actual.
-  /// 
+  ///
   /// Estados posibles:
   /// - Loading: Muestra indicador de carga
   /// - Error: Muestra mensaje de error y botón de reintento
