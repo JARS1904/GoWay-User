@@ -6,7 +6,7 @@
 //  ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
 //
 // main.dart - Punto de entrada principal
-// Versión: 1.0.0 | Última actualización: 29-03-2025
+// Versión: 2.0.0 | Última actualización: ${DateTime.now().toString().substring(0, 10)}
 // Autores: José Armando Rodríguez Segovia
 //          Miguel Ángel Peralta González
 //          Santiago de Jesús Juarez Pérez
@@ -16,22 +16,21 @@
 import 'package:flutter/material.dart';
 import 'package:goway_user/login.dart';
 import 'package:goway_user/registro_screen.dart';
-import 'user_list_screen.dart';
+import 'package:goway_user/user_list_screen.dart';
+import 'package:goway_user/profile_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ----------------------------------------------------------------------------
 // [ENTRY POINT]
 // ----------------------------------------------------------------------------
 /// Punto de ejecución inicial de la aplicación Flutter.
 ///
-/// Responsabilidades principales:
-/// 1. Inicializar los bindings esenciales de Flutter
-/// 2. Lanzar el widget raíz de la aplicación (MyApp)
-///
-/// Nota técnica: WidgetsFlutterBinding.ensureInitialized() es requerido para:
-/// - Uso de plugins nativos
-/// - Llamadas a plataforma específica antes de runApp()
+/// Cambios principales en la versión 2.0:
+/// - Implementación de navegación con BottomNavigationBar
+/// - Gestión de estado de usuario con SharedPreferences
+/// - Nueva arquitectura de navegación
 void main() async {
-  // Inicialización de paquetes (si los tuvieras)
+  // Inicialización de bindings y paquetes
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(const MyApp());
@@ -40,18 +39,17 @@ void main() async {
 // ----------------------------------------------------------------------------
 // [MAIN APPLICATION WIDGET]
 // ----------------------------------------------------------------------------
-/// Configuración global de MaterialApp que establece:
-/// - Temas visuales (claro/oscuro)
-/// - Rutas de navegación
-/// - Comportamientos globales de UI
+/// Configuración global de MaterialApp con nueva estructura de navegación.
 ///
-/// Arquitectura:
+/// Novedades en la arquitectura:
 ///
 ///     MyApp (MaterialApp)
 ///     ├── Theme
 ///     ├── Routes
-///     ├── UserListScreen (Home)
-///     └── Global Behaviors
+///     ├── LoginScreen (Punto inicial)
+///     └── MainNavigationWrapper (Home después de login)
+///         ├── UserListScreen (Inicio)
+///         └── ProfileScreen (Perfil)
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -64,28 +62,33 @@ class MyApp extends StatelessWidget {
       title: 'GoWay - Transporte Público',
       theme: _buildThemeData(),
       darkTheme: _buildThemeData(),
-      themeMode: ThemeMode.light, // Puede ser cambiado a ThemeMode.system
+      themeMode: ThemeMode.light,
       home: const LoginScreen(),
       debugShowCheckedModeBanner: false,
 
       // ----------------------------------------------------------------------
       // CONFIGURACIÓN DE RUTAS
       // ----------------------------------------------------------------------
+      /// Rutas principales de la aplicación:
+      /// - /login: Pantalla de autenticación
+      /// - /registro: Pantalla de creación de cuenta
+      /// - /main: Contenedor principal con navegación inferior
       routes: {
         '/login': (context) => const LoginScreen(),
         '/registro': (context) => const RegistroScreen(),
-        '/users': (context) => const UserListScreen(),
-        // Añadir más rutas según sea necesario
+        '/main': (context) => const MainNavigationWrapper(),
       },
 
       // ----------------------------------------------------------------------
       // COMPORTAMIENTOS GLOBALES
       // ----------------------------------------------------------------------
+      /// Configuraciones globales de UI:
+      /// - Escalado de texto consistente
+      /// - Comportamiento de scroll personalizado
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaler:
-                TextScaler.linear(1.0), // Evita escalado de texto no deseado
+            textScaler: TextScaler.linear(1.0),
           ),
           child: ScrollConfiguration(
             behavior: const ScrollBehavior().copyWith(
@@ -102,15 +105,9 @@ class MyApp extends StatelessWidget {
   // --------------------------------------------------------------------------
   // TEMA DE LA APLICACIÓN
   // --------------------------------------------------------------------------
-  /// Construir el ThemeData principal con:
-  /// - Material Design 3 habilitado
-  /// - Paleta generada desde Colors.blue
-  /// - Estilos consistentes para AppBar y Cards
-  ///
-  /// Parámetros clave:
-  /// - seedColor: Colors.blue (#4285F4)
-  /// - cardRadius: 12px
-  /// - appBarElevation: 2dp
+  /// Construye el ThemeData principal con configuraciones extendidas:
+  /// - Nueva configuración para BottomNavigationBar
+  /// - Mantiene consistencia con el diseño existente
   ThemeData _buildThemeData() {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
@@ -129,6 +126,104 @@ class MyApp extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.blueAccent[700],
+        unselectedItemColor: Colors.grey[600],
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        elevation: 4.0, // Añadido para asegurar visibilidad
+      ),
+    );
+  }
+}
+
+/// ---------------------------------------------------------------------------
+/// [MainNavigationWrapper]
+/// ---------------------------------------------------------------------------
+/// Widget contenedor principal que maneja la navegación inferior.
+///
+/// Responsabilidades:
+/// 1. Gestionar el índice de la pantalla activa
+/// 2. Mantener el estado de las pantallas con IndexedStack
+/// 3. Cargar los datos del usuario para la pantalla de perfil
+/// 4. Proporcionar la BottomNavigationBar
+class MainNavigationWrapper extends StatefulWidget {
+  const MainNavigationWrapper({super.key});
+
+  @override
+  State<MainNavigationWrapper> createState() => _MainNavigationWrapperState();
+}
+
+/// ---------------------------------------------------------------------------
+/// [_MainNavigationWrapperState]
+/// ---------------------------------------------------------------------------
+/// Estado del contenedor principal de navegación.
+///
+/// Atributos:
+/// - _currentIndex: Índice de la pantalla activa (0 = Inicio, 1 = Perfil)
+/// - _screens: Lista de pantallas disponibles
+///
+/// Métodos clave:
+/// - _loadUserData: Carga asíncrona de datos del usuario desde SharedPreferences
+/// - build: Construye la interfaz con IndexedStack y BottomNavigationBar
+class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
+  int _currentIndex = 0;
+  late List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    _screens = [
+      const UserListScreen(),
+      FutureBuilder(
+        future: _loadUserData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            return ProfileScreen(
+              userName: snapshot.data?['name'] ?? 'Usuario',
+              userEmail: snapshot.data?['email'] ?? 'email@ejemplo.com',
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    ];
+  }
+
+  Future<Map<String, String>> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'name': prefs.getString('userName') ?? 'Usuario',
+      'email': prefs.getString('userEmail') ?? 'email@ejemplo.com',
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Inicio',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Perfil',
+          ),
+        ],
       ),
     );
   }

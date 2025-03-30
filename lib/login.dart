@@ -14,8 +14,10 @@
 // Mantenido por: Hydra. Inc
 
 import 'package:flutter/material.dart';
+import 'package:goway_user/main.dart';
 import 'package:goway_user/registro_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'user_list_screen.dart';
 
@@ -34,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   // URL de tu API de login (ajusta según tu endpoint)
-  final String _loginApiUrl = "http://192.168.0.120/GoWay/api/login.php";
+  final String _loginApiUrl = "http://192.168.30.101/GoWay/api/login.php";
 
   @override
   void dispose() {
@@ -59,18 +61,23 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       final responseData = json.decode(response.body);
-      print('Respuesta del servidor: $responseData'); // Debug
 
       if (response.statusCode == 200 && responseData['success'] == true) {
+        // GUARDAR DATOS DEL USUARIO EN SHAREDPREFERENCES
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+            'userName', responseData['user']['name'] ?? 'Usuario');
+        await prefs.setString('userEmail', _emailController.text.trim());
+
         // Navegar a la pantalla principal
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const UserListScreen()),
+          MaterialPageRoute(
+              builder: (context) => const MainNavigationWrapper()),
         );
       } else {
-        String errorMsg = responseData['error'] ?? 'Error desconocido';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMsg)),
+          SnackBar(content: Text(responseData['error'] ?? 'Error desconocido')),
         );
       }
     } catch (e) {
