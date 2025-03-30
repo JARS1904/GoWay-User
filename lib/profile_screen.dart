@@ -1,7 +1,7 @@
 // ██████╗ ███████╗██████╗ ███████╗██╗██╗     ███████╗
 // ██╔══██╗██╔════╝██╔══██╗██╔════╝██║██║     ██╔════╝
-// ██████╔╝█████╗  ██████╔╝█████╗  ██║██║     █████╗  
-// ██╔═══╝ ██╔══╝  ██╔══██╗██╔══╝  ██║██║     ██╔══╝  
+// ██████╔╝█████╗  ██████╔╝█████╗  ██║██║     █████╗
+// ██╔═══╝ ██╔══╝  ██╔══██╗██╔══╝  ██║██║     ██╔══╝
 // ██║     ███████╗██║  ██║███████╗██║███████╗███████╗
 // ╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚══════╝
 //
@@ -76,9 +76,17 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi Perfil'),
+        title: const Text(
+          'Mi Perfil',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         centerTitle: true,
         elevation: 2,
+        backgroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -108,32 +116,45 @@ class ProfileScreen extends StatelessWidget {
             /// Tarjeta con los detalles del usuario usando el tema de la app
             Card(
               elevation: 3,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
+              margin: const EdgeInsets.symmetric(horizontal: 0),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(5.0),
                 child: Column(
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.person),
-                      title: const Text('Nombre'),
+                      leading: const Icon(Icons.person_outline_rounded),
+                      title: const Text(
+                        'Nombre',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
                       subtitle: Text(
                         userName,
                         style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
                         ),
                       ),
                     ),
                     const Divider(),
                     ListTile(
-                      leading: const Icon(Icons.email),
-                      title: const Text('Correo electrónico'),
+                      leading: const Icon(Icons.email_outlined),
+                      title: const Text(
+                        'Correo',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
                       subtitle: Text(
                         userEmail,
-                        style: const TextStyle(fontSize: 16),
+                        style: const TextStyle(
+                          fontSize: 15,
+                        ),
                       ),
                     ),
                   ],
@@ -151,15 +172,19 @@ class ProfileScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () => _mostrarDialogoConfirmacion(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[50],
-                  foregroundColor: Colors.red,
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.red.shade200),
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(color: Colors.red),
                   ),
                 ),
-                icon: const Icon(Icons.logout),
+                icon: const Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 label: const Text(
                   'Cerrar Sesión',
                   style: TextStyle(
@@ -186,12 +211,24 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cerrar Sesión'),
+        title: const Text(
+          'Cerrar Sesión',
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 20,
+            color: Colors.black,
+          ),
+        ),
         content: const Text('¿Estás seguro de que deseas salir de tu cuenta?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(
+              'Cancelar',
+              style: TextStyle(
+                color: Colors.blueAccent[700],
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
