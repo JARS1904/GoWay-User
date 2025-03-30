@@ -6,7 +6,7 @@
 //  ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
 //
 // main.dart - Punto de entrada principal
-// Versión: 2.0.0 | Última actualización: ${DateTime.now().toString().substring(0, 10)}
+// Versión: 2.0.0 | Última actualización: 29-03-2025
 // Autores: José Armando Rodríguez Segovia
 //          Miguel Ángel Peralta González
 //          Santiago de Jesús Juarez Pérez

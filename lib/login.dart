@@ -5,8 +5,8 @@
 // ███████╗╚██████╔╝╚██████╔╝██║██║ ╚████║
 // ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝
 //
-// PANTALLA DE INICIO DE SESIÓN - GOWAY TRANSPORTE
-// Versión: 1.0.0 | Última actualización: 29-03-2025
+// login.dart - Pantalla de Autenticación
+// Versión: 1.1.0 | Última actualización: ${DateTime.now().toString().substring(0, 10)}
 // Autores: José Armando Rodríguez Segovia
 //          Miguel Ángel Peralta González
 //          Santiago de Jesús Juarez Pérez
@@ -19,8 +19,17 @@ import 'package:goway_user/registro_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'user_list_screen.dart';
 
+/// ---------------------------------------------------------------------------
+/// [LoginScreen]
+/// ---------------------------------------------------------------------------
+/// Pantalla principal de autenticación de usuarios.
+///
+/// Responsabilidades:
+/// 1. Validar credenciales mediante API REST
+/// 2. Gestionar el estado del formulario de login
+/// 3. Navegar a la pantalla principal después de autenticación exitosa
+/// 4. Manejar errores de conexión y validación
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -28,14 +37,30 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+/// ---------------------------------------------------------------------------
+/// [_LoginScreenState]
+/// ---------------------------------------------------------------------------
+/// Estado y lógica de la pantalla de login.
+///
+/// Atributos:
+/// - _emailController: Controlador para campo de email
+/// - _passwordController: Controlador para campo de contraseña
+/// - _formKey: Llave global para el formulario
+/// - _isLoading: Estado de carga durante autenticación
+/// - _loginApiUrl: Endpoint para autenticación
 class _LoginScreenState extends State<LoginScreen> {
-  // Controladores para los campos de texto
+  // -------------------------------------------------------------------------
+  // CONTROLADORES Y ESTADO
+  // -------------------------------------------------------------------------
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
-  // URL de tu API de login (ajusta según tu endpoint)
+  // -------------------------------------------------------------------------
+  // CONFIGURACIÓN API
+  // -------------------------------------------------------------------------
+  /// URL del endpoint de autenticación
   final String _loginApiUrl = "http://192.168.30.101/GoWay/api/login.php";
 
   @override
@@ -45,6 +70,15 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  /// -------------------------------------------------------------------------
+  /// [_login]
+  /// -------------------------------------------------------------------------
+  /// Maneja el proceso completo de autenticación:
+  /// 1. Valida el formulario
+  /// 2. Realiza petición HTTP al servidor
+  /// 3. Guarda datos del usuario en SharedPreferences
+  /// 4. Navega a la pantalla principal
+  /// 5. Maneja errores y estados de carga
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -63,17 +97,20 @@ class _LoginScreenState extends State<LoginScreen> {
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200 && responseData['success'] == true) {
-        // GUARDAR DATOS DEL USUARIO EN SHAREDPREFERENCES
+        // -----------------------------------------------------------------
+        // GUARDADO DE DATOS DE SESIÓN
+        // -----------------------------------------------------------------
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
             'userName', responseData['user']['name'] ?? 'Usuario');
         await prefs.setString('userEmail', _emailController.text.trim());
 
-        // Navegar a la pantalla principal
+        // -----------------------------------------------------------------
+        // NAVEGACIÓN A PANTALLA PRINCIPAL
+        // -----------------------------------------------------------------
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => const MainNavigationWrapper()),
+          MaterialPageRoute(builder: (context) => const MainNavigationWrapper()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -102,7 +139,9 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 140),
 
-                // Logo de la aplicación
+                // -----------------------------------------------------------
+                // LOGO DE LA APLICACIÓN
+                // -----------------------------------------------------------
                 Image.asset(
                   'lib/assets/images/logo.png',
                   height: 100,
@@ -110,7 +149,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // Título
+                // -----------------------------------------------------------
+                // TÍTULO DE LA PANTALLA
+                // -----------------------------------------------------------
                 const Text(
                   'Iniciar Sesión',
                   style: TextStyle(
@@ -120,7 +161,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // Campo de Email
+                // -----------------------------------------------------------
+                // CAMPO DE EMAIL
+                // -----------------------------------------------------------
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -145,7 +188,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 25),
 
-                // Campo de Contraseña
+                // -----------------------------------------------------------
+                // CAMPO DE CONTRASEÑA
+                // -----------------------------------------------------------
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
@@ -170,7 +215,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 35),
 
-                // Botón de Iniciar Sesión
+                // -----------------------------------------------------------
+                // BOTÓN DE INICIAR SESIÓN
+                // -----------------------------------------------------------
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -195,7 +242,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Texto para el resgitro de un nuevo usuario
+                // -----------------------------------------------------------
+                // ENLACE A REGISTRO
+                // -----------------------------------------------------------
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -215,8 +264,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero, // Elimina padding interno
-                        minimumSize: Size.zero, // Reduce tamaño mínimo
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
