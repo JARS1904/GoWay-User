@@ -63,7 +63,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
   bool _isLoading = false;
 
   // URL de la API de registro (ajustar según configuración)
-  final String _apiUrl = "http://192.168.0.120/GoWay/api/usuarios.php";
+  final String _apiUrl = "http://192.168.30.101/GoWay/api/usuarios.php";
 
   @override
   void dispose() {
