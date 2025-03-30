@@ -6,7 +6,7 @@
 //  ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
 //
 // main.dart - Punto de entrada principal
-// Versión: 2.0.0 | Última actualización: 29-03-2025
+// Versión: 2.0.0 | Última actualización: 29-03-2025}
 // Autores: José Armando Rodríguez Segovia
 //          Miguel Ángel Peralta González
 //          Santiago de Jesús Juarez Pérez
@@ -25,10 +25,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 // ----------------------------------------------------------------------------
 /// Punto de ejecución inicial de la aplicación Flutter.
 ///
-/// Cambios principales en la versión 2.0:
-/// - Implementación de navegación con BottomNavigationBar
-/// - Gestión de estado de usuario con SharedPreferences
-/// - Nueva arquitectura de navegación
+/// Responsabilidades principales:
+/// 1. Inicializar los bindings de Flutter
+/// 2. Cargar cualquier configuración inicial necesaria
+/// 3. Lanzar la aplicación con MyApp como widget raíz
+///
+/// Configuración inicial requerida:
+/// - WidgetsFlutterBinding.ensureInitialized() para paquetes nativos
 void main() async {
   // Inicialización de bindings y paquetes
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,17 +42,22 @@ void main() async {
 // ----------------------------------------------------------------------------
 // [MAIN APPLICATION WIDGET]
 // ----------------------------------------------------------------------------
-/// Configuración global de MaterialApp con nueva estructura de navegación.
+/// Configuración global de MaterialApp con estructura de navegación mejorada.
 ///
-/// Novedades en la arquitectura:
-///
+/// Arquitectura principal:
+/// 
 ///     MyApp (MaterialApp)
-///     ├── Theme
-///     ├── Routes
-///     ├── LoginScreen (Punto inicial)
-///     └── MainNavigationWrapper (Home después de login)
-///         ├── UserListScreen (Inicio)
-///         └── ProfileScreen (Perfil)
+///     ├── Theme (configuración visual global)
+///     ├── Routes (gestión de navegación)
+///     ├── LoginScreen (punto de entrada inicial)
+///     └── MainNavigationWrapper (contiene la navegación inferior)
+///         ├── UserListScreen (pantalla de inicio)
+///         └── ProfileScreen (pantalla de perfil)
+///
+/// Características clave:
+/// - Gestión centralizada de rutas
+/// - Configuración de tema consistente
+/// - Comportamientos globales de UI
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -59,6 +67,11 @@ class MyApp extends StatelessWidget {
       // ----------------------------------------------------------------------
       // CONFIGURACIÓN BÁSICA
       // ----------------------------------------------------------------------
+      /// Configuración esencial de la aplicación:
+      /// - Título mostrado en el sistema operativo
+      /// - Temas claro/oscuro
+      /// - Pantalla inicial (LoginScreen)
+      /// - Desactivación del banner de debug
       title: 'GoWay - Transporte Público',
       theme: _buildThemeData(),
       darkTheme: _buildThemeData(),
@@ -69,10 +82,13 @@ class MyApp extends StatelessWidget {
       // ----------------------------------------------------------------------
       // CONFIGURACIÓN DE RUTAS
       // ----------------------------------------------------------------------
-      /// Rutas principales de la aplicación:
-      /// - /login: Pantalla de autenticación
-      /// - /registro: Pantalla de creación de cuenta
-      /// - /main: Contenedor principal con navegación inferior
+      /// Mapeo de rutas nombradas para navegación global:
+      /// - '/login': Pantalla de autenticación
+      /// - '/registro': Pantalla de creación de cuenta
+      /// - '/main': Contenedor principal con navegación inferior
+      ///
+      /// Uso recomendado:
+      /// Navigator.pushNamed(context, '/ruta');
       routes: {
         '/login': (context) => const LoginScreen(),
         '/registro': (context) => const RegistroScreen(),
@@ -82,9 +98,10 @@ class MyApp extends StatelessWidget {
       // ----------------------------------------------------------------------
       // COMPORTAMIENTOS GLOBALES
       // ----------------------------------------------------------------------
-      /// Configuraciones globales de UI:
-      /// - Escalado de texto consistente
-      /// - Comportamiento de scroll personalizado
+      /// Personalizaciones globales de UI:
+      /// - Escalado de texto consistente en todos los dispositivos
+      /// - Comportamiento de scroll personalizado para toda la app
+      /// - Desactivación del overscroll glow
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
@@ -105,9 +122,15 @@ class MyApp extends StatelessWidget {
   // --------------------------------------------------------------------------
   // TEMA DE LA APLICACIÓN
   // --------------------------------------------------------------------------
-  /// Construye el ThemeData principal con configuraciones extendidas:
-  /// - Nueva configuración para BottomNavigationBar
-  /// - Mantiene consistencia con el diseño existente
+  /// Construye el ThemeData principal con configuraciones extendidas.
+  ///
+  /// Elementos configurados:
+  /// - Esquema de colores basado en azul
+  /// - Estilo de AppBar consistente
+  /// - Diseño de tarjetas estandarizado
+  /// - Configuración específica para BottomNavigationBar
+  ///
+  /// @return ThemeData completamente configurado
   ThemeData _buildThemeData() {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
@@ -144,11 +167,15 @@ class MyApp extends StatelessWidget {
 /// ---------------------------------------------------------------------------
 /// Widget contenedor principal que maneja la navegación inferior.
 ///
-/// Responsabilidades:
-/// 1. Gestionar el índice de la pantalla activa
-/// 2. Mantener el estado de las pantallas con IndexedStack
-/// 3. Cargar los datos del usuario para la pantalla de perfil
-/// 4. Proporcionar la BottomNavigationBar
+/// Funcionalidades clave:
+/// - Gestiona la navegación entre pantallas principales
+/// - Mantiene el estado de cada pantalla con IndexedStack
+/// - Proporciona una barra de navegación inferior consistente
+///
+/// Flujo de trabajo:
+/// 1. Carga los datos del usuario al iniciar
+/// 2. Construye la interfaz con las pantallas disponibles
+/// 3. Maneja los cambios entre pestañas
 class MainNavigationWrapper extends StatefulWidget {
   const MainNavigationWrapper({super.key});
 
@@ -161,13 +188,13 @@ class MainNavigationWrapper extends StatefulWidget {
 /// ---------------------------------------------------------------------------
 /// Estado del contenedor principal de navegación.
 ///
-/// Atributos:
-/// - _currentIndex: Índice de la pantalla activa (0 = Inicio, 1 = Perfil)
-/// - _screens: Lista de pantallas disponibles
+/// Atributos principales:
+/// - _currentIndex: Controla la pantalla visible (0 = Inicio, 1 = Perfil)
+/// - _screens: Lista de widgets/pantallas disponibles
 ///
-/// Métodos clave:
-/// - _loadUserData: Carga asíncrona de datos del usuario desde SharedPreferences
-/// - build: Construye la interfaz con IndexedStack y BottomNavigationBar
+/// Ciclo de vida:
+/// 1. initState: Inicializa las pantallas y carga datos del usuario
+/// 2. build: Construye la interfaz con la pantalla activa y la barra de navegación
 class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   int _currentIndex = 0;
   late List<Widget> _screens;
@@ -176,6 +203,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   void initState() {
     super.initState();
     
+    /// Inicialización de pantallas disponibles:
+    /// - Índice 0: UserListScreen (Pantalla principal)
+    /// - Índice 1: ProfileScreen con datos cargados asíncronamente
     _screens = [
       const UserListScreen(),
       FutureBuilder(
@@ -196,6 +226,17 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     ];
   }
 
+  /// -------------------------------------------------------------------------
+  /// [_loadUserData]
+  /// -------------------------------------------------------------------------
+  /// Carga los datos del usuario desde SharedPreferences.
+  ///
+  /// Proceso:
+  /// 1. Obtiene la instancia de SharedPreferences
+  /// 2. Recupera los valores guardados para nombre y email
+  /// 3. Retorna un Map con los datos o valores por defecto
+  ///
+  /// @return Future<Map<String, String>> con los datos del usuario
   Future<Map<String, String>> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     return {
@@ -207,10 +248,23 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      /// ---------------------------------------------------------------------
+      /// [IndexedStack]
+      /// ---------------------------------------------------------------------
+      /// Mantiene todas las pantallas en el árbol de widgets pero solo
+      /// muestra la activa. Preserva el estado de cada pantalla.
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
       ),
+
+      /// ---------------------------------------------------------------------
+      /// [BottomNavigationBar]
+      /// ---------------------------------------------------------------------
+      /// Barra de navegación inferior con:
+      /// - Dos items: Inicio (Home) y Perfil (Person)
+      /// - Manejo de cambios de pestaña mediante setState
+      /// - Estilo consistente con el tema de la aplicación
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
