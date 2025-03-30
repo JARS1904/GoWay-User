@@ -45,7 +45,7 @@ void main() async {
 /// Configuración global de MaterialApp con estructura de navegación mejorada.
 ///
 /// Arquitectura principal:
-/// 
+///
 ///     MyApp (MaterialApp)
 ///     ├── Theme (configuración visual global)
 ///     ├── Routes (gestión de navegación)
@@ -154,6 +154,10 @@ class MyApp extends StatelessWidget {
         backgroundColor: Colors.white,
         selectedItemColor: Colors.blueAccent[700],
         unselectedItemColor: Colors.grey[600],
+        selectedLabelStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
         elevation: 4.0, // Añadido para asegurar visibilidad
@@ -202,7 +206,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   @override
   void initState() {
     super.initState();
-    
+
     /// Inicialización de pantallas disponibles:
     /// - Índice 0: UserListScreen (Pantalla principal)
     /// - Índice 1: ProfileScreen con datos cargados asíncronamente
@@ -268,13 +272,31 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Image.asset(
+              "lib/assets/icons/icon_home.png",
+              width: 24,
+              height: 24,
+              color: _currentIndex == 0
+                  ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                  : Theme.of(context)
+                      .bottomNavigationBarTheme
+                      .unselectedItemColor,
+            ),
             label: 'Inicio',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Image.asset(
+              "lib/assets/icons/icon_user.png",
+              width: 24,
+              height: 24,
+              color: _currentIndex == 1
+                  ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                  : Theme.of(context)
+                      .bottomNavigationBarTheme
+                      .unselectedItemColor,
+            ),
             label: 'Perfil',
           ),
         ],
