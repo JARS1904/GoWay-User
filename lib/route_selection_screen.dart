@@ -150,6 +150,10 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 14,
+                ), // Para ajustar el padding de las listas desplegables
               ),
               value: _origin,
               items: _locations.map((String location) {
@@ -174,6 +178,10 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 14,
+                ), // Para ajustar el padding de las listas desplegables
               ),
               value: _destination,
               items: _locations.map((String location) {
