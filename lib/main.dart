@@ -16,6 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:goway_user/login.dart';
 import 'package:goway_user/registro_screen.dart';
+import 'package:goway_user/route_selection_screen.dart';
 import 'package:goway_user/user_list_screen.dart';
 import 'package:goway_user/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -92,6 +93,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/registro': (context) => const RegistroScreen(),
+        '/rutas': (context) => const RouteSelectionScreen(),
         '/main': (context) => const MainNavigationWrapper(),
       },
 
@@ -207,11 +209,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   void initState() {
     super.initState();
 
-    /// Inicialización de pantallas disponibles:
-    /// - Índice 0: UserListScreen (Pantalla principal)
-    /// - Índice 1: ProfileScreen con datos cargados asíncronamente
     _screens = [
-      const UserListScreen(),
+      const RouteSelectionScreen(), // Nueva pantalla principal
       FutureBuilder(
         future: _loadUserData(),
         builder: (context, snapshot) {
