@@ -376,14 +376,16 @@ class RouteDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: .8,
+        elevation: 0.8,
         title: Text(
-          '${route['empresa_nombre']}',
-          style: TextStyle(
+          route['empresa_nombre'],
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
         ),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -444,7 +446,7 @@ class RouteDetailsScreen extends StatelessWidget {
             const Divider(),
             const SizedBox(height: 16),
 
-            // Horarios disponibles
+            // Horarios disponibles (con la corrección específica)
             const Text(
               'Horarios disponibles:',
               style: TextStyle(
@@ -452,12 +454,12 @@ class RouteDetailsScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             ...route['horarios'].map<Widget>((horario) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -468,35 +470,153 @@ class RouteDetailsScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      // Día - VERDE
-                      _buildHorizontalInfoRow(
-                        Icons.calendar_today,
-                        'Día: ${horario['dia_semana']}',
-                        iconColor: Colors.green,
+                      // Fila superior: Empresa y Día
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            route['empresa_nombre'],
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                size: 20,
+                                color: Colors.green[700],
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                horario['dia_semana'],
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
 
-                      // Salida - AZUL
-                      _buildHorizontalInfoRow(
-                        Icons.directions_bus,
-                        'Salida: ${horario['hora_salida']}',
-                        iconColor: Colors.blue,
+                      // Ruta: Origen -> Destino
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              route['origen'],
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Icon(Icons.arrow_forward, size: 16),
+                            Text(
+                              route['destino'],
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
 
-                      // Llegada - ROJO
-                      _buildHorizontalInfoRow(
-                        Icons.location_on,
-                        'Llegada: ${horario['hora_llegada']}',
-                        iconColor: Colors.red,
+                      // Fila de iconos y etiquetas
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 22),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Icono de salida + texto
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.directions_bus,
+                                  size: 20,
+                                  color: Colors.blue,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Salida',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Icono de llegada + texto
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on_rounded,
+                                  size: 20,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Llegada',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 8),
 
-                      // Frecuencia - MORADO
-                      _buildHorizontalInfoRow(
-                        Icons.repeat,
-                        'Frecuencia: ${horario['frecuencia']}',
-                        iconColor: Colors.orange,
+                      // Fila de horas
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              horario['hora_salida'],
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              horario['hora_llegada'],
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Frecuencia
+                      Padding(
+                        padding: const EdgeInsets.only(left: 22),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.repeat_rounded,
+                              size: 20,
+                              color: Colors.orange,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Frecuencia: ${horario['frecuencia']}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -528,31 +648,10 @@ class RouteDetailsScreen extends StatelessWidget {
     );
   }
 
-  // Método para filas horizontales (icono + texto en línea)
-  Widget _buildHorizontalInfoRow(IconData icon, String text,
-      {required Color iconColor}) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 20,
-          color: iconColor,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: const TextStyle(
-            fontSize: 15,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Método original para información de empresa
+  // Métodos auxiliares para construir filas de información
   Widget _buildInfoRow(IconData icon, String label, String? value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -569,7 +668,7 @@ class RouteDetailsScreen extends StatelessWidget {
                     color: Colors.grey,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   value ?? 'No especificado',
                   style: const TextStyle(
