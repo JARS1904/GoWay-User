@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:goway_user/login.dart';
 import 'package:goway_user/registro_screen.dart';
 import 'package:goway_user/route_selection_screen.dart';
-import 'package:goway_user/user_list_screen.dart';
 import 'package:goway_user/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -84,12 +84,18 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        // Procesar rutas para eliminar duplicados y verificar horarios
-        final processedRoutes = _processRoutes(responseData);
-
-        setState(() {
-          _routes = processedRoutes;
-        });
+        // Verificar si la respuesta es una lista
+        if (responseData is List) {
+          final processedRoutes =
+              _processRoutes(responseData.cast<Map<String, dynamic>>());
+          setState(() {
+            _routes = processedRoutes;
+          });
+        } else if (responseData is Map && responseData.containsKey('error')) {
+          _showError(responseData['error']);
+        } else {
+          _showError('Formato de respuesta no válido');
+        }
       } else {
         _showError(responseData['error'] ?? 'Error desconocido');
       }
@@ -102,11 +108,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     }
   }
 
-  List<dynamic> _processRoutes(List<dynamic> routes) {
+  List<dynamic> _processRoutes(List<Map<String, dynamic>> routes) {
     final Map<int, dynamic> uniqueRoutes = {};
 
     for (var route in routes) {
-      final routeId = route['id'] as int;
+      final routeId = route['id_ruta'] as int; // Cambiado de 'id' a 'id_ruta'
 
       // Si la ruta ya existe, combinamos los horarios
       if (uniqueRoutes.containsKey(routeId)) {
