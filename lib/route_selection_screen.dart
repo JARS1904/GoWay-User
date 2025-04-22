@@ -1,8 +1,42 @@
-// route_selection_screen.dart
+//  ██████╗  ██████╗ ██╗   ██╗████████╗███████╗    ███████╗███████╗██╗     ███████╗ ██████╗████████╗██╗ ██████╗ ███╗   ██╗
+//  ██╔══██╗██╔═══██╗██║   ██║╚══██╔══╝██╔════╝    ██╔════╝██╔════╝██║     ██╔════╝██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║
+//  ██████╔╝██║   ██║██║   ██║   ██║   █████╗      ███████╗█████╗  ██║     █████╗  ██║        ██║   ██║██║   ██║██╔██╗ ██║
+//  ██╔══██╗██║   ██║██║   ██║   ██║   ██╔══╝      ╚════██║██╔══╝  ██║     ██╔══╝  ██║        ██║   ██║██║   ██║██║╚██╗██║
+//  ██║  ██║╚██████╔╝╚██████╔╝   ██║   ███████╗    ███████║███████╗███████╗███████╗╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║
+//  ╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝    ╚══════╝╚══════╝╚══════╝╚══════╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+//
+// route_selection_screen.dart - Pantalla de selección de rutas de transporte
+// Versión: 2.0.0 | Última actualización: 22-04-2025
+// Autores: José Armando Rodríguez Segovia
+//          Miguel Ángel Peralta González
+//          Santiago de Jesús Juarez Pérez
+//          Emilio Domíngez Silva
+// Mantenido por: Hydra. Inc
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+// ----------------------------------------------------------------------------
+// [RouteSelectionScreen]
+// ----------------------------------------------------------------------------
+/// Pantalla principal para la selección y búsqueda de rutas de transporte.
+///
+/// Arquitectura principal:
+///
+///     RouteSelectionScreen (StatefulWidget)
+///     ├── _RouteSelectionScreenState
+///         ├── _fetchLocations() - Carga ubicaciones disponibles
+///         ├── _searchRoutes() - Busca rutas según origen/destino
+///         ├── _processRoutes() - Procesa y combina rutas duplicadas
+///         └── _buildRouteCard() - Construye tarjetas de ruta visuales
+///
+/// Características clave:
+/// - Conexión con API REST para obtener datos
+/// - Manejo de estados de carga y errores
+/// - Filtrado y procesamiento de rutas
+/// - Navegación a pantalla de detalles
 
 class RouteSelectionScreen extends StatefulWidget {
   const RouteSelectionScreen({super.key});
@@ -10,6 +44,26 @@ class RouteSelectionScreen extends StatefulWidget {
   @override
   State<RouteSelectionScreen> createState() => _RouteSelectionScreenState();
 }
+
+// ----------------------------------------------------------------------------
+// [_RouteSelectionScreenState]
+// ----------------------------------------------------------------------------
+/// Estado de la pantalla de selección de rutas.
+///
+/// Atributos principales:
+/// - _origin: Ubicación de origen seleccionada
+/// - _destination: Ubicación de destino seleccionada
+/// - _locations: Lista de ubicaciones disponibles
+/// - _routes: Lista de rutas encontradas
+/// - _loading: Estado de carga
+/// - _apiUrl: Endpoint de la API
+///
+/// Flujo de trabajo:
+/// 1. initState() carga las ubicaciones disponibles
+/// 2. El usuario selecciona origen/destino
+/// 3. _searchRoutes() consulta la API
+/// 4. _processRoutes() filtra y combina resultados
+/// 5. Se muestran las rutas en _buildRouteCard()
 
 class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   String? _origin;
@@ -24,6 +78,19 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     super.initState();
     _fetchLocations();
   }
+
+  // --------------------------------------------------------------------------
+  // [_fetchLocations]
+  // --------------------------------------------------------------------------
+  /// Obtiene las ubicaciones disponibles desde la API.
+  ///
+  /// Proceso:
+  /// 1. Realiza petición GET al endpoint de ubicaciones
+  /// 2. Parsea la respuesta JSON
+  /// 3. Actualiza el estado con las ubicaciones
+  /// 4. Maneja errores con reintento automático
+  ///
+  /// @throws Exception si hay error en la petición o formato inválido
 
   Future<void> _fetchLocations() async {
     try {
@@ -60,6 +127,21 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     }
   }
 
+  // --------------------------------------------------------------------------
+  // [_searchRoutes]
+  // --------------------------------------------------------------------------
+  /// Busca rutas disponibles entre origen y destino.
+  ///
+  /// Parámetros requeridos:
+  /// - _origin no nulo
+  /// - _destination no nulo
+  ///
+  /// Proceso:
+  /// 1. Envía petición POST con parámetros de búsqueda
+  /// 2. Procesa la respuesta con _processRoutes()
+  /// 3. Actualiza el estado con los resultados
+  /// 4. Maneja errores con feedback visual
+
   Future<void> _searchRoutes() async {
     if (_origin == null || _destination == null) return;
 
@@ -84,7 +166,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        // Verificar si la respuesta es una lista
         if (responseData is List) {
           final processedRoutes =
               _processRoutes(responseData.cast<Map<String, dynamic>>());
@@ -108,19 +189,30 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     }
   }
 
+  // --------------------------------------------------------------------------
+  // [_processRoutes]
+  // --------------------------------------------------------------------------
+  /// Procesa y combina rutas duplicadas con diferentes horarios.
+  ///
+  /// @param routes Lista de rutas crudas de la API
+  /// @return Lista de rutas procesadas y combinadas
+  ///
+  /// Lógica de combinación:
+  /// 1. Agrupa rutas por id_ruta
+  /// 2. Combina horarios evitando duplicados
+  /// 3. Mantiene otros atributos de la ruta
+
   List<dynamic> _processRoutes(List<Map<String, dynamic>> routes) {
     final Map<int, dynamic> uniqueRoutes = {};
 
     for (var route in routes) {
-      final routeId = route['id_ruta'] as int; // Cambiado de 'id' a 'id_ruta'
+      final routeId = route['id_ruta'] as int;
 
-      // Si la ruta ya existe, combinamos los horarios
       if (uniqueRoutes.containsKey(routeId)) {
         final existingRoute = uniqueRoutes[routeId];
         final existingSchedules = List.from(existingRoute['horarios']);
         final newSchedules = List.from(route['horarios']);
 
-        // Combinar horarios evitando duplicados
         final combinedSchedules = [...existingSchedules, ...newSchedules]
             .fold<Map<String, dynamic>>({}, (map, schedule) {
               final key =
@@ -133,13 +225,19 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
 
         existingRoute['horarios'] = combinedSchedules;
       } else {
-        // Agregar nueva ruta
         uniqueRoutes[routeId] = <String, dynamic>{...route};
       }
     }
 
     return uniqueRoutes.values.toList();
   }
+
+  // --------------------------------------------------------------------------
+  // [_showError]
+  // --------------------------------------------------------------------------
+  /// Muestra mensaje de error al usuario mediante SnackBar.
+  ///
+  /// @param message Mensaje de error a mostrar
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -302,8 +400,21 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     );
   }
 
+  // --------------------------------------------------------------------------
+  // [_buildRouteCard]
+  // --------------------------------------------------------------------------
+  /// Construye una tarjeta visual para representar una ruta.
+  ///
+  /// @param route Datos de la ruta a mostrar
+  /// @return Widget Card con información de la ruta
+  ///
+  /// Elementos incluidos:
+  /// - Nombre de la empresa
+  /// - Origen y destino
+  /// - Cantidad de horarios disponibles
+  /// - Botón para ver detalles
+
   Widget _buildRouteCard(Map<String, dynamic> route) {
-    // Filtrar horarios únicos
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
@@ -335,7 +446,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
               builder: (context) => RouteDetailsScreen(
                 route: {
                   ...route,
-                  'horarios': uniqueSchedules, // Usar horarios únicos
+                  'horarios': uniqueSchedules,
                 },
               ),
             ),
@@ -411,7 +522,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                     ],
                   ),
                   Text(
-                    '${uniqueSchedules.length}', // Mostrar cantidad de horarios únicos
+                    '${uniqueSchedules.length}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -447,6 +558,17 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   }
 }
 
+// ----------------------------------------------------------------------------
+// [RouteDetailsScreen]
+// ----------------------------------------------------------------------------
+/// Pantalla de detalles completos de una ruta seleccionada.
+///
+/// Características principales:
+/// - Muestra información detallada de la empresa
+/// - Lista todos los horarios disponibles
+/// - Permite realizar reservaciones
+/// - Diseño responsive y detallado
+
 class RouteDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> route;
 
@@ -454,7 +576,6 @@ class RouteDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Obtener horarios únicos
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
@@ -729,6 +850,16 @@ class RouteDetailsScreen extends StatelessWidget {
     );
   }
 
+  // --------------------------------------------------------------------------
+  // [_buildInfoRow]
+  // --------------------------------------------------------------------------
+  /// Construye una fila de información con icono, etiqueta y valor.
+  ///
+  /// @param icon Icono a mostrar
+  /// @param label Texto descriptivo
+  /// @param value Valor a mostrar
+  /// @return Widget Row con la información formateada
+
   Widget _buildInfoRow(IconData icon, String label, String? value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -762,6 +893,18 @@ class RouteDetailsScreen extends StatelessWidget {
       ),
     );
   }
+
+  // --------------------------------------------------------------------------
+  // [_showReservationDialog]
+  // --------------------------------------------------------------------------
+  /// Muestra diálogo de confirmación para reservar un viaje.
+  ///
+  /// @param context Contexto de navegación
+  ///
+  /// Flujo:
+  /// 1. Muestra diálogo con detalles de la reserva
+  /// 2. Al confirmar, muestra SnackBar de éxito
+  /// 3. Cierra el diálogo en cualquier caso
 
   void _showReservationDialog(BuildContext context) {
     showDialog(
