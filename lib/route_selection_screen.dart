@@ -346,15 +346,26 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                route['empresa_nombre'],
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 18,
-                ),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.business_rounded,
+                    size: 25,
+                    color: Colors.blueAccent,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    route['empresa_nombre'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   const Icon(
@@ -371,6 +382,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                     color: Colors.black,
                   ),
                   const SizedBox(width: 8),
+                  Icon(
+                    Icons.location_on_rounded,
+                    size: 20,
+                    color: Colors.green[400],
+                  ),
                   Text(route['destino']),
                 ],
               ),
@@ -380,7 +396,20 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Horarios disponibles:'),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_month_rounded,
+                        size: 20,
+                        color: Colors.blueAccent,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Horarios disponibles:',
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
                   Text(
                     '${uniqueSchedules.length}', // Mostrar cantidad de horarios únicos
                     style: const TextStyle(fontWeight: FontWeight.bold),
