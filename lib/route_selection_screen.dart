@@ -1,11 +1,8 @@
 // route_selection_screen.dart
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RouteSelectionScreen extends StatefulWidget {
   const RouteSelectionScreen({super.key});
@@ -30,8 +27,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
 
   Future<void> _fetchLocations() async {
     try {
-      final url = Uri.parse(
-          'http://192.168.30.101/GoWay/api/routes_api.php?action=locations');
+      final url = Uri.parse('$_apiUrl?action=locations');
       debugPrint('Consultando API en: $url');
 
       final response = await http.get(
@@ -60,7 +56,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     } on Exception catch (e) {
       debugPrint('Error al cargar ubicaciones: $e');
       _showError('No se pudieron cargar las ubicaciones. Intenta nuevamente.');
-      // Opcional: Recargar después de un tiempo
       Future.delayed(const Duration(seconds: 5), _fetchLocations);
     }
   }
@@ -84,11 +79,16 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
         }),
       );
 
+      debugPrint('Respuesta de búsqueda de rutas: ${response.body}');
+
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
+        // Procesar rutas para eliminar duplicados y verificar horarios
+        final processedRoutes = _processRoutes(responseData);
+
         setState(() {
-          _routes = responseData;
+          _routes = processedRoutes;
         });
       } else {
         _showError(responseData['error'] ?? 'Error desconocido');
@@ -100,6 +100,39 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
         _loading = false;
       });
     }
+  }
+
+  List<dynamic> _processRoutes(List<dynamic> routes) {
+    final Map<int, dynamic> uniqueRoutes = {};
+
+    for (var route in routes) {
+      final routeId = route['id'] as int;
+
+      // Si la ruta ya existe, combinamos los horarios
+      if (uniqueRoutes.containsKey(routeId)) {
+        final existingRoute = uniqueRoutes[routeId];
+        final existingSchedules = List.from(existingRoute['horarios']);
+        final newSchedules = List.from(route['horarios']);
+
+        // Combinar horarios evitando duplicados
+        final combinedSchedules = [...existingSchedules, ...newSchedules]
+            .fold<Map<String, dynamic>>({}, (map, schedule) {
+              final key =
+                  '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
+              map[key] = schedule;
+              return map;
+            })
+            .values
+            .toList();
+
+        existingRoute['horarios'] = combinedSchedules;
+      } else {
+        // Agregar nueva ruta
+        uniqueRoutes[routeId] = <String, dynamic>{...route};
+      }
+    }
+
+    return uniqueRoutes.values.toList();
   }
 
   void _showError(String message) {
@@ -116,7 +149,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
         backgroundColor: Colors.white,
         title: Row(
           children: [
-            // Logo de la aplicación
             Image.asset(
               'lib/assets/images/logo.png',
               height: 40,
@@ -153,7 +185,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                 contentPadding: const EdgeInsets.symmetric(
                   vertical: 10,
                   horizontal: 14,
-                ), // Para ajustar el padding de las listas desplegables
+                ),
               ),
               value: _origin,
               items: _locations.map((String location) {
@@ -181,7 +213,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                 contentPadding: const EdgeInsets.symmetric(
                   vertical: 10,
                   horizontal: 14,
-                ), // Para ajustar el padding de las listas desplegables
+                ),
               ),
               value: _destination,
               items: _locations.map((String location) {
@@ -230,9 +262,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
             // Separador
             Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(
-                horizontal: 40, // Espacio horizontal para el separador
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Divider(
                 color: Colors.grey[400],
                 thickness: 2,
@@ -267,6 +297,17 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   }
 
   Widget _buildRouteCard(Map<String, dynamic> route) {
+    // Filtrar horarios únicos
+    final uniqueSchedules = (route['horarios'] as List)
+        .fold<Map<String, dynamic>>({}, (map, schedule) {
+          final key =
+              '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
+          map[key] = schedule;
+          return map;
+        })
+        .values
+        .toList();
+
     return Card(
       color: Colors.white,
       elevation: 1,
@@ -285,7 +326,12 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => RouteDetailsScreen(route: route),
+              builder: (context) => RouteDetailsScreen(
+                route: {
+                  ...route,
+                  'horarios': uniqueSchedules, // Usar horarios únicos
+                },
+              ),
             ),
           );
         },
@@ -305,7 +351,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.location_on_rounded,
                     size: 20,
                     color: Colors.red,
@@ -330,7 +376,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                 children: [
                   const Text('Horarios disponibles:'),
                   Text(
-                    '${route['horarios'].length}',
+                    '${uniqueSchedules.length}', // Mostrar cantidad de horarios únicos
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -345,11 +391,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: Colors.blueAccent[700],
-                    borderRadius: BorderRadius.all(
+                    borderRadius: const BorderRadius.all(
                       Radius.circular(20),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Ver detalles',
                     style: TextStyle(
                       fontSize: 12,
@@ -373,6 +419,17 @@ class RouteDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Obtener horarios únicos
+    final uniqueSchedules = (route['horarios'] as List)
+        .fold<Map<String, dynamic>>({}, (map, schedule) {
+          final key =
+              '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
+          map[key] = schedule;
+          return map;
+        })
+        .values
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -393,7 +450,7 @@ class RouteDetailsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              route['nombre'],
+              route['nombre'] ?? 'Ruta sin nombre',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -435,9 +492,9 @@ class RouteDetailsScreen extends StatelessWidget {
                   _buildInfoRow(Icons.phone_android_rounded, 'Teléfono:',
                       route['empresa_telefono']),
                   _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
-                      route['empresa_direccion']),
-                  _buildInfoRow(
-                      Icons.email_rounded, 'Email:', route['empresa_email']),
+                      route['empresa_direccion'] ?? 'No especificada'),
+                  _buildInfoRow(Icons.email_rounded, 'Email:',
+                      route['empresa_email'] ?? 'No especificado'),
                 ],
               ),
             ),
@@ -446,7 +503,7 @@ class RouteDetailsScreen extends StatelessWidget {
             const Divider(),
             const SizedBox(height: 16),
 
-            // Horarios disponibles (con la corrección específica)
+            // Horarios disponibles
             const Text(
               'Horarios disponibles:',
               style: TextStyle(
@@ -455,7 +512,7 @@ class RouteDetailsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            ...route['horarios'].map<Widget>((horario) {
+            ...uniqueSchedules.map<Widget>((horario) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Container(
@@ -470,7 +527,6 @@ class RouteDetailsScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      // Fila superior: Empresa y Día
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -500,8 +556,6 @@ class RouteDetailsScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-
-                      // Ruta: Origen -> Destino
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 2),
                         child: Row(
@@ -526,14 +580,11 @@ class RouteDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-
-                      // Fila de iconos y etiquetas
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 22),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Icono de salida + texto
                             Row(
                               children: [
                                 Icon(
@@ -551,7 +602,6 @@ class RouteDetailsScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            // Icono de llegada + texto
                             Row(
                               children: [
                                 Icon(
@@ -572,8 +622,6 @@ class RouteDetailsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-
-                      // Fila de horas
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Row(
@@ -597,8 +645,6 @@ class RouteDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-
-                      // Frecuencia
                       Padding(
                         padding: const EdgeInsets.only(left: 22),
                         child: Row(
@@ -648,7 +694,6 @@ class RouteDetailsScreen extends StatelessWidget {
     );
   }
 
-  // Métodos auxiliares para construir filas de información
   Widget _buildInfoRow(IconData icon, String label, String? value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
