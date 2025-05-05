@@ -820,12 +820,51 @@ class RouteDetailsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 16),
+                      // Paradas de la ruta
+                      Padding(
+                        padding: const EdgeInsets.only(left: 22),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.traffic_rounded,
+                                  size: 20,
+                                  color: Colors.purple,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Paradas:',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ...(route['paradas'] as List).map<Widget>((parada) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 28, bottom: 4),
+                                child: Text(
+                                  '• $parada',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
               );
             }).toList(),
-
+            /*
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
@@ -844,6 +883,7 @@ class RouteDetailsScreen extends StatelessWidget {
                 child: const Text('Reservar viaje'),
               ),
             ),
+            */
           ],
         ),
       ),
@@ -906,6 +946,7 @@ class RouteDetailsScreen extends StatelessWidget {
   /// 2. Al confirmar, muestra SnackBar de éxito
   /// 3. Cierra el diálogo en cualquier caso
 
+  /*
   void _showReservationDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -947,4 +988,5 @@ class RouteDetailsScreen extends StatelessWidget {
       },
     );
   }
+  */
 }
