@@ -569,6 +569,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
 /// - Permite realizar reservaciones
 /// - Diseño responsive y detallado
 
+// ... (imports y código anterior se mantienen igual hasta RouteDetailsScreen)
+
 class RouteDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> route;
 
@@ -689,14 +691,14 @@ class RouteDetailsScreen extends StatelessWidget {
                           Text(
                             route['empresa_nombre'],
                             style: const TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Row(
                             children: [
                               Icon(
-                                Icons.calendar_today,
+                                Icons.calendar_month_rounded,
                                 size: 20,
                                 color: Colors.green[700],
                               ),
@@ -744,7 +746,7 @@ class RouteDetailsScreen extends StatelessWidget {
                             Row(
                               children: [
                                 Icon(
-                                  Icons.directions_bus,
+                                  Icons.location_on_rounded,
                                   size: 20,
                                   color: Colors.blue,
                                 ),
@@ -859,46 +861,101 @@ class RouteDetailsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+
+                      const SizedBox(height: 16),
+
+                      // Información del conductor y vehículo
+                      Padding(
+                        padding: const EdgeInsets.only(left: 22),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Divider(),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.person_rounded,
+                                  size: 20,
+                                  color: Colors.blue[800],
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Conductor: ${horario['conductor_nombre'] ?? 'N/A'}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.directions_bus_rounded,
+                                  size: 20,
+                                  color: Colors.blue[700],
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Vehículo: ${horario['vehiculo_modelo'] ?? 'N/A'}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.confirmation_number_rounded,
+                                  size: 20,
+                                  color: Colors.orange[800],
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Placa: ${horario['vehiculo_placa'] ?? 'N/A'}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.people_alt_rounded,
+                                  size: 20,
+                                  color: Colors.purple[800],
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Capacidad: ${horario['vehiculo_capacidad']?.toString() ?? 'N/A'} pasajeros',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
               );
             }).toList(),
-            /*
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  _showReservationDialog(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent[700],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: const Text('Reservar viaje'),
-              ),
-            ),
-            */
           ],
         ),
       ),
     );
   }
-
-  // --------------------------------------------------------------------------
-  // [_buildInfoRow]
-  // --------------------------------------------------------------------------
-  /// Construye una fila de información con icono, etiqueta y valor.
-  ///
-  /// @param icon Icono a mostrar
-  /// @param label Texto descriptivo
-  /// @param value Valor a mostrar
-  /// @return Widget Row con la información formateada
 
   Widget _buildInfoRow(IconData icon, String label, String? value) {
     return Padding(
@@ -933,60 +990,4 @@ class RouteDetailsScreen extends StatelessWidget {
       ),
     );
   }
-
-  // --------------------------------------------------------------------------
-  // [_showReservationDialog]
-  // --------------------------------------------------------------------------
-  /// Muestra diálogo de confirmación para reservar un viaje.
-  ///
-  /// @param context Contexto de navegación
-  ///
-  /// Flujo:
-  /// 1. Muestra diálogo con detalles de la reserva
-  /// 2. Al confirmar, muestra SnackBar de éxito
-  /// 3. Cierra el diálogo en cualquier caso
-
-  /*
-  void _showReservationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Confirmar reservación'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Empresa: ${route['empresa_nombre']}'),
-              Text('Ruta: ${route['origen']} - ${route['destino']}'),
-              const SizedBox(height: 16),
-              const Text('¿Deseas reservar este viaje?'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Reservación exitosa'),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent[700],
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Confirmar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-  */
 }
