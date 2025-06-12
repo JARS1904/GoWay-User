@@ -61,9 +61,11 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   // URL de la API de registro (ajustar según configuración)
-  final String _apiUrl = "http://192.168.30.101/GoWay/api/usuarios.php";
+  final String _apiUrl = "http://192.168.109.4/GoWay/api/usuarios.php";
 
   @override
   void dispose() {
@@ -224,11 +226,24 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 // Campo de Contraseña
                 TextFormField(
                   controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
+                  obscureText: _obscurePassword,
+                  //obscureText: true, // Comentado para usar el botón de mostrar/ocultar contraseña
+                  decoration: InputDecoration(
                     labelText: 'Contraseña',
-                    prefixIcon: Icon(Icons.lock_outline_rounded),
-                    border: OutlineInputBorder(
+                    prefixIcon: const Icon(Icons.lock_outline_rounded),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(20),
                       ),
@@ -249,11 +264,24 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 // Campo de Confirmar Contraseña
                 TextFormField(
                   controller: _confirmPasswordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
+                  obscureText: _obscureConfirmPassword,
+                  //obscureText: true, // Comentado para usar el botón de mostrar/ocultar contraseña
+                  decoration: InputDecoration(
                     labelText: 'Confirmar Contraseña',
-                    prefixIcon: Icon(Icons.lock_outline_rounded),
-                    border: OutlineInputBorder(
+                    prefixIcon: const Icon(Icons.lock_outline_rounded),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureConfirmPassword = !_obscureConfirmPassword;
+                        });
+                      },
+                    ),
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(20),
                       ),

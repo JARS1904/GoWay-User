@@ -56,12 +56,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   // -------------------------------------------------------------------------
   // CONFIGURACIÓN API
   // -------------------------------------------------------------------------
   /// URL del endpoint de autenticación
-  final String _loginApiUrl = "http://192.168.30.101/GoWay/api/login.php";
+  final String _loginApiUrl = "http://192.168.109.4/GoWay/api/login.php";
 
   @override
   void dispose() {
@@ -110,7 +111,8 @@ class _LoginScreenState extends State<LoginScreen> {
         // -----------------------------------------------------------------
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainNavigationWrapper()),
+          MaterialPageRoute(
+              builder: (context) => const MainNavigationWrapper()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -193,16 +195,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 // -----------------------------------------------------------
                 TextFormField(
                   controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
+                  //obscureText: true, // Comentado para usar la opcion de mostrar/ocultar contraseña
+                  decoration: InputDecoration(
                     labelText: 'Contraseña',
-                    prefixIcon: Icon(Icons.lock_outline_rounded),
-                    border: OutlineInputBorder(
+                    prefixIcon: const Icon(Icons.lock_outline_rounded),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(20),
                       ),
                     ),
                   ),
+                  obscureText: _obscurePassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor ingrese su contraseña';
