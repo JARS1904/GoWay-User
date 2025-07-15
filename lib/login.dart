@@ -62,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // CONFIGURACIÓN API
   // -------------------------------------------------------------------------
   /// URL del endpoint de autenticación
-  final String _loginApiUrl = "http://192.168.109.4/GoWay/api/login.php";
+  final String _loginApiUrl = "http://192.168.30.101/GoWay/api/login.php";
 
   @override
   void dispose() {
