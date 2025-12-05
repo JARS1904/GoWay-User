@@ -1,42 +1,186 @@
-//  ██████╗  ██████╗ ██╗   ██╗████████╗███████╗    ███████╗███████╗██╗     ███████╗ ██████╗████████╗██╗ ██████╗ ███╗   ██╗
-//  ██╔══██╗██╔═══██╗██║   ██║╚══██╔══╝██╔════╝    ██╔════╝██╔════╝██║     ██╔════╝██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║
-//  ██████╔╝██║   ██║██║   ██║   ██║   █████╗      ███████╗█████╗  ██║     █████╗  ██║        ██║   ██║██║   ██║██╔██╗ ██║
-//  ██╔══██╗██║   ██║██║   ██║   ██║   ██╔══╝      ╚════██║██╔══╝  ██║     ██╔══╝  ██║        ██║   ██║██║   ██║██║╚██╗██║
-//  ██║  ██║╚██████╔╝╚██████╔╝   ██║   ███████╗    ███████║███████╗███████╗███████╗╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║
-//  ╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝   ╚══════╝    ╚══════╝╚══════╝╚══════╝╚══════╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+// ██████╗  ██████╗  ██╗    ██╗ █████╗ ██╗   ██╗
+// ██╔════╝ ██╔═══██╗██║    ██║██╔══██╗╚██╗ ██╔╝
+// ██║  ███╗██║   ██║██║ █╗ ██║███████║ ╚████╔╝
+// ██║   ██║██║   ██║██║███╗██║██╔══██║  ╚██╔╝
+// ╚██████╔╝╚██████╔╝╚███╔███╔╝██║  ██║   ██║
+//  ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
 //
-// route_selection_screen.dart - Pantalla de selección de rutas de transporte
-// Versión: 2.0.0 | Última actualización: 22-04-2025
+// main.dart - Punto de entrada principal
+// Versión: 2.0.0 | Última actualización: 29-03-2025}
 // Autores: José Armando Rodríguez Segovia
 //          Miguel Ángel Peralta González
 //          Santiago de Jesús Juarez Pérez
 //          Emilio Domíngez Silva
 // Mantenido por: Hydra. Inc
 
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-// ----------------------------------------------------------------------------
-// [RouteSelectionScreen]
-// ----------------------------------------------------------------------------
-/// Pantalla principal para la selección y búsqueda de rutas de transporte.
-///
-/// Arquitectura principal:
-///
-///     RouteSelectionScreen (StatefulWidget)
-///     ├── _RouteSelectionScreenState
-///         ├── _fetchLocations() - Carga ubicaciones disponibles
-///         ├── _searchRoutes() - Busca rutas según origen/destino
-///         ├── _processRoutes() - Procesa y combina rutas duplicadas
-///         └── _buildRouteCard() - Construye tarjetas de ruta visuales
-///
-/// Características clave:
-/// - Conexión con API REST para obtener datos
-/// - Manejo de estados de carga y errores
-/// - Filtrado y procesamiento de rutas
-/// - Navegación a pantalla de detalles
+import 'package:flutter/material.dart';
+import 'package:goway_user/login.dart';
+import 'package:goway_user/registro_screen.dart';
+import 'package:goway_user/profile_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'GoWay - Transporte Público',
+      theme: _buildThemeData(),
+      darkTheme: _buildThemeData(),
+      themeMode: ThemeMode.light,
+      home: const LoginScreen(),
+      debugShowCheckedModeBanner: false,
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/registro': (context) => const RegistroScreen(),
+        '/rutas': (context) => const RouteSelectionScreen(),
+        '/main': (context) => const MainNavigationWrapper(),
+      },
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(1.0),
+          ),
+          child: ScrollConfiguration(
+            behavior: const ScrollBehavior().copyWith(
+              overscroll: false,
+              physics: const BouncingScrollPhysics(),
+            ),
+            child: child!,
+          ),
+        );
+      },
+    );
+  }
+
+  ThemeData _buildThemeData() {
+    return ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.blue,
+        brightness: Brightness.light,
+      ),
+      useMaterial3: true,
+      appBarTheme: const AppBarTheme(
+        centerTitle: true,
+        elevation: 2,
+        scrolledUnderElevation: 4,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 2,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.blueAccent[700],
+        unselectedItemColor: Colors.grey[600],
+        selectedLabelStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        elevation: 4.0,
+      ),
+    );
+  }
+}
+
+class MainNavigationWrapper extends StatefulWidget {
+  const MainNavigationWrapper({super.key});
+
+  @override
+  State<MainNavigationWrapper> createState() => _MainNavigationWrapperState();
+}
+
+class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
+  int _currentIndex = 0;
+  late List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const RouteSelectionScreen(),
+      FutureBuilder(
+        future: _loadUserData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            return ProfileScreen(
+              userName: snapshot.data?['name'] ?? 'Usuario',
+              userEmail: snapshot.data?['email'] ?? 'email@ejemplo.com',
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    ];
+  }
+
+  Future<Map<String, String>> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'name': prefs.getString('userName') ?? 'Usuario',
+      'email': prefs.getString('userEmail') ?? 'email@ejemplo.com',
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: [
+          BottomNavigationBarItem(
+            icon: Image.asset(
+              "lib/assets/icons/icon_home.png",
+              width: 24,
+              height: 24,
+              color: _currentIndex == 0
+                  ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                  : Theme.of(context)
+                      .bottomNavigationBarTheme
+                      .unselectedItemColor,
+            ),
+            label: 'Inicio',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset(
+              "lib/assets/icons/icon_user.png",
+              width: 24,
+              height: 24,
+              color: _currentIndex == 1
+                  ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                  : Theme.of(context)
+                      .bottomNavigationBarTheme
+                      .unselectedItemColor,
+            ),
+            label: 'Perfil',
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class RouteSelectionScreen extends StatefulWidget {
   const RouteSelectionScreen({super.key});
@@ -45,52 +189,20 @@ class RouteSelectionScreen extends StatefulWidget {
   State<RouteSelectionScreen> createState() => _RouteSelectionScreenState();
 }
 
-// ----------------------------------------------------------------------------
-// [_RouteSelectionScreenState]
-// ----------------------------------------------------------------------------
-/// Estado de la pantalla de selección de rutas.
-///
-/// Atributos principales:
-/// - _origin: Ubicación de origen seleccionada
-/// - _destination: Ubicación de destino seleccionada
-/// - _locations: Lista de ubicaciones disponibles
-/// - _routes: Lista de rutas encontradas
-/// - _loading: Estado de carga
-/// - _apiUrl: Endpoint de la API
-///
-/// Flujo de trabajo:
-/// 1. initState() carga las ubicaciones disponibles
-/// 2. El usuario selecciona origen/destino
-/// 3. _searchRoutes() consulta la API
-/// 4. _processRoutes() filtra y combina resultados
-/// 5. Se muestran las rutas en _buildRouteCard()
-
 class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   String? _origin;
   String? _destination;
   List<String> _locations = [];
   List<dynamic> _routes = [];
   bool _loading = false;
-  final String _apiUrl = "http://192.168.30.101/GoWay/api/routes_api.php";
+  final String _apiUrl = "http://172.31.99.110/GoWay/api/routes_api.php";
+  Map<String, dynamic>? _selectedRoute;
 
   @override
   void initState() {
     super.initState();
     _fetchLocations();
   }
-
-  // --------------------------------------------------------------------------
-  // [_fetchLocations]
-  // --------------------------------------------------------------------------
-  /// Obtiene las ubicaciones disponibles desde la API.
-  ///
-  /// Proceso:
-  /// 1. Realiza petición GET al endpoint de ubicaciones
-  /// 2. Parsea la respuesta JSON
-  /// 3. Actualiza el estado con las ubicaciones
-  /// 4. Maneja errores con reintento automático
-  ///
-  /// @throws Exception si hay error en la petición o formato inválido
 
   Future<void> _fetchLocations() async {
     try {
@@ -127,27 +239,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // [_searchRoutes]
-  // --------------------------------------------------------------------------
-  /// Busca rutas disponibles entre origen y destino.
-  ///
-  /// Parámetros requeridos:
-  /// - _origin no nulo
-  /// - _destination no nulo
-  ///
-  /// Proceso:
-  /// 1. Envía petición POST con parámetros de búsqueda
-  /// 2. Procesa la respuesta con _processRoutes()
-  /// 3. Actualiza el estado con los resultados
-  /// 4. Maneja errores con feedback visual
-
   Future<void> _searchRoutes() async {
     if (_origin == null || _destination == null) return;
 
     setState(() {
       _loading = true;
       _routes = [];
+      _selectedRoute = null;
     });
 
     try {
@@ -189,19 +287,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // [_processRoutes]
-  // --------------------------------------------------------------------------
-  /// Procesa y combina rutas duplicadas con diferentes horarios.
-  ///
-  /// @param routes Lista de rutas crudas de la API
-  /// @return Lista de rutas procesadas y combinadas
-  ///
-  /// Lógica de combinación:
-  /// 1. Agrupa rutas por id_ruta
-  /// 2. Combina horarios evitando duplicados
-  /// 3. Mantiene otros atributos de la ruta
-
   List<dynamic> _processRoutes(List<Map<String, dynamic>> routes) {
     final Map<int, dynamic> uniqueRoutes = {};
 
@@ -232,21 +317,33 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     return uniqueRoutes.values.toList();
   }
 
-  // --------------------------------------------------------------------------
-  // [_showError]
-  // --------------------------------------------------------------------------
-  /// Muestra mensaje de error al usuario mediante SnackBar.
-  ///
-  /// @param message Mensaje de error a mostrar
-
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
   }
 
+  void _selectRoute(Map<String, dynamic> route) {
+    setState(() {
+      _selectedRoute = route;
+    });
+  }
+
+  bool get _isTablet {
+    final mediaQuery = MediaQuery.of(context);
+    return mediaQuery.size.width >= 600;
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isTablet) {
+      return _buildTabletLayout();
+    } else {
+      return _buildMobileLayout();
+    }
+  }
+
+  Widget _buildMobileLayout() {
     return Scaffold(
       appBar: AppBar(
         elevation: .8,
@@ -302,6 +399,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                 setState(() {
                   _origin = newValue;
                   _routes = [];
+                  _selectedRoute = null;
                 });
               },
             ),
@@ -330,6 +428,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                 setState(() {
                   _destination = newValue;
                   _routes = [];
+                  _selectedRoute = null;
                 });
               },
             ),
@@ -400,21 +499,195 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // [_buildRouteCard]
-  // --------------------------------------------------------------------------
-  /// Construye una tarjeta visual para representar una ruta.
-  ///
-  /// @param route Datos de la ruta a mostrar
-  /// @return Widget Card con información de la ruta
-  ///
-  /// Elementos incluidos:
-  /// - Nombre de la empresa
-  /// - Origen y destino
-  /// - Cantidad de horarios disponibles
-  /// - Botón para ver detalles
+  Widget _buildTabletLayout() {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: .8,
+        backgroundColor: Colors.white,
+        title: Row(
+          children: [
+            Image.asset(
+              'lib/assets/images/logo.png',
+              height: 40,
+              width: 40,
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'GoWay',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: Row(
+        children: [
+          // Panel izquierdo para búsqueda
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '¿A dónde quieres ir?',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
 
-  Widget _buildRouteCard(Map<String, dynamic> route) {
+                  // Selector de origen
+                  DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: 'Seleccione el origen',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 14,
+                      ),
+                    ),
+                    value: _origin,
+                    items: _locations.map((String location) {
+                      return DropdownMenuItem<String>(
+                        value: location,
+                        child: Text(location),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _origin = newValue;
+                        _routes = [];
+                        _selectedRoute = null;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Selector de destino
+                  DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: 'Seleccione el destino',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 14,
+                      ),
+                    ),
+                    value: _destination,
+                    items: _locations.map((String location) {
+                      return DropdownMenuItem<String>(
+                        value: location,
+                        child: Text(location),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _destination = newValue;
+                        _routes = [];
+                        _selectedRoute = null;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Botón de búsqueda
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _origin != null && _destination != null
+                          ? _searchRoutes
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent[700],
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: _loading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'Buscar',
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Separador
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Divider(
+                      color: Colors.grey[400],
+                      thickness: 2,
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Lista de rutas
+                  if (_loading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (_routes.isNotEmpty)
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: _routes.length,
+                        itemBuilder: (context, index) {
+                          final route = _routes[index];
+                          return _buildRouteCard(route, forTablet: true);
+                        },
+                      ),
+                    )
+                  else if (_origin != null && _destination != null && !_loading)
+                    const Center(
+                      child: Text(
+                        'No se encontraron rutas para esta combinación',
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+
+          // Panel derecho para detalles
+          Expanded(
+            flex: 3,
+            child: _selectedRoute != null
+                ? _buildRouteDetails(_selectedRoute!)
+                : const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.directions_bus,
+                            size: 60, color: Colors.grey),
+                        SizedBox(height: 16),
+                        Text(
+                          'Selecciona una ruta para ver los detalles',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRouteCard(Map<String, dynamic> route, {bool forTablet = false}) {
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
@@ -440,17 +713,21 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RouteDetailsScreen(
-                route: {
-                  ...route,
-                  'horarios': uniqueSchedules,
-                },
+          if (forTablet) {
+            _selectRoute(route);
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RouteDetailsScreen(
+                  route: {
+                    ...route,
+                    'horarios': uniqueSchedules,
+                  },
+                ),
               ),
-            ),
-          );
+            );
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -515,7 +792,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                         color: Colors.blueAccent,
                       ),
                       const SizedBox(width: 8),
-                      Text(
+                      const Text(
                         'Horarios disponibles:',
                       ),
                       const SizedBox(width: 8),
@@ -556,20 +833,406 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
       ),
     );
   }
+
+  Widget _buildRouteDetails(Map<String, dynamic> route) {
+    final uniqueSchedules = (route['horarios'] as List)
+        .fold<Map<String, dynamic>>({}, (map, schedule) {
+          final key =
+              '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
+          map[key] = schedule;
+          return map;
+        })
+        .values
+        .toList();
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            route['nombre'] ?? 'Ruta sin nombre',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${route['origen']} - ${route['destino']}',
+            style: const TextStyle(fontSize: 18),
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 16),
+
+          // Información de la empresa
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.grey[300]!,
+                width: 2,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Información de la empresa:',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildInfoRow(
+                    Icons.business_rounded, 'Nombre:', route['empresa_nombre']),
+                _buildInfoRow(Icons.phone_android_rounded, 'Teléfono:',
+                    route['empresa_telefono']),
+                _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
+                    route['empresa_direccion'] ?? 'No especificada'),
+                _buildInfoRow(Icons.email_rounded, 'Email:',
+                    route['empresa_email'] ?? 'No especificado'),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 16),
+
+          // Horarios disponibles
+          const Text(
+            'Horarios disponibles:',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 20),
+          ...uniqueSchedules.map<Widget>((horario) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.grey[300]!,
+                    width: 2,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          route['empresa_nombre'],
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_month_rounded,
+                              size: 20,
+                              color: Colors.green[700],
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              horario['dia_semana'],
+                              style: const TextStyle(
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            route['origen'],
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward, size: 16),
+                          Text(
+                            route['destino'],
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 22),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_rounded,
+                                size: 20,
+                                color: Colors.blue,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Salida',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_rounded,
+                                size: 20,
+                                color: Colors.red,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Llegada',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            horario['hora_salida'],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            horario['hora_llegada'],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 22),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.repeat_rounded,
+                            size: 20,
+                            color: Colors.orange,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Frecuencia: ${horario['frecuencia']}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Paradas de la ruta
+                    Padding(
+                      padding: const EdgeInsets.only(left: 22),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.traffic_rounded,
+                                size: 20,
+                                color: Colors.purple,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Paradas:',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ...(route['paradas'] as List).map<Widget>((parada) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 28, bottom: 4),
+                              child: Text(
+                                '• $parada',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Información del conductor y vehículo
+                    Padding(
+                      padding: const EdgeInsets.only(left: 22),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Divider(),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.person_rounded,
+                                size: 20,
+                                color: Colors.blue[800],
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Conductor: ${horario['conductor_nombre'] ?? 'N/A'}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.directions_bus_rounded,
+                                size: 20,
+                                color: Colors.blue[700],
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Vehículo: ${horario['vehiculo_modelo'] ?? 'N/A'}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.confirmation_number_rounded,
+                                size: 20,
+                                color: Colors.orange[800],
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Placa: ${horario['vehiculo_placa'] ?? 'N/A'}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.people_alt_rounded,
+                                size: 20,
+                                color: Colors.purple[800],
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Capacidad: ${horario['vehiculo_capacidad']?.toString() ?? 'N/A'} pasajeros',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String? value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 24, color: Colors.blueAccent),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value ?? 'No especificado',
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
-
-// ----------------------------------------------------------------------------
-// [RouteDetailsScreen]
-// ----------------------------------------------------------------------------
-/// Pantalla de detalles completos de una ruta seleccionada.
-///
-/// Características principales:
-/// - Muestra información detallada de la empresa
-/// - Lista todos los horarios disponibles
-/// - Permite realizar reservaciones
-/// - Diseño responsive y detallado
-
-// ... (imports y código anterior se mantienen igual hasta RouteDetailsScreen)
 
 class RouteDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> route;

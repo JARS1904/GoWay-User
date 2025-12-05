@@ -5,8 +5,8 @@
 // ╚██████╔╝╚██████╔╝╚███╔███╔╝██║  ██║   ██║
 //  ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
 //
-// main.dart - Punto de entrada principal
-// Versión: 2.0.0 | Última actualización: 29-03-2025}
+// main.dart - Punto de entrada principal de la aplicación GoWay
+// Versión: 2.0.0 | Última actualización: 29-03-2025
 // Autores: José Armando Rodríguez Segovia
 //          Miguel Ángel Peralta González
 //          Santiago de Jesús Juarez Pérez
@@ -20,75 +20,37 @@ import 'package:goway_user/route_selection_screen.dart';
 import 'package:goway_user/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// ----------------------------------------------------------------------------
-// [ENTRY POINT]
-// ----------------------------------------------------------------------------
-/// Punto de ejecución inicial de la aplicación Flutter.
+/// Punto de entrada principal de la aplicación Flutter.
 ///
-/// Responsabilidades principales:
-/// 1. Inicializar los bindings de Flutter
-/// 2. Cargar cualquier configuración inicial necesaria
-/// 3. Lanzar la aplicación con MyApp como widget raíz
-///
-/// Configuración inicial requerida:
-/// - WidgetsFlutterBinding.ensureInitialized() para paquetes nativos
+/// Inicializa los bindings necesarios y lanza la aplicación MyApp.
 void main() async {
-  // Inicialización de bindings y paquetes
+  // Inicialización de bindings de Flutter
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Lanzamiento de la aplicación principal
   runApp(const MyApp());
 }
 
-// ----------------------------------------------------------------------------
-// [MAIN APPLICATION WIDGET]
-// ----------------------------------------------------------------------------
-/// Configuración global de MaterialApp con estructura de navegación mejorada.
+/// Widget principal de la aplicación que configura el MaterialApp.
 ///
-/// Arquitectura principal:
-///
-///     MyApp (MaterialApp)
-///     ├── Theme (configuración visual global)
-///     ├── Routes (gestión de navegación)
-///     ├── LoginScreen (punto de entrada inicial)
-///     └── MainNavigationWrapper (contiene la navegación inferior)
-///         ├── UserListScreen (pantalla de inicio)
-///         └── ProfileScreen (pantalla de perfil)
-///
-/// Características clave:
-/// - Gestión centralizada de rutas
-/// - Configuración de tema consistente
-/// - Comportamientos globales de UI
+/// Responsabilidades:
+/// - Configuración del tema claro/oscuro
+/// - Definición de rutas nombradas
+/// - Configuración global de comportamientos de UI
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // ----------------------------------------------------------------------
-      // CONFIGURACIÓN BÁSICA
-      // ----------------------------------------------------------------------
-      /// Configuración esencial de la aplicación:
-      /// - Título mostrado en el sistema operativo
-      /// - Temas claro/oscuro
-      /// - Pantalla inicial (LoginScreen)
-      /// - Desactivación del banner de debug
       title: 'GoWay - Transporte Público',
-      theme: _buildThemeData(),
-      darkTheme: _buildThemeData(),
-      themeMode: ThemeMode.light,
-      home: const LoginScreen(),
-      debugShowCheckedModeBanner: false,
+      theme: _buildThemeData(), // Tema claro
+      darkTheme: _buildThemeData(), // Tema oscuro (usando misma configuración)
+      themeMode: ThemeMode.light, // Fuerza tema claro
+      home: const LoginScreen(), // Pantalla inicial
+      debugShowCheckedModeBanner: false, // Oculta banner de debug
 
-      // ----------------------------------------------------------------------
-      // CONFIGURACIÓN DE RUTAS
-      // ----------------------------------------------------------------------
-      /// Mapeo de rutas nombradas para navegación global:
-      /// - '/login': Pantalla de autenticación
-      /// - '/registro': Pantalla de creación de cuenta
-      /// - '/main': Contenedor principal con navegación inferior
-      ///
-      /// Uso recomendado:
-      /// Navigator.pushNamed(context, '/ruta');
+      // Rutas nombradas de la aplicación
       routes: {
         '/login': (context) => const LoginScreen(),
         '/registro': (context) => const RegistroScreen(),
@@ -96,22 +58,16 @@ class MyApp extends StatelessWidget {
         '/main': (context) => const MainNavigationWrapper(),
       },
 
-      // ----------------------------------------------------------------------
-      // COMPORTAMIENTOS GLOBALES
-      // ----------------------------------------------------------------------
-      /// Personalizaciones globales de UI:
-      /// - Escalado de texto consistente en todos los dispositivos
-      /// - Comportamiento de scroll personalizado para toda la app
-      /// - Desactivación del overscroll glow
+      // Configuración global de UI
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(1.0),
+            textScaler: TextScaler.linear(1.0), // Evita escalado de texto
           ),
           child: ScrollConfiguration(
             behavior: const ScrollBehavior().copyWith(
-              overscroll: false,
-              physics: const BouncingScrollPhysics(),
+              overscroll: false, // Desactiva overscroll
+              physics: const BouncingScrollPhysics(), // Física de scroll
             ),
             child: child!,
           ),
@@ -120,67 +76,81 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // TEMA DE LA APLICACIÓN
-  // --------------------------------------------------------------------------
-  /// Construye el ThemeData principal con configuraciones extendidas.
+  /// Construye el ThemeData principal de la aplicación.
   ///
-  /// Elementos configurados:
+  /// Configura:
   /// - Esquema de colores basado en azul
-  /// - Estilo de AppBar consistente
-  /// - Diseño de tarjetas estandarizado
-  /// - Configuración específica para BottomNavigationBar
-  ///
-  /// @return ThemeData completamente configurado
+  /// - Estilos de AppBar, cards y componentes de navegación
+  /// - Diseño adaptado para móvil y tablet
   ThemeData _buildThemeData() {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue,
-        brightness: Brightness.light,
+        seedColor: Colors.blue, // Color semilla
+        brightness: Brightness.light, // Tema claro
       ),
-      useMaterial3: true,
+      useMaterial3: true, // Habilita Material 3
+
+      // Configuración de AppBar
       appBarTheme: const AppBarTheme(
-        centerTitle: true,
-        elevation: 2,
-        scrolledUnderElevation: 4,
+        centerTitle: true, // Centra el título
+        elevation: 2, // Elevación sombra
+        scrolledUnderElevation: 4, // Elevación al hacer scroll
       ),
+
+      // Configuración de Cards
       cardTheme: CardThemeData(
-        elevation: 2,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        elevation: 2, // Elevación sombra
+        margin:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Márgenes
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12), // Bordes redondeados
         ),
       ),
+
+      // Configuración de BottomNavigationBar (versión móvil)
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.blueAccent[700],
-        unselectedItemColor: Colors.grey[600],
+        backgroundColor: Colors.white, // Fondo blanco
+        selectedItemColor: Colors.blueAccent[700], // Color seleccionado
+        unselectedItemColor: Colors.grey[600], // Color no seleccionado
         selectedLabelStyle: const TextStyle(
           fontSize: 12,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w600, // Negrita para seleccionado
         ),
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        elevation: 4.0, // Añadido para asegurar visibilidad
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 12, // Mismo tamaño para no seleccionado
+        ),
+        showUnselectedLabels: true, // Muestra siempre los labels
+        type: BottomNavigationBarType.fixed, // Tipo fijo
+        elevation: 4.0, // Elevación sombra
+      ),
+
+      // Configuración de NavigationRail (versión tablet)
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: Colors.white, // Fondo blanco
+        selectedIconTheme:
+            IconThemeData(color: Colors.blueAccent[700]), // Icono seleccionado
+        unselectedIconTheme:
+            IconThemeData(color: Colors.grey[600]), // Icono no seleccionado
+        selectedLabelTextStyle: const TextStyle(
+          color: Colors.blueAccent, // Texto seleccionado
+          fontWeight: FontWeight.w600, // Negrita
+        ),
+        unselectedLabelTextStyle:
+            const TextStyle(color: Colors.grey), // Texto no seleccionado
+        elevation: 4, // Elevación sombra
+        useIndicator: true, // Usa indicador visual
+        indicatorColor: Colors.blueAccent.withOpacity(0.2), // Color indicador
       ),
     );
   }
 }
 
-/// ---------------------------------------------------------------------------
-/// [MainNavigationWrapper]
-/// ---------------------------------------------------------------------------
-/// Widget contenedor principal que maneja la navegación inferior.
+/// Contenedor principal de navegación adaptable (mobile/tablet).
 ///
-/// Funcionalidades clave:
-/// - Gestiona la navegación entre pantallas principales
-/// - Mantiene el estado de cada pantalla con IndexedStack
-/// - Proporciona una barra de navegación inferior consistente
-///
-/// Flujo de trabajo:
-/// 1. Carga los datos del usuario al iniciar
-/// 2. Construye la interfaz con las pantallas disponibles
-/// 3. Maneja los cambios entre pestañas
+/// Gestiona:
+/// - Navegación entre pantallas principales
+/// - Adaptación automática al tipo de dispositivo
+/// - Estado de las pantallas con IndexedStack
 class MainNavigationWrapper extends StatefulWidget {
   const MainNavigationWrapper({super.key});
 
@@ -188,35 +158,31 @@ class MainNavigationWrapper extends StatefulWidget {
   State<MainNavigationWrapper> createState() => _MainNavigationWrapperState();
 }
 
-/// ---------------------------------------------------------------------------
-/// [_MainNavigationWrapperState]
-/// ---------------------------------------------------------------------------
 /// Estado del contenedor principal de navegación.
 ///
-/// Atributos principales:
-/// - _currentIndex: Controla la pantalla visible (0 = Inicio, 1 = Perfil)
-/// - _screens: Lista de widgets/pantallas disponibles
-///
-/// Ciclo de vida:
-/// 1. initState: Inicializa las pantallas y carga datos del usuario
-/// 2. build: Construye la interfaz con la pantalla activa y la barra de navegación
+/// Maneja:
+/// - Índice de pantalla actual
+/// - Estado de expansión del NavigationRail (tablet)
+/// - Carga de datos de usuario
 class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
-  int _currentIndex = 0;
-  late List<Widget> _screens;
+  int _currentIndex = 0; // Índice de pantalla actual (0 = Inicio, 1 = Perfil)
+  bool _extended = false; // Estado de expansión del NavigationRail (tablet)
+  late List<Widget> _screens; // Lista de pantallas disponibles
 
   @override
   void initState() {
     super.initState();
-
+    // Inicialización de pantallas
     _screens = [
-      const RouteSelectionScreen(), // Nueva pantalla principal
+      const RouteSelectionScreen(), // Pantalla de inicio
       FutureBuilder(
-        future: _loadUserData(),
+        future: _loadUserData(), // Carga datos de usuario
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             }
+            // Pantalla de perfil con datos de usuario
             return ProfileScreen(
               userName: snapshot.data?['name'] ?? 'Usuario',
               userEmail: snapshot.data?['email'] ?? 'email@ejemplo.com',
@@ -228,17 +194,11 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     ];
   }
 
-  /// -------------------------------------------------------------------------
-  /// [_loadUserData]
-  /// -------------------------------------------------------------------------
   /// Carga los datos del usuario desde SharedPreferences.
   ///
-  /// Proceso:
-  /// 1. Obtiene la instancia de SharedPreferences
-  /// 2. Recupera los valores guardados para nombre y email
-  /// 3. Retorna un Map con los datos o valores por defecto
-  ///
-  /// @return Future<Map<String, String>> con los datos del usuario
+  /// Retorna un Map con:
+  /// - name: Nombre del usuario
+  /// - email: Email del usuario
   Future<Map<String, String>> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     return {
@@ -247,55 +207,186 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     };
   }
 
+  /// Determina si el dispositivo es una tablet basado en el ancho de pantalla.
+  ///
+  /// Considera tablet cualquier dispositivo con ancho >= 600px
+  bool get _isTablet {
+    final mediaQuery = MediaQuery.of(context);
+    return mediaQuery.size.width >= 600;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      /// ---------------------------------------------------------------------
-      /// [IndexedStack]
-      /// ---------------------------------------------------------------------
-      /// Mantiene todas las pantallas en el árbol de widgets pero solo
-      /// muestra la activa. Preserva el estado de cada pantalla.
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+    // Selecciona el layout según el tipo de dispositivo
+    return _isTablet ? _buildTabletLayout() : _buildMobileLayout();
+  }
 
-      /// ---------------------------------------------------------------------
-      /// [BottomNavigationBar]
-      /// ---------------------------------------------------------------------
-      /// Barra de navegación inferior con:
-      /// - Dos items: Inicio (Home) y Perfil (Person)
-      /// - Manejo de cambios de pestaña mediante setState
-      /// - Estilo consistente con el tema de la aplicación
+  /// Construye el layout para dispositivos móviles.
+  ///
+  /// Características:
+  /// - BottomNavigationBar con 2 opciones
+  /// - Íconos en cápsula con efecto de selección
+  /// - Labels que cambian de color al seleccionarse
+  Widget _buildMobileLayout() {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex, // Pantalla actual
+        children: _screens, // Lista de pantallas
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) =>
+            setState(() => _currentIndex = index), // Cambio de pantalla
+        selectedLabelStyle: TextStyle(
+          color: Colors.blueAccent[700], // Texto azul para seleccionado
+          fontWeight: FontWeight.w600, // Negrita
+        ),
+        unselectedLabelStyle: TextStyle(
+          color: Colors.grey[600], // Texto gris para no seleccionado
+        ),
         items: [
+          // Ítem de Inicio
           BottomNavigationBarItem(
-            icon: Image.asset(
-              "lib/assets/icons/icon_home.png",
-              width: 24,
-              height: 24,
-              color: _currentIndex == 0
-                  ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
-                  : Theme.of(context)
-                      .bottomNavigationBarTheme
-                      .unselectedItemColor,
+            icon: Container(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+              decoration: BoxDecoration(
+                color: _currentIndex == 0
+                    ? Colors.blueAccent
+                        .withOpacity(0.2) // Fondo azul claro para seleccionado
+                    : Colors.transparent, // Transparente para no seleccionado
+                borderRadius: BorderRadius.circular(20), // Forma de cápsula
+              ),
+              child: Image.asset(
+                "lib/assets/icons/icon_home.png",
+                width: 24,
+                height: 24,
+                color: _currentIndex == 0
+                    ? Colors.blueAccent[700] // Azul para seleccionado
+                    : Colors.grey[600], // Gris para no seleccionado
+              ),
             ),
             label: 'Inicio',
           ),
+          // Ítem de Perfil
           BottomNavigationBarItem(
-            icon: Image.asset(
-              "lib/assets/icons/icon_user.png",
-              width: 24,
-              height: 24,
-              color: _currentIndex == 1
-                  ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
-                  : Theme.of(context)
-                      .bottomNavigationBarTheme
-                      .unselectedItemColor,
+            icon: Container(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+              decoration: BoxDecoration(
+                color: _currentIndex == 1
+                    ? Colors.blueAccent
+                        .withOpacity(0.2) // Fondo azul claro para seleccionado
+                    : Colors.transparent, // Transparente para no seleccionado
+                borderRadius: BorderRadius.circular(20), // Forma de cápsula
+              ),
+              child: Image.asset(
+                "lib/assets/icons/icon_user.png",
+                width: 24,
+                height: 24,
+                color: _currentIndex == 1
+                    ? Colors.blueAccent[700] // Azul para seleccionado
+                    : Colors.grey[600], // Gris para no seleccionado
+              ),
             ),
             label: 'Perfil',
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Construye el layout para dispositivos tablet.
+  ///
+  /// Características:
+  /// - NavigationRail lateral expandible
+  /// - Divisor vertical
+  /// - Área de contenido principal
+  Widget _buildTabletLayout() {
+    return Scaffold(
+      body: Row(
+        children: [
+          // Barra de navegación lateral
+          NavigationRail(
+            selectedIndex: _currentIndex,
+            onDestinationSelected: (index) =>
+                setState(() => _currentIndex = index),
+            extended: _extended, // Estado de expansión
+            minExtendedWidth: 150, // Ancho mínimo expandido
+            leading: Column(
+              children: [
+                const SizedBox(height: 16),
+                // Botón para expandir/contraer
+                IconButton(
+                  icon: Icon(
+                      _extended ? Icons.chevron_left : Icons.chevron_right),
+                  onPressed: () => setState(() => _extended = !_extended),
+                  tooltip: _extended ? 'Contraer barra' : 'Expandir barra',
+                ),
+              ],
+            ),
+            // Destinos de navegación
+            destinations: [
+              NavigationRailDestination(
+                icon: Image.asset(
+                  "lib/assets/icons/icon_home.png",
+                  width: 24,
+                  height: 24,
+                  color: _currentIndex == 0
+                      ? Colors.blueAccent[700] // Azul para seleccionado
+                      : Colors.grey[600], // Gris para no seleccionado
+                ),
+                selectedIcon: Image.asset(
+                  "lib/assets/icons/icon_home.png",
+                  width: 24,
+                  height: 24,
+                  color:
+                      Colors.blueAccent[700], // Siempre azul para seleccionado
+                ),
+                label: Text(
+                  'Inicio',
+                  style: TextStyle(
+                    color: _currentIndex == 0
+                        ? Colors.blueAccent[700] // Azul para seleccionado
+                        : Colors.grey[600], // Gris para no seleccionado
+                  ),
+                ),
+                padding: const EdgeInsets.only(top: 3, bottom: 5),
+              ),
+              NavigationRailDestination(
+                icon: Image.asset(
+                  "lib/assets/icons/icon_user.png",
+                  width: 24,
+                  height: 24,
+                  color: _currentIndex == 1
+                      ? Colors.blueAccent[700] // Azul para seleccionado
+                      : Colors.grey[600], // Gris para no seleccionado
+                ),
+                selectedIcon: Image.asset(
+                  "lib/assets/icons/icon_user.png",
+                  width: 24,
+                  height: 24,
+                  color:
+                      Colors.blueAccent[700], // Siempre azul para seleccionado
+                ),
+                label: Text(
+                  'Perfil',
+                  style: TextStyle(
+                    color: _currentIndex == 1
+                        ? Colors.blueAccent[700] // Azul para seleccionado
+                        : Colors.grey[600], // Gris para no seleccionado
+                  ),
+                ),
+                padding: const EdgeInsets.only(top: 3, bottom: 5),
+              ),
+            ],
+          ),
+          // Divisor vertical
+          const VerticalDivider(thickness: 1, width: 1),
+          // Contenido principal
+          Expanded(
+            child: IndexedStack(
+              index: _currentIndex, // Pantalla actual
+              children: _screens, // Lista de pantallas
+            ),
           ),
         ],
       ),
