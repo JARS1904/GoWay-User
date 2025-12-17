@@ -37,72 +37,17 @@ void main() async {
 /// - Configuración del tema claro/oscuro
 /// - Definición de rutas nombradas
 /// - Configuración global de comportamientos de UI
-/// - Verificación de sesión persistida en SharedPreferences
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  late Future<Widget> _initialScreen;
-
-  @override
-  void initState() {
-    super.initState();
-    _initialScreen = _checkSession();
-  }
-
-  /// Verifica si existe sesión guardada en SharedPreferences.
-  /// Si existe, retorna MainNavigationWrapper.
-  /// Si no existe, retorna LoginScreen.
-  Future<Widget> _checkSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userEmail = prefs.getString('userEmail');
-    
-    if (userEmail != null && userEmail.isNotEmpty) {
-      return const MainNavigationWrapper();
-    }
-    return const LoginScreen();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Widget>(
-      future: _initialScreen,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError) {
-            return MaterialApp(
-              home: Scaffold(
-                body: Center(child: Text('Error: ${snapshot.error}')),
-              ),
-            );
-          }
-          final initialScreen = snapshot.data ?? const LoginScreen();
-          return _buildMaterialApp(initialScreen);
-        }
-        // Pantalla de carga mientras verifica sesión
-        return MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  /// Construye el MaterialApp con la pantalla inicial apropiada.
-  MaterialApp _buildMaterialApp(Widget initialScreen) {
     return MaterialApp(
       title: 'GoWay - Transporte Público',
       theme: _buildThemeData(), // Tema claro
       darkTheme: _buildThemeData(), // Tema oscuro (usando misma configuración)
       themeMode: ThemeMode.light, // Fuerza tema claro
-      home: initialScreen, // Pantalla inicial dinámica
+      home: const LoginScreen(), // Pantalla inicial
       debugShowCheckedModeBanner: false, // Oculta banner de debug
 
       // Rutas nombradas de la aplicación
