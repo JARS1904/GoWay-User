@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
 
   // Configuración API
-  final String _loginApiUrl = "http://172.31.99.110/GoWay/api/login.php";
+  final String _loginApiUrl = "http://192.168.30.101/GoWay/api/login.php";
 
   @override
   void dispose() {
@@ -302,6 +302,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        /*
         Row(
           children: [
             Checkbox(
@@ -311,6 +312,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const Text('Remember me'),
           ],
         ),
+        
         TextButton(
           onPressed: () {/* TODO: Add forgot password */},
           child: Text(
@@ -318,6 +320,7 @@ class _LoginScreenState extends State<LoginScreen> {
             style: TextStyle(color: Colors.blueAccent[700]),
           ),
         ),
+        */
       ],
     );
   }
