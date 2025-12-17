@@ -355,7 +355,7 @@ class _LoginScreenState extends State<LoginScreen> {
         const Text('¿No tienes cuenta? '),
         TextButton(
           onPressed: () {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const RegistroScreen()),
             );

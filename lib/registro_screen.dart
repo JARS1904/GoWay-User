@@ -390,7 +390,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
         const Text('¿Ya tienes cuenta? '),
         TextButton(
           onPressed: () {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const LoginScreen()),
             );
