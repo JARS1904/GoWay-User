@@ -374,6 +374,7 @@ class ProfileScreen extends StatelessWidget {
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login.dart';
+import 'terms_and_conditions_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userName;
@@ -467,9 +468,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             */
             _buildProfileOption(
-              icon: Icons.notifications,
-              title: 'Notificaciones',
-              onTap: () => _showComingSoonSnackbar(),
+              icon: Icons.description_outlined,
+              title: 'Términos y condiciones',
+              onTap: () => _showTermsAndConditions(),
             ),
             _buildProfileOption(
               icon: Icons.settings,
@@ -612,9 +613,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       */
                       _buildProfileOption(
-                        icon: Icons.notifications,
-                        title: 'Notificaciones',
-                        onTap: () => _showComingSoonSnackbar(),
+                        icon: Icons.description_outlined,
+                        title: 'Términos y condiciones',
+                        onTap: () => _showTermsAndConditions(),
                         tabletMode: true,
                       ),
                       _buildProfileOption(
@@ -756,6 +757,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         );
       },
+    );
+  }
+
+  void _showTermsAndConditions() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const TermsAndConditionsScreen(),
+      ),
     );
   }
 }
