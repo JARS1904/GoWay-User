@@ -20,11 +20,9 @@ import 'package:goway_user/profile_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
 class MainNavigationWrapper extends StatefulWidget {
   final Function(bool)? onThemeChange;
-  
+
   const MainNavigationWrapper({super.key, this.onThemeChange});
 
   @override
@@ -273,7 +271,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
 
   Widget _buildMobileLayout() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
@@ -438,7 +436,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
 
   Widget _buildTabletLayout() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
@@ -1176,7 +1174,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String? value, {bool isDark = false}) {
+  Widget _buildInfoRow(IconData icon, String label, String? value,
+      {bool isDark = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -1339,7 +1338,8 @@ class RouteDetailsScreen extends StatelessWidget {
                     color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
+                      color:
+                          isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
                       width: 2,
                     ),
                   ),
@@ -1421,7 +1421,8 @@ class RouteDetailsScreen extends StatelessWidget {
                                   'Salida',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: isDark ? Colors.grey[400] : Colors.grey,
+                                    color:
+                                        isDark ? Colors.grey[400] : Colors.grey,
                                   ),
                                 ),
                               ],
@@ -1438,7 +1439,8 @@ class RouteDetailsScreen extends StatelessWidget {
                                   'Llegada',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: isDark ? Colors.grey[400] : Colors.grey,
+                                    color:
+                                        isDark ? Colors.grey[400] : Colors.grey,
                                   ),
                                 ),
                               ],
@@ -1628,7 +1630,8 @@ class RouteDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String? value, {bool isDark = false}) {
+  Widget _buildInfoRow(IconData icon, String label, String? value,
+      {bool isDark = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(

@@ -361,13 +361,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await prefs.remove('userName');
     await prefs.remove('userEmail');
     await prefs.remove('rememberMe');
+    debugPrint('Sesión cerrada: authToken removido');
 
     if (!mounted) return;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => false,
-    );
+    
+    // Usar pushReplacementNamed para limpiar el stack de navegación
+    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
   }
 
   void _showEditProfileDialog() {

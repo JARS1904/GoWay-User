@@ -46,15 +46,18 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       final responseData = json.decode(response.body);
+      debugPrint('Respuesta de login: $responseData');
 
       if (response.statusCode == 200 && responseData['success'] == true) {
         final prefs = await SharedPreferences.getInstance();
-        
+
         // Guardar token de autenticación (crucial para recordar sesión)
-        if (responseData['token'] != null) {
-          await prefs.setString('authToken', responseData['token']);
-        }
+        String authToken = responseData['token'] ?? 
+            'token_${_emailController.text.trim()}_${DateTime.now().millisecondsSinceEpoch}';
         
+        await prefs.setString('authToken', authToken);
+        debugPrint('Token guardado: $authToken');
+
         await prefs.setString(
             'userName', responseData['user']['name'] ?? 'Usuario');
         await prefs.setString('userEmail', _emailController.text.trim());

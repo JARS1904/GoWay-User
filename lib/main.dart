@@ -65,6 +65,7 @@ class _MyAppState extends State<MyApp> {
   Future<bool> _checkAuthentication() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('authToken');
+    debugPrint('Verificando autenticación: token=$token');
     return token != null && token.isNotEmpty;
   }
 
@@ -90,7 +91,7 @@ class _MyAppState extends State<MyApp> {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          
+
           if (snapshot.data == true) {
             // Usuario autenticado, ir al home
             return MainNavigationWrapper(onThemeChange: _updateTheme);
@@ -107,7 +108,8 @@ class _MyAppState extends State<MyApp> {
         '/login': (context) => const LoginScreen(),
         '/registro': (context) => const RegistroScreen(),
         '/rutas': (context) => const RouteSelectionScreen(),
-        '/main': (context) => MainNavigationWrapper(onThemeChange: _updateTheme),
+        '/main': (context) =>
+            MainNavigationWrapper(onThemeChange: _updateTheme),
       },
 
       // Configuración global de UI
@@ -174,7 +176,8 @@ class _MyAppState extends State<MyApp> {
         backgroundColor: Colors.white,
         selectedItemColor: Colors.blueAccent[700],
         unselectedItemColor: Colors.grey[600],
-        selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        selectedLabelStyle:
+            const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(fontSize: 12),
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
@@ -184,7 +187,8 @@ class _MyAppState extends State<MyApp> {
         backgroundColor: Colors.white,
         selectedIconTheme: IconThemeData(color: Colors.blueAccent[700]),
         unselectedIconTheme: IconThemeData(color: Colors.grey[600]),
-        selectedLabelTextStyle: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w600),
+        selectedLabelTextStyle: const TextStyle(
+            color: Colors.blueAccent, fontWeight: FontWeight.w600),
         unselectedLabelTextStyle: const TextStyle(color: Colors.grey),
         elevation: 4,
         useIndicator: true,
@@ -239,7 +243,8 @@ class _MyAppState extends State<MyApp> {
         backgroundColor: const Color(0xFF1F1F1F),
         selectedItemColor: Colors.blueAccent,
         unselectedItemColor: Colors.grey[500],
-        selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        selectedLabelStyle:
+            const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(fontSize: 12),
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
@@ -249,7 +254,8 @@ class _MyAppState extends State<MyApp> {
         backgroundColor: const Color(0xFF1F1F1F),
         selectedIconTheme: const IconThemeData(color: Colors.blueAccent),
         unselectedIconTheme: IconThemeData(color: Colors.grey[500]),
-        selectedLabelTextStyle: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w600),
+        selectedLabelTextStyle: const TextStyle(
+            color: Colors.blueAccent, fontWeight: FontWeight.w600),
         unselectedLabelTextStyle: const TextStyle(color: Colors.grey),
         elevation: 4,
         useIndicator: true,
@@ -346,7 +352,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   /// - Labels que cambian de color al seleccionarse
   Widget _buildMobileLayout() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex, // Pantalla actual
@@ -405,7 +411,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final selectedColor = isDark ? Colors.blueAccent : Colors.blueAccent[700];
     final unselectedColor = isDark ? Colors.grey[500] : Colors.grey[600];
-    
+
     return Scaffold(
       body: Row(
         children: [
