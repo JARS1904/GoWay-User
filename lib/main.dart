@@ -107,6 +107,31 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
+      // Configuración de NavigationBar (Material Design 3)
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.white,
+        indicatorColor: Colors.blueAccent.withOpacity(0.2),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return TextStyle(
+              color: Colors.blueAccent[700],
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            );
+          }
+          return const TextStyle(
+            color: Colors.grey,
+            fontSize: 12,
+          );
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return IconThemeData(color: Colors.blueAccent[700]);
+          }
+          return IconThemeData(color: Colors.grey[600]);
+        }),
+      ),
+
       // Configuración de BottomNavigationBar (versión móvil)
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: Colors.white, // Fondo blanco
@@ -233,59 +258,41 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         index: _currentIndex, // Pantalla actual
         children: _screens, // Lista de pantallas
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) =>
-            setState(() => _currentIndex = index), // Cambio de pantalla
-        selectedLabelStyle: TextStyle(
-          color: Colors.blueAccent[700], // Texto azul para seleccionado
-          fontWeight: FontWeight.w600, // Negrita
-        ),
-        unselectedLabelStyle: TextStyle(
-          color: Colors.grey[600], // Texto gris para no seleccionado
-        ),
-        items: [
-          // Ítem de Inicio
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-              decoration: BoxDecoration(
-                color: _currentIndex == 0
-                    ? Colors.blueAccent
-                        .withOpacity(0.2) // Fondo azul claro para seleccionado
-                    : Colors.transparent, // Transparente para no seleccionado
-                borderRadius: BorderRadius.circular(20), // Forma de cápsula
-              ),
-              child: Image.asset(
-                "lib/assets/icons/icon_home.png",
-                width: 24,
-                height: 24,
-                color: _currentIndex == 0
-                    ? Colors.blueAccent[700] // Azul para seleccionado
-                    : Colors.grey[600], // Gris para no seleccionado
-              ),
+      bottomNavigationBar: NavigationBar(
+        backgroundColor: Colors.white,
+        height: 65,
+        indicatorColor: Colors.blueAccent.withOpacity(0.2),
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        destinations: [
+          NavigationDestination(
+            icon: Image.asset(
+              "lib/assets/icons/icon_home.png",
+              width: 24,
+              height: 24,
+              color: Colors.grey[600],
+            ),
+            selectedIcon: Image.asset(
+              "lib/assets/icons/icon_home.png",
+              width: 24,
+              height: 24,
+              color: Colors.blueAccent[700],
             ),
             label: 'Inicio',
           ),
-          // Ítem de Perfil
-          BottomNavigationBarItem(
-            icon: Container(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-              decoration: BoxDecoration(
-                color: _currentIndex == 1
-                    ? Colors.blueAccent
-                        .withOpacity(0.2) // Fondo azul claro para seleccionado
-                    : Colors.transparent, // Transparente para no seleccionado
-                borderRadius: BorderRadius.circular(20), // Forma de cápsula
-              ),
-              child: Image.asset(
-                "lib/assets/icons/icon_user.png",
-                width: 24,
-                height: 24,
-                color: _currentIndex == 1
-                    ? Colors.blueAccent[700] // Azul para seleccionado
-                    : Colors.grey[600], // Gris para no seleccionado
-              ),
+          NavigationDestination(
+            icon: Image.asset(
+              "lib/assets/icons/icon_user.png",
+              width: 24,
+              height: 24,
+              color: Colors.grey[600],
+            ),
+            selectedIcon: Image.asset(
+              "lib/assets/icons/icon_user.png",
+              width: 24,
+              height: 24,
+              color: Colors.blueAccent[700],
             ),
             label: 'Perfil',
           ),
