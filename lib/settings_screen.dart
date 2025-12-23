@@ -15,7 +15,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'main.dart';
 
 /// ---------------------------------------------------------------------------
 /// [SettingsScreen]
@@ -29,11 +28,11 @@ import 'main.dart';
 /// - Cambio de tema en tiempo real
 ///
 class SettingsScreen extends StatefulWidget {
-  final Function(bool) onThemeChange;
+  final Function(bool)? onThemeChange;
 
   const SettingsScreen({
     super.key,
-    required this.onThemeChange,
+    this.onThemeChange,
   });
 
   @override
@@ -78,12 +77,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _isDarkMode = value;
     });
     _saveThemePreference(value);
-    widget.onThemeChange(value);
+    widget.onThemeChange?.call(value);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = _isDarkMode;
+    
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
         title: const Text(
           'Configuración',
@@ -91,19 +93,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         centerTitle: true,
         elevation: 0.8,
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+        foregroundColor: isDark ? Colors.white : Colors.black,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Apariencia',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: Colors.black,
+                color: isDark ? Colors.white : Colors.black,
               ),
             ),
             const SizedBox(height: 16),
@@ -118,14 +121,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 activeColor: Colors.blueAccent[700],
                 inactiveThumbColor: Colors.grey[400],
               ),
+              isDark: isDark,
             ),
             const SizedBox(height: 40),
-            const Text(
+            Text(
               'Información',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: Colors.black,
+                color: isDark ? Colors.white : Colors.black,
               ),
             ),
             const SizedBox(height: 16),
@@ -133,7 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               margin: const EdgeInsets.symmetric(vertical: 6),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.white,
+                color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -145,7 +149,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 16,
-                        color: Colors.black,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -153,7 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       '2.0.0',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
                     ),
                   ],
@@ -176,17 +180,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// - title: Título de la opción
   /// - subtitle: Subtítulo descriptivo
   /// - trailing: Widget a mostrar a la derecha (ej: Switch)
+  /// - isDark: Indica si está en modo oscuro
   Widget _buildSettingOption({
     required IconData icon,
     required String title,
     required String subtitle,
     required Widget trailing,
+    required bool isDark,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: Colors.white,
+        color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       ),
       child: Material(
         color: Colors.transparent,
@@ -205,15 +211,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           title: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white : Colors.black,
             ),
           ),
           subtitle: Text(
             subtitle,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
           trailing: trailing,
