@@ -13,6 +13,7 @@
 //          Emilio Domíngez Silva
 // Mantenido por: Hydra. Inc
 
+/*
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login.dart';
@@ -365,12 +366,11 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
-
+*/
 
 // ---------------------------------------------------------------------------
 // Version alternativa (esta en desarrollo, no usar en producción)
 // ---------------------------------------------------------------------------
-/*
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login.dart';
@@ -395,11 +395,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final bool isTablet = MediaQuery.of(context).size.width >= 600;
 
     return Scaffold(
-      appBar: isTablet ? null : AppBar(
-        title: const Text('Mi Perfil'),
-        centerTitle: true,
-        elevation: 2,
-      ),
+      appBar: isTablet
+          ? null
+          : AppBar(
+              title: const Text(
+                'Mi Perfil',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              centerTitle: true,
+              elevation: 2,
+              scrolledUnderElevation: 4,
+              backgroundColor: Colors.white10, // O usa el color de tu fondo
+              surfaceTintColor: Colors.transparent,
+            ),
       body: isTablet ? _buildTabletLayout() : _buildMobileLayout(),
     );
   }
@@ -415,7 +423,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               radius: 60,
               backgroundColor: Colors.blueAccent[700],
               child: Text(
-                widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : 'U',
+                widget.userName.isNotEmpty
+                    ? widget.userName[0].toUpperCase()
+                    : 'U',
                 style: const TextStyle(
                   fontSize: 40,
                   color: Colors.white,
@@ -444,6 +454,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: 'Editar Perfil',
               onTap: () => _showEditProfileDialog(),
             ),
+            /*
             _buildProfileOption(
               icon: Icons.history,
               title: 'Historial de Viajes',
@@ -454,6 +465,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: 'Métodos de Pago',
               onTap: () => _showComingSoonSnackbar(),
             ),
+            */
             _buildProfileOption(
               icon: Icons.notifications,
               title: 'Notificaciones',
@@ -475,7 +487,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 minimumSize: const Size(double.infinity, 50),
               ),
-              child: const Text('Cerrar Sesión'),
+              child: const Text(
+                'Cerrar Sesión',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
@@ -507,7 +522,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         radius: 80,
                         backgroundColor: Colors.blueAccent[700],
                         child: Text(
-                          widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : 'U',
+                          widget.userName.isNotEmpty
+                              ? widget.userName[0].toUpperCase()
+                              : 'U',
                           style: const TextStyle(
                             fontSize: 50,
                             color: Colors.white,
@@ -545,20 +562,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           child: const Text(
                             'Cerrar Sesión',
-                            style: TextStyle(fontSize: 18),
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                
+
                 // Separador vertical
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30),
                   child: VerticalDivider(thickness: 1, width: 1),
                 ),
-                
+
                 // Columna derecha - Opciones del perfil
                 Expanded(
                   flex: 4,
@@ -579,6 +597,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onTap: () => _showEditProfileDialog(),
                         tabletMode: true,
                       ),
+                      /*
                       _buildProfileOption(
                         icon: Icons.history,
                         title: 'Historial de Viajes',
@@ -591,6 +610,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onTap: () => _showComingSoonSnackbar(),
                         tabletMode: true,
                       ),
+                      */
                       _buildProfileOption(
                         icon: Icons.notifications,
                         title: 'Notificaciones',
@@ -620,43 +640,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
     bool tabletMode = false,
   }) {
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.blueAccent.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(10),
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: tabletMode ? 8 : 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Colors.white,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(15),
+          child: ListTile(
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                size: tabletMode ? 28 : 24,
+                color: Colors.blueAccent[700],
+              ),
+            ),
+            title: Text(
+              title,
+              style: TextStyle(
+                fontSize: tabletMode ? 20 : 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            trailing: Icon(
+              Icons.chevron_right,
+              size: tabletMode ? 30 : 24,
+              color: Colors.grey[400],
+            ),
+            contentPadding: EdgeInsets.symmetric(
+              vertical: tabletMode ? 12 : 8,
+              horizontal: tabletMode ? 16 : 8,
+            ),
+          ),
         ),
-        child: Icon(
-          icon,
-          size: tabletMode ? 28 : 24,
-          color: Colors.blueAccent[700],
-        ),
       ),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: tabletMode ? 20 : 16,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      trailing: Icon(
-        Icons.chevron_right,
-        size: tabletMode ? 30 : 24,
-        color: Colors.grey[400],
-      ),
-      contentPadding: EdgeInsets.symmetric(
-        vertical: tabletMode ? 12 : 8,
-        horizontal: tabletMode ? 16 : 8,
-      ),
-      onTap: onTap,
     );
   }
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('userToken');
-    
+
     if (!mounted) return;
     Navigator.pushAndRemoveUntil(
       context,
@@ -714,7 +747,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Aquí iría la lógica para guardar los cambios
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Perfil actualizado correctamente')),
+                  const SnackBar(
+                      content: Text('Perfil actualizado correctamente')),
                 );
               },
               child: const Text('Guardar'),
@@ -725,4 +759,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-*/
