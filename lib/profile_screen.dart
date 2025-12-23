@@ -375,6 +375,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login.dart';
 import 'terms_and_conditions_screen.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userName;
@@ -475,7 +476,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildProfileOption(
               icon: Icons.settings,
               title: 'Configuración',
-              onTap: () => _showComingSoonSnackbar(),
+              onTap: () => _navigateToSettings(context),
             ),
             const SizedBox(height: 30),
             ElevatedButton(
@@ -621,7 +622,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _buildProfileOption(
                         icon: Icons.settings,
                         title: 'Configuración',
-                        onTap: () => _showComingSoonSnackbar(),
+                        onTap: () => _navigateToSettings(context),
                         tabletMode: true,
                       ),
                     ],
@@ -765,6 +766,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => const TermsAndConditionsScreen(),
+      ),
+    );
+  }
+
+  void _navigateToSettings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SettingsScreen(
+          onThemeChange: (isDark) {
+            // Esto será manejado por el widget principal
+          },
+        ),
       ),
     );
   }

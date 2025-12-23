@@ -50,10 +50,8 @@ class TermsAndConditionsScreen extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
         ),
         centerTitle: true,
-        elevation: 2,
-        scrolledUnderElevation: 4,
-        backgroundColor: Colors.white10,
-        surfaceTintColor: Colors.transparent,
+        elevation: 0.8,
+        backgroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
