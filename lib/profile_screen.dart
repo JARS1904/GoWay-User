@@ -22,11 +22,13 @@ import 'settings_screen.dart';
 class ProfileScreen extends StatefulWidget {
   final String userName;
   final String userEmail;
+  final Function(bool)? onThemeChange;
 
   const ProfileScreen({
     super.key,
     required this.userName,
     required this.userEmail,
+    this.onThemeChange,
   });
 
   @override
@@ -35,10 +37,17 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isTablet = MediaQuery.of(context).size.width >= 600;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: isTablet
           ? null
           : AppBar(
@@ -47,16 +56,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: true,
-              elevation: 2,
-              scrolledUnderElevation: 4,
-              backgroundColor: Colors.white10, // O usa el color de tu fondo
-              surfaceTintColor: Colors.transparent,
+              elevation: 0.8,
+              backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+              foregroundColor: isDark ? Colors.white : Colors.black,
             ),
-      body: isTablet ? _buildTabletLayout() : _buildMobileLayout(),
+      body: isTablet ? _buildTabletLayout(isDark) : _buildMobileLayout(isDark),
     );
   }
 
-  Widget _buildMobileLayout() {
+  Widget _buildMobileLayout(bool isDark) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -79,9 +87,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 20),
             Text(
               widget.userName,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
               ),
             ),
             const SizedBox(height: 8),
@@ -89,7 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               widget.userEmail,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey[600],
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
             const SizedBox(height: 40),
@@ -97,6 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.person_outline,
               title: 'Editar Perfil',
               onTap: () => _showEditProfileDialog(),
+              isDark: isDark,
             ),
             /*
             _buildProfileOption(
@@ -114,11 +124,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.description_outlined,
               title: 'Términos y condiciones',
               onTap: () => _showTermsAndConditions(),
+              isDark: isDark,
             ),
             _buildProfileOption(
               icon: Icons.settings,
               title: 'Configuración',
               onTap: () => _navigateToSettings(context),
+              isDark: isDark,
             ),
             const SizedBox(height: 30),
             ElevatedButton(
@@ -142,12 +154,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildTabletLayout() {
+  Widget _buildTabletLayout(bool isDark) {
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1000),
         child: Card(
           elevation: 8,
+          color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -178,9 +191,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 30),
                       Text(
                         widget.userName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -188,7 +202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         widget.userEmail,
                         style: TextStyle(
                           fontSize: 18,
-                          color: Colors.grey[600],
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
                         ),
                       ),
                       const SizedBox(height: 40),
@@ -216,9 +230,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
 
                 // Separador vertical
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
-                  child: VerticalDivider(thickness: 1, width: 1),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: VerticalDivider(
+                    thickness: 1,
+                    width: 1,
+                    color: isDark ? Colors.grey[700] : Colors.grey[300],
+                  ),
                 ),
 
                 // Columna derecha - Opciones del perfil
@@ -227,11 +245,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Opciones del Perfil',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
                         ),
                       ),
                       const SizedBox(height: 30),
@@ -240,6 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: 'Editar Perfil',
                         onTap: () => _showEditProfileDialog(),
                         tabletMode: true,
+                        isDark: isDark,
                       ),
                       /*
                       _buildProfileOption(
@@ -260,12 +280,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: 'Términos y condiciones',
                         onTap: () => _showTermsAndConditions(),
                         tabletMode: true,
+                        isDark: isDark,
                       ),
                       _buildProfileOption(
                         icon: Icons.settings,
                         title: 'Configuración',
                         onTap: () => _navigateToSettings(context),
                         tabletMode: true,
+                        isDark: isDark,
                       ),
                     ],
                   ),
@@ -283,12 +305,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String title,
     required VoidCallback onTap,
     bool tabletMode = false,
+    bool isDark = false,
   }) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: tabletMode ? 8 : 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: Colors.white,
+        color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       ),
       child: Material(
         color: Colors.transparent,
@@ -313,12 +336,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                 fontSize: tabletMode ? 20 : 16,
                 fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white : Colors.black,
               ),
             ),
             trailing: Icon(
               Icons.chevron_right,
               size: tabletMode ? 30 : 24,
-              color: Colors.grey[400],
+              color: isDark ? Colors.grey[600] : Colors.grey[400],
             ),
             contentPadding: EdgeInsets.symmetric(
               vertical: tabletMode ? 12 : 8,
@@ -332,22 +356,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userToken');
+    // Remover token y datos de sesión
+    await prefs.remove('authToken');
+    await prefs.remove('userName');
+    await prefs.remove('userEmail');
+    await prefs.remove('rememberMe');
 
     if (!mounted) return;
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
       (route) => false,
-    );
-  }
-
-  void _showComingSoonSnackbar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('¡Próximamente! Esta función estará disponible pronto'),
-        duration: Duration(seconds: 2),
-      ),
     );
   }
 
@@ -417,9 +436,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => SettingsScreen(
-          onThemeChange: (isDark) {
-            // Esto será manejado por el widget principal
-          },
+          onThemeChange: widget.onThemeChange,
         ),
       ),
     );

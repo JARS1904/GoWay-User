@@ -16,89 +16,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:goway_user/login.dart';
-import 'package:goway_user/registro_screen.dart';
 import 'package:goway_user/profile_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'GoWay - Transporte Público',
-      theme: _buildThemeData(),
-      darkTheme: _buildThemeData(),
-      themeMode: ThemeMode.light,
-      home: const LoginScreen(),
-      debugShowCheckedModeBanner: false,
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/registro': (context) => const RegistroScreen(),
-        '/rutas': (context) => const RouteSelectionScreen(),
-        '/main': (context) => const MainNavigationWrapper(),
-      },
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(1.0),
-          ),
-          child: ScrollConfiguration(
-            behavior: const ScrollBehavior().copyWith(
-              overscroll: false,
-              physics: const BouncingScrollPhysics(),
-            ),
-            child: child!,
-          ),
-        );
-      },
-    );
-  }
-
-  ThemeData _buildThemeData() {
-    return ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue,
-        brightness: Brightness.light,
-      ),
-      useMaterial3: true,
-      appBarTheme: const AppBarTheme(
-        centerTitle: true,
-        elevation: 2,
-        scrolledUnderElevation: 4,
-      ),
-      cardTheme: CardThemeData(
-        elevation: 2,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.blueAccent[700],
-        unselectedItemColor: Colors.grey[600],
-        selectedLabelStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        elevation: 4.0,
-      ),
-    );
-  }
-}
 
 class MainNavigationWrapper extends StatefulWidget {
-  const MainNavigationWrapper({super.key});
+  final Function(bool)? onThemeChange;
+  
+  const MainNavigationWrapper({super.key, this.onThemeChange});
 
   @override
   State<MainNavigationWrapper> createState() => _MainNavigationWrapperState();
@@ -123,6 +50,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             return ProfileScreen(
               userName: snapshot.data?['name'] ?? 'Usuario',
               userEmail: snapshot.data?['email'] ?? 'email@ejemplo.com',
+              onThemeChange: widget.onThemeChange,
             );
           }
           return const Center(child: CircularProgressIndicator());
@@ -344,10 +272,14 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   }
 
   Widget _buildMobileLayout() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
         elevation: .8,
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+        foregroundColor: isDark ? Colors.white : Colors.black,
         title: Row(
           children: [
             Image.asset(
@@ -356,10 +288,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
               width: 40,
             ),
             const SizedBox(width: 10),
-            const Text(
+            Text(
               'GoWay',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
               ),
             ),
           ],
@@ -370,9 +303,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               '¿A dónde quieres ir?',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+              ),
             ),
             const SizedBox(height: 20),
 
@@ -500,10 +437,14 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   }
 
   Widget _buildTabletLayout() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
         elevation: .8,
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+        foregroundColor: isDark ? Colors.white : Colors.black,
         title: Row(
           children: [
             Image.asset(
@@ -512,10 +453,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
               width: 40,
             ),
             const SizedBox(width: 10),
-            const Text(
+            Text(
               'GoWay',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
               ),
             ),
           ],
@@ -531,9 +473,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     '¿A dónde quieres ir?',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
                   ),
                   const SizedBox(height: 20),
 
@@ -688,6 +634,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   }
 
   Widget _buildRouteCard(Map<String, dynamic> route, {bool forTablet = false}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
@@ -699,14 +646,14 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
         .toList();
 
     return Card(
-      color: Colors.white,
+      color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
       elevation: 1,
-      shadowColor: Colors.grey[300],
+      shadowColor: isDark ? Colors.black54 : Colors.grey[300],
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: Colors.grey[300]!,
+          color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
           width: 2,
         ),
       ),
@@ -762,12 +709,17 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                     color: Colors.red,
                   ),
                   const SizedBox(width: 4),
-                  Text(route['origen']),
+                  Text(
+                    route['origen'],
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                   const SizedBox(width: 8),
-                  const Icon(
+                  Icon(
                     Icons.arrow_forward,
                     size: 16,
-                    color: Colors.black,
+                    color: isDark ? Colors.grey : Colors.black,
                   ),
                   const SizedBox(width: 8),
                   Icon(
@@ -775,11 +727,18 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                     size: 20,
                     color: Colors.green[400],
                   ),
-                  Text(route['destino']),
+                  Text(
+                    route['destino'],
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
-              const Divider(),
+              Divider(
+                color: isDark ? Colors.grey[600] : Colors.grey[300],
+              ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -792,15 +751,21 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                         color: Colors.blueAccent,
                       ),
                       const SizedBox(width: 8),
-                      const Text(
+                      Text(
                         'Horarios disponibles:',
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
                       ),
                       const SizedBox(width: 8),
                     ],
                   ),
                   Text(
                     '${uniqueSchedules.length}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
                   ),
                 ],
               ),
@@ -835,6 +800,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   }
 
   Widget _buildRouteDetails(Map<String, dynamic> route) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
@@ -852,50 +818,61 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
         children: [
           Text(
             route['nombre'] ?? 'Ruta sin nombre',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             '${route['origen']} - ${route['destino']}',
-            style: const TextStyle(fontSize: 18),
+            style: TextStyle(
+              fontSize: 18,
+              color: isDark ? Colors.grey[300] : Colors.grey[700],
+            ),
           ),
           const SizedBox(height: 16),
-          const Divider(),
+          Divider(
+            color: isDark ? Colors.grey[600] : Colors.grey[300],
+          ),
           const SizedBox(height: 16),
 
           // Información de la empresa
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.grey[300]!,
+                color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
                 width: 2,
               ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Información de la empresa:',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
                 const SizedBox(height: 12),
                 _buildInfoRow(
-                    Icons.business_rounded, 'Nombre:', route['empresa_nombre']),
+                    Icons.business_rounded, 'Nombre:', route['empresa_nombre'],
+                    isDark: isDark),
                 _buildInfoRow(Icons.phone_android_rounded, 'Teléfono:',
-                    route['empresa_telefono']),
+                    route['empresa_telefono'],
+                    isDark: isDark),
                 _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
-                    route['empresa_direccion'] ?? 'No especificada'),
+                    route['empresa_direccion'] ?? 'No especificada',
+                    isDark: isDark),
                 _buildInfoRow(Icons.email_rounded, 'Email:',
-                    route['empresa_email'] ?? 'No especificado'),
+                    route['empresa_email'] ?? 'No especificado',
+                    isDark: isDark),
               ],
             ),
           ),
@@ -1199,7 +1176,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String? value) {
+  Widget _buildInfoRow(IconData icon, String label, String? value, {bool isDark = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -1213,16 +1190,17 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey,
+                    color: isDark ? Colors.grey[400] : Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value ?? 'No especificado',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
               ],
@@ -1241,6 +1219,7 @@ class RouteDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
@@ -1252,18 +1231,22 @@ class RouteDetailsScreen extends StatelessWidget {
         .toList();
 
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
         elevation: 0.8,
+        foregroundColor: isDark ? Colors.white : Colors.black,
         title: Text(
           route['empresa_nombre'],
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: isDark ? Colors.white : Colors.black,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(
+          color: isDark ? Colors.white : Colors.black,
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -1272,64 +1255,78 @@ class RouteDetailsScreen extends StatelessWidget {
           children: [
             Text(
               route['nombre'] ?? 'Ruta sin nombre',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               '${route['origen']} - ${route['destino']}',
-              style: const TextStyle(fontSize: 18),
+              style: TextStyle(
+                fontSize: 18,
+                color: isDark ? Colors.grey[300] : Colors.grey[700],
+              ),
             ),
             const SizedBox(height: 16),
-            const Divider(),
+            Divider(
+              color: isDark ? Colors.grey[600] : Colors.grey[300],
+            ),
             const SizedBox(height: 16),
 
             // Información de la empresa
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.grey[300]!,
+                  color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
                   width: 2,
                 ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Información de la empresa:',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
                   ),
                   const SizedBox(height: 12),
                   _buildInfoRow(Icons.business_rounded, 'Nombre:',
-                      route['empresa_nombre']),
+                      route['empresa_nombre'],
+                      isDark: isDark),
                   _buildInfoRow(Icons.phone_android_rounded, 'Teléfono:',
-                      route['empresa_telefono']),
+                      route['empresa_telefono'],
+                      isDark: isDark),
                   _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
-                      route['empresa_direccion'] ?? 'No especificada'),
+                      route['empresa_direccion'] ?? 'No especificada',
+                      isDark: isDark),
                   _buildInfoRow(Icons.email_rounded, 'Email:',
-                      route['empresa_email'] ?? 'No especificado'),
+                      route['empresa_email'] ?? 'No especificado',
+                      isDark: isDark),
                 ],
               ),
             ),
 
             const SizedBox(height: 16),
-            const Divider(),
+            Divider(
+              color: isDark ? Colors.grey[600] : Colors.grey[300],
+            ),
             const SizedBox(height: 16),
 
             // Horarios disponibles
-            const Text(
+            Text(
               'Horarios disponibles:',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
               ),
             ),
             const SizedBox(height: 20),
@@ -1339,10 +1336,10 @@ class RouteDetailsScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.grey[300]!,
+                      color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
                       width: 2,
                     ),
                   ),
@@ -1353,9 +1350,10 @@ class RouteDetailsScreen extends StatelessWidget {
                         children: [
                           Text(
                             route['empresa_nombre'],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : Colors.black,
                             ),
                           ),
                           Row(
@@ -1368,8 +1366,9 @@ class RouteDetailsScreen extends StatelessWidget {
                               const SizedBox(width: 8),
                               Text(
                                 horario['dia_semana'],
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
+                                  color: isDark ? Colors.white : Colors.black,
                                 ),
                               ),
                             ],
@@ -1384,17 +1383,21 @@ class RouteDetailsScreen extends StatelessWidget {
                           children: [
                             Text(
                               route['origen'],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
-                            const Icon(Icons.arrow_forward, size: 16),
+                            Icon(Icons.arrow_forward,
+                                size: 16,
+                                color: isDark ? Colors.grey : Colors.black),
                             Text(
                               route['destino'],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
                           ],
@@ -1414,11 +1417,11 @@ class RouteDetailsScreen extends StatelessWidget {
                                   color: Colors.blue,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text(
+                                Text(
                                   'Salida',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey,
+                                    color: isDark ? Colors.grey[400] : Colors.grey,
                                   ),
                                 ),
                               ],
@@ -1431,11 +1434,11 @@ class RouteDetailsScreen extends StatelessWidget {
                                   color: Colors.red,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text(
+                                Text(
                                   'Llegada',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey,
+                                    color: isDark ? Colors.grey[400] : Colors.grey,
                                   ),
                                 ),
                               ],
@@ -1450,16 +1453,18 @@ class RouteDetailsScreen extends StatelessWidget {
                           children: [
                             Text(
                               horario['hora_salida'],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
                             Text(
                               horario['hora_llegada'],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
                           ],
@@ -1478,8 +1483,9 @@ class RouteDetailsScreen extends StatelessWidget {
                             const SizedBox(width: 8),
                             Text(
                               'Frecuencia: ${horario['frecuencia']}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
+                                color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
                           ],
@@ -1500,10 +1506,11 @@ class RouteDetailsScreen extends StatelessWidget {
                                   color: Colors.purple,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text(
+                                Text(
                                   'Paradas:',
                                   style: TextStyle(
                                     fontSize: 14,
+                                    color: isDark ? Colors.white : Colors.black,
                                   ),
                                 ),
                               ],
@@ -1515,8 +1522,9 @@ class RouteDetailsScreen extends StatelessWidget {
                                     const EdgeInsets.only(left: 28, bottom: 4),
                                 child: Text(
                                   '• $parada',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
+                                    color: isDark ? Colors.white : Colors.black,
                                   ),
                                 ),
                               );
@@ -1620,7 +1628,7 @@ class RouteDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String? value) {
+  Widget _buildInfoRow(IconData icon, String label, String? value, {bool isDark = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -1634,16 +1642,17 @@ class RouteDetailsScreen extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey,
+                    color: isDark ? Colors.grey[400] : Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value ?? 'No especificado',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
               ],

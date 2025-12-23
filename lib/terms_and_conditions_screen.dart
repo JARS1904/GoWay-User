@@ -43,7 +43,10 @@ class TermsAndConditionsScreen extends StatelessWidget {
   /// - Botón de acción para cerrar
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
         title: const Text(
           'Términos y Condiciones',
@@ -51,7 +54,8 @@ class TermsAndConditionsScreen extends StatelessWidget {
         ),
         centerTitle: true,
         elevation: 0.8,
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+        foregroundColor: isDark ? Colors.white : Colors.black,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -80,41 +84,49 @@ class TermsAndConditionsScreen extends StatelessWidget {
             _buildSection(
               '1. Aceptación de términos',
               'Al usar esta aplicación, aceptas estos términos y condiciones en su totalidad. Si no estás de acuerdo con alguno de estos términos, por favor no uses la aplicación.',
+              context,
             ),
             const SizedBox(height: 16),
             _buildSection(
               '2. Uso de la plataforma',
               'La aplicación está diseñada para ayudarte a encontrar rutas de transporte público de manera eficiente. Debes usar esta aplicación únicamente para fines legales y de acuerdo con estos términos.',
+              context,
             ),
             const SizedBox(height: 16),
             _buildSection(
               '3. Responsabilidades del usuario',
               'Eres responsable de mantener la confidencialidad de tu cuenta y contraseña. También eres responsable de todas las actividades que ocurran bajo tu cuenta.',
+              context,
             ),
             const SizedBox(height: 16),
             _buildSection(
               '4. Modificaciones de términos',
               'Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios entrarán en vigor inmediatamente después de su publicación en la aplicación.',
+              context,
             ),
             const SizedBox(height: 16),
             _buildSection(
               '5. Limitación de responsabilidad',
               'GoWay no se hace responsable por daños indirectos, incidentales, especiales o consecuentes derivados del uso o la imposibilidad de uso de la aplicación.',
+              context,
             ),
             const SizedBox(height: 16),
             _buildSection(
               '6. Privacidad',
               'Tu privacidad es importante para nosotros. Por favor, consulta nuestra Política de Privacidad para obtener información sobre cómo recopilamos y usamos tus datos.',
+              context,
             ),
             const SizedBox(height: 16),
             _buildSection(
               '7. Ley aplicable',
               'Estos términos se rigen por las leyes del país donde opera GoWay.',
+              context,
             ),
             const SizedBox(height: 16),
             _buildSection(
               '8. Contacto',
               'Si tienes preguntas sobre estos términos, por favor contáctanos a través de la sección de soporte en la aplicación.',
+              context,
             ),
             const SizedBox(height: 30),
             Center(
@@ -157,16 +169,18 @@ class TermsAndConditionsScreen extends StatelessWidget {
   /// - Título en negrita de tamaño 16
   /// - Contenido en tamaño 14 con altura de línea mejorada
   /// - Espaciado consistente entre título y contenido
-  Widget _buildSection(String title, String content) {
+  Widget _buildSection(String title, String content, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
-            color: Colors.black,
+            color: isDark ? Colors.white : Colors.black,
           ),
         ),
         const SizedBox(height: 8),
@@ -174,7 +188,7 @@ class TermsAndConditionsScreen extends StatelessWidget {
           content,
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey[700],
+            color: isDark ? Colors.grey[300] : Colors.grey[700],
             height: 1.6,
           ),
         ),

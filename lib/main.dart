@@ -37,17 +37,69 @@ void main() async {
 /// - Configuración del tema claro/oscuro
 /// - Definición de rutas nombradas
 /// - Configuración global de comportamientos de UI
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemePreference();
+  }
+
+  /// Carga la preferencia de tema guardada en SharedPreferences
+  Future<void> _loadThemePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
+  /// Verifica si el usuario está autenticado (tiene un token válido)
+  Future<bool> _checkAuthentication() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('authToken');
+    return token != null && token.isNotEmpty;
+  }
+
+  /// Callback para actualizar el tema desde SettingsScreen
+  void _updateTheme(bool isDarkMode) {
+    setState(() {
+      _isDarkMode = isDarkMode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'GoWay - Transporte Público',
-      theme: _buildThemeData(), // Tema claro
-      darkTheme: _buildThemeData(), // Tema oscuro (usando misma configuración)
-      themeMode: ThemeMode.light, // Fuerza tema claro
-      home: const LoginScreen(), // Pantalla inicial
+      theme: _buildLightTheme(), // Tema claro
+      darkTheme: _buildDarkTheme(), // Tema oscuro
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: FutureBuilder<bool>(
+        future: _checkAuthentication(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          
+          if (snapshot.data == true) {
+            // Usuario autenticado, ir al home
+            return MainNavigationWrapper(onThemeChange: _updateTheme);
+          } else {
+            // No autenticado, mostrar login
+            return const LoginScreen();
+          }
+        },
+      ),
       debugShowCheckedModeBanner: false, // Oculta banner de debug
 
       // Rutas nombradas de la aplicación
@@ -55,7 +107,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/registro': (context) => const RegistroScreen(),
         '/rutas': (context) => const RouteSelectionScreen(),
-        '/main': (context) => const MainNavigationWrapper(),
+        '/main': (context) => MainNavigationWrapper(onThemeChange: _updateTheme),
       },
 
       // Configuración global de UI
@@ -76,38 +128,28 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  /// Construye el ThemeData principal de la aplicación.
-  ///
-  /// Configura:
-  /// - Esquema de colores basado en azul
-  /// - Estilos de AppBar, cards y componentes de navegación
-  /// - Diseño adaptado para móvil y tablet
-  ThemeData _buildThemeData() {
+  /// Construye el ThemeData para el tema claro.
+  ThemeData _buildLightTheme() {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue, // Color semilla
-        brightness: Brightness.light, // Tema claro
+        seedColor: Colors.blue,
+        brightness: Brightness.light,
       ),
-      useMaterial3: true, // Habilita Material 3
-
-      // Configuración de AppBar
-      appBarTheme: const AppBarTheme(
-        centerTitle: true, // Centra el título
-        elevation: 2, // Elevación sombra
-        scrolledUnderElevation: 4, // Elevación al hacer scroll
+      useMaterial3: true,
+      scaffoldBackgroundColor: Colors.grey[50],
+      appBarTheme: AppBarTheme(
+        centerTitle: true,
+        elevation: 0.8,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
       ),
-
-      // Configuración de Cards
       cardTheme: CardThemeData(
-        elevation: 2, // Elevación sombra
-        margin:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Márgenes
+        elevation: 2,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12), // Bordes redondeados
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
-
-      // Configuración de NavigationBar (Material Design 3)
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
         indicatorColor: Colors.blueAccent.withOpacity(0.2),
@@ -119,10 +161,7 @@ class MyApp extends StatelessWidget {
               fontWeight: FontWeight.w600,
             );
           }
-          return const TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-          );
+          return const TextStyle(color: Colors.grey, fontSize: 12);
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -131,40 +170,90 @@ class MyApp extends StatelessWidget {
           return IconThemeData(color: Colors.grey[600]);
         }),
       ),
-
-      // Configuración de BottomNavigationBar (versión móvil)
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: Colors.white, // Fondo blanco
-        selectedItemColor: Colors.blueAccent[700], // Color seleccionado
-        unselectedItemColor: Colors.grey[600], // Color no seleccionado
-        selectedLabelStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600, // Negrita para seleccionado
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 12, // Mismo tamaño para no seleccionado
-        ),
-        showUnselectedLabels: true, // Muestra siempre los labels
-        type: BottomNavigationBarType.fixed, // Tipo fijo
-        elevation: 4.0, // Elevación sombra
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.blueAccent[700],
+        unselectedItemColor: Colors.grey[600],
+        selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: const TextStyle(fontSize: 12),
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        elevation: 4.0,
       ),
-
-      // Configuración de NavigationRail (versión tablet)
       navigationRailTheme: NavigationRailThemeData(
-        backgroundColor: Colors.white, // Fondo blanco
-        selectedIconTheme:
-            IconThemeData(color: Colors.blueAccent[700]), // Icono seleccionado
-        unselectedIconTheme:
-            IconThemeData(color: Colors.grey[600]), // Icono no seleccionado
-        selectedLabelTextStyle: const TextStyle(
-          color: Colors.blueAccent, // Texto seleccionado
-          fontWeight: FontWeight.w600, // Negrita
+        backgroundColor: Colors.white,
+        selectedIconTheme: IconThemeData(color: Colors.blueAccent[700]),
+        unselectedIconTheme: IconThemeData(color: Colors.grey[600]),
+        selectedLabelTextStyle: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w600),
+        unselectedLabelTextStyle: const TextStyle(color: Colors.grey),
+        elevation: 4,
+        useIndicator: true,
+        indicatorColor: Colors.blueAccent.withOpacity(0.2),
+      ),
+    );
+  }
+
+  /// Construye el ThemeData para el tema oscuro.
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.blue,
+        brightness: Brightness.dark,
+      ),
+      useMaterial3: true,
+      scaffoldBackgroundColor: const Color(0xFF121212),
+      appBarTheme: AppBarTheme(
+        centerTitle: true,
+        elevation: 0.8,
+        backgroundColor: const Color(0xFF1F1F1F),
+        foregroundColor: Colors.white,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 2,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        unselectedLabelTextStyle:
-            const TextStyle(color: Colors.grey), // Texto no seleccionado
-        elevation: 4, // Elevación sombra
-        useIndicator: true, // Usa indicador visual
-        indicatorColor: Colors.blueAccent.withOpacity(0.2), // Color indicador
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: const Color(0xFF1F1F1F),
+        indicatorColor: Colors.blueAccent.withOpacity(0.3),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const TextStyle(
+              color: Colors.blueAccent,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            );
+          }
+          return const TextStyle(color: Colors.grey, fontSize: 12);
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: Colors.blueAccent);
+          }
+          return IconThemeData(color: Colors.grey[500]);
+        }),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: const Color(0xFF1F1F1F),
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.grey[500],
+        selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: const TextStyle(fontSize: 12),
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        elevation: 4.0,
+      ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: const Color(0xFF1F1F1F),
+        selectedIconTheme: const IconThemeData(color: Colors.blueAccent),
+        unselectedIconTheme: IconThemeData(color: Colors.grey[500]),
+        selectedLabelTextStyle: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w600),
+        unselectedLabelTextStyle: const TextStyle(color: Colors.grey),
+        elevation: 4,
+        useIndicator: true,
+        indicatorColor: Colors.blueAccent.withOpacity(0.2),
       ),
     );
   }
@@ -177,7 +266,9 @@ class MyApp extends StatelessWidget {
 /// - Adaptación automática al tipo de dispositivo
 /// - Estado de las pantallas con IndexedStack
 class MainNavigationWrapper extends StatefulWidget {
-  const MainNavigationWrapper({super.key});
+  final Function(bool)? onThemeChange;
+
+  const MainNavigationWrapper({super.key, this.onThemeChange});
 
   @override
   State<MainNavigationWrapper> createState() => _MainNavigationWrapperState();
@@ -211,6 +302,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             return ProfileScreen(
               userName: snapshot.data?['name'] ?? 'Usuario',
               userEmail: snapshot.data?['email'] ?? 'email@ejemplo.com',
+              onThemeChange: widget.onThemeChange,
             );
           }
           return const Center(child: CircularProgressIndicator());
@@ -253,15 +345,17 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   /// - Íconos en cápsula con efecto de selección
   /// - Labels que cambian de color al seleccionarse
   Widget _buildMobileLayout() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex, // Pantalla actual
         children: _screens, // Lista de pantallas
       ),
       bottomNavigationBar: NavigationBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
         height: 65,
-        indicatorColor: Colors.blueAccent.withOpacity(0.2),
+        indicatorColor: Colors.blueAccent.withOpacity(isDark ? 0.3 : 0.2),
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
@@ -271,13 +365,13 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               "lib/assets/icons/icon_home.png",
               width: 24,
               height: 24,
-              color: Colors.grey[600],
+              color: isDark ? Colors.grey[500] : Colors.grey[600],
             ),
             selectedIcon: Image.asset(
               "lib/assets/icons/icon_home.png",
               width: 24,
               height: 24,
-              color: Colors.blueAccent[700],
+              color: isDark ? Colors.blueAccent : Colors.blueAccent[700],
             ),
             label: 'Inicio',
           ),
@@ -286,13 +380,13 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               "lib/assets/icons/icon_user.png",
               width: 24,
               height: 24,
-              color: Colors.grey[600],
+              color: isDark ? Colors.grey[500] : Colors.grey[600],
             ),
             selectedIcon: Image.asset(
               "lib/assets/icons/icon_user.png",
               width: 24,
               height: 24,
-              color: Colors.blueAccent[700],
+              color: isDark ? Colors.blueAccent : Colors.blueAccent[700],
             ),
             label: 'Perfil',
           ),
@@ -308,6 +402,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   /// - Divisor vertical
   /// - Área de contenido principal
   Widget _buildTabletLayout() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedColor = isDark ? Colors.blueAccent : Colors.blueAccent[700];
+    final unselectedColor = isDark ? Colors.grey[500] : Colors.grey[600];
+    
     return Scaffold(
       body: Row(
         children: [
@@ -318,6 +416,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 setState(() => _currentIndex = index),
             extended: _extended, // Estado de expansión
             minExtendedWidth: 150, // Ancho mínimo expandido
+            backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
             leading: Column(
               children: [
                 const SizedBox(height: 16),
@@ -337,23 +436,18 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   "lib/assets/icons/icon_home.png",
                   width: 24,
                   height: 24,
-                  color: _currentIndex == 0
-                      ? Colors.blueAccent[700] // Azul para seleccionado
-                      : Colors.grey[600], // Gris para no seleccionado
+                  color: _currentIndex == 0 ? selectedColor : unselectedColor,
                 ),
                 selectedIcon: Image.asset(
                   "lib/assets/icons/icon_home.png",
                   width: 24,
                   height: 24,
-                  color:
-                      Colors.blueAccent[700], // Siempre azul para seleccionado
+                  color: selectedColor,
                 ),
                 label: Text(
                   'Inicio',
                   style: TextStyle(
-                    color: _currentIndex == 0
-                        ? Colors.blueAccent[700] // Azul para seleccionado
-                        : Colors.grey[600], // Gris para no seleccionado
+                    color: _currentIndex == 0 ? selectedColor : unselectedColor,
                   ),
                 ),
                 padding: const EdgeInsets.only(top: 3, bottom: 5),
@@ -363,23 +457,18 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   "lib/assets/icons/icon_user.png",
                   width: 24,
                   height: 24,
-                  color: _currentIndex == 1
-                      ? Colors.blueAccent[700] // Azul para seleccionado
-                      : Colors.grey[600], // Gris para no seleccionado
+                  color: _currentIndex == 1 ? selectedColor : unselectedColor,
                 ),
                 selectedIcon: Image.asset(
                   "lib/assets/icons/icon_user.png",
                   width: 24,
                   height: 24,
-                  color:
-                      Colors.blueAccent[700], // Siempre azul para seleccionado
+                  color: selectedColor,
                 ),
                 label: Text(
                   'Perfil',
                   style: TextStyle(
-                    color: _currentIndex == 1
-                        ? Colors.blueAccent[700] // Azul para seleccionado
-                        : Colors.grey[600], // Gris para no seleccionado
+                    color: _currentIndex == 1 ? selectedColor : unselectedColor,
                   ),
                 ),
                 padding: const EdgeInsets.only(top: 3, bottom: 5),

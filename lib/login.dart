@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:goway_user/main.dart';
 import 'package:goway_user/registro_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,6 +49,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.statusCode == 200 && responseData['success'] == true) {
         final prefs = await SharedPreferences.getInstance();
+        
+        // Guardar token de autenticación (crucial para recordar sesión)
+        if (responseData['token'] != null) {
+          await prefs.setString('authToken', responseData['token']);
+        }
+        
         await prefs.setString(
             'userName', responseData['user']['name'] ?? 'Usuario');
         await prefs.setString('userEmail', _emailController.text.trim());
@@ -58,11 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
           await prefs.setBool('rememberMe', true);
         }
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const MainNavigationWrapper()),
-        );
+        Navigator.pushReplacementNamed(context, '/main');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(responseData['error'] ?? 'Error desconocido')),
