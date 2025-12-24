@@ -52,9 +52,9 @@ class _LoginScreenState extends State<LoginScreen> {
         final prefs = await SharedPreferences.getInstance();
 
         // Guardar token de autenticación (crucial para recordar sesión)
-        String authToken = responseData['token'] ?? 
+        String authToken = responseData['token'] ??
             'token_${_emailController.text.trim()}_${DateTime.now().millisecondsSinceEpoch}';
-        
+
         await prefs.setString('authToken', authToken);
         debugPrint('Token guardado: $authToken');
 

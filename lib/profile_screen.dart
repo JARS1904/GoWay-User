@@ -364,7 +364,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     debugPrint('Sesión cerrada: authToken removido');
 
     if (!mounted) return;
-    
+
     // Usar pushReplacementNamed para limpiar el stack de navegación
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
   }

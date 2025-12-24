@@ -18,6 +18,7 @@ import 'package:goway_user/login.dart';
 import 'package:goway_user/registro_screen.dart';
 import 'package:goway_user/route_selection_screen.dart';
 import 'package:goway_user/profile_screen.dart';
+import 'package:goway_user/get_started_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Punto de entrada principal de la aplicación Flutter.
@@ -69,6 +70,29 @@ class _MyAppState extends State<MyApp> {
     return token != null && token.isNotEmpty;
   }
 
+  /// Verifica si el usuario ya ha visto el onboarding
+  Future<bool> _hasSeenOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasSeen = prefs.getBool('hasSeenOnboarding') ?? false;
+    debugPrint('¿Ha visto onboarding?: $hasSeen');
+    return hasSeen;
+  }
+
+  /// Determina cuál pantalla mostrar (GetStarted, Login o Home)
+  Future<String> _getInitialRoute() async {
+    final hasSeenOnboarding = await _hasSeenOnboarding();
+    if (!hasSeenOnboarding) {
+      return '/getstarted';
+    }
+
+    final isAuthenticated = await _checkAuthentication();
+    if (isAuthenticated) {
+      return '/main';
+    }
+
+    return '/login';
+  }
+
   /// Callback para actualizar el tema desde SettingsScreen
   void _updateTheme(bool isDarkMode) {
     setState(() {
@@ -83,8 +107,8 @@ class _MyAppState extends State<MyApp> {
       theme: _buildLightTheme(), // Tema claro
       darkTheme: _buildDarkTheme(), // Tema oscuro
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: FutureBuilder<bool>(
-        future: _checkAuthentication(),
+      home: FutureBuilder<String>(
+        future: _getInitialRoute(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
@@ -92,12 +116,22 @@ class _MyAppState extends State<MyApp> {
             );
           }
 
-          if (snapshot.data == true) {
-            // Usuario autenticado, ir al home
-            return MainNavigationWrapper(onThemeChange: _updateTheme);
-          } else {
-            // No autenticado, mostrar login
-            return const LoginScreen();
+          // Navegar a la ruta apropiada
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (snapshot.data != null && snapshot.data != '/main') {
+              Navigator.of(context).pushReplacementNamed(snapshot.data!);
+            }
+          });
+
+          // Retornar la pantalla por defecto según la ruta
+          switch (snapshot.data) {
+            case '/getstarted':
+              return const GetStartedScreen();
+            case '/login':
+              return const LoginScreen();
+            case '/main':
+            default:
+              return MainNavigationWrapper(onThemeChange: _updateTheme);
           }
         },
       ),
@@ -105,6 +139,7 @@ class _MyAppState extends State<MyApp> {
 
       // Rutas nombradas de la aplicación
       routes: {
+        '/getstarted': (context) => const GetStartedScreen(),
         '/login': (context) => const LoginScreen(),
         '/registro': (context) => const RegistroScreen(),
         '/rutas': (context) => const RouteSelectionScreen(),
