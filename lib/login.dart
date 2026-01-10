@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
 
   // Configuración API
-  final String _loginApiUrl = "http://192.168.30.101/GoWay/api/login.php";
+  final String _loginApiUrl = "https://antiquewhite-jackal-206479.hostingersite.com/api/login.php";
 
   @override
   void dispose() {

@@ -121,7 +121,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   List<String> _locations = [];
   List<dynamic> _routes = [];
   bool _loading = false;
-  final String _apiUrl = "http://192.168.30.101/GoWay/api/routes_api.php";
+  final String _apiUrl = "https://antiquewhite-jackal-206479.hostingersite.com/api/routes_api.php";
   Map<String, dynamic>? _selectedRoute;
 
   @override
