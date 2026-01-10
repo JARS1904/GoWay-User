@@ -83,6 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = _isDarkMode;
+    final isTablet = MediaQuery.of(context).size.width >= 600;
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
@@ -96,75 +97,184 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
         foregroundColor: isDark ? Colors.white : Colors.black,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Apariencia',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: isDark ? Colors.white : Colors.black,
-              ),
+      body: isTablet ? _buildTabletLayout(isDark) : _buildMobileLayout(isDark),
+    );
+  }
+
+  Widget _buildMobileLayout(bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Apariencia',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: isDark ? Colors.white : Colors.black,
             ),
-            const SizedBox(height: 16),
-            _buildSettingOption(
-              icon: _isDarkMode ? Icons.dark_mode : Icons.light_mode,
-              title: 'Modo Oscuro',
-              subtitle:
-                  _isDarkMode ? 'Modo oscuro activado' : 'Modo claro activado',
-              trailing: Switch(
-                value: _isDarkMode,
-                onChanged: _toggleDarkMode,
-                activeColor: Colors.blueAccent[700],
-                inactiveThumbColor: Colors.grey[400],
-              ),
-              isDark: isDark,
+          ),
+          const SizedBox(height: 16),
+          _buildSettingOption(
+            icon: _isDarkMode ? Icons.dark_mode : Icons.light_mode,
+            title: 'Modo Oscuro',
+            subtitle:
+                _isDarkMode ? 'Modo oscuro activado' : 'Modo claro activado',
+            trailing: Switch(
+              value: _isDarkMode,
+              onChanged: _toggleDarkMode,
+              activeColor: Colors.blueAccent[700],
+              inactiveThumbColor: Colors.grey[400],
             ),
-            const SizedBox(height: 40),
-            Text(
-              'Información',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: isDark ? Colors.white : Colors.black,
-              ),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 40),
+          Text(
+            'Información',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: isDark ? Colors.white : Colors.black,
             ),
-            const SizedBox(height: 16),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 6),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Versión de la Aplicación',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '2.0.0',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      ),
-                    ),
-                  ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.info_outlined,
+                    size: 24,
+                    color: Colors.blueAccent[700],
+                  ),
+                ),
+                title: Text(
+                  'Versión de la Aplicación',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                subtitle: Text(
+                  '2.0.0',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 16,
                 ),
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabletLayout(bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32.0),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Apariencia',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildSettingOption(
+                icon: _isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                title: 'Modo Oscuro',
+                subtitle: _isDarkMode
+                    ? 'Modo oscuro activado'
+                    : 'Modo claro activado',
+                trailing: Switch(
+                  value: _isDarkMode,
+                  onChanged: _toggleDarkMode,
+                  activeColor: Colors.blueAccent[700],
+                  inactiveThumbColor: Colors.grey[400],
+                ),
+                isDark: isDark,
+              ),
+              const SizedBox(height: 60),
+              Text(
+                'Información',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.info_outlined,
+                        size: 24,
+                        color: Colors.blueAccent[700],
+                      ),
+                    ),
+                    title: Text(
+                      'Versión de la Aplicación',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '2.0.0',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 16,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );
