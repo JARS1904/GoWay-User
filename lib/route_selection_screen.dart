@@ -121,7 +121,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   List<String> _locations = [];
   List<dynamic> _routes = [];
   bool _loading = false;
-  final String _apiUrl = "https://antiquewhite-jackal-206479.hostingersite.com/api/routes_api.php";
+  final String _apiUrl =
+      "https://antiquewhite-jackal-206479.hostingersite.com/api/routes_api.php";
   Map<String, dynamic>? _selectedRoute;
 
   @override
@@ -894,10 +895,10 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.grey[300]!,
+                    color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
                     width: 2,
                   ),
                 ),
