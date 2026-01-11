@@ -89,9 +89,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Rutas Favoritas'),
+          title: const Text(
+            'Rutas favoritas',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           centerTitle: true,
-          elevation: 0,
+          elevation: 0.8,
+          backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+          foregroundColor: isDark ? Colors.white : Colors.black,
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -102,9 +107,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     if (_errorMessage != null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Rutas Favoritas'),
+          title: const Text(
+            'Rutas favoritas',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           centerTitle: true,
-          elevation: 0,
+          elevation: 0.8,
+          backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+          foregroundColor: isDark ? Colors.white : Colors.black,
         ),
         body: Center(
           child: Column(
@@ -145,9 +155,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget _buildMobileLayout(bool isDark) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rutas Favoritas'),
+        title: const Text(
+          'Rutas favoritas',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
-        elevation: 0,
+        elevation: 0.8,
+        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+        foregroundColor: isDark ? Colors.white : Colors.black,
       ),
       body: _favoriteRoutes.isEmpty
           ? _buildEmptyState(isDark)
@@ -195,8 +210,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final empresaNombre = route['empresa_nombre'] ?? 'Empresa desconocida';
     final origen = route['origen'] ?? 'Origen desconocido';
     final destino = route['destino'] ?? 'Destino desconocido';
-    final horarios = route['horarios'] is List ? (route['horarios'] as List).length : 0;
-    final routeId = route['id_ruta']?.toString() ?? route['id']?.toString() ?? '';
+    final horarios =
+        route['horarios'] is List ? (route['horarios'] as List).length : 0;
+    final routeId =
+        route['id_ruta']?.toString() ?? route['id']?.toString() ?? '';
 
     return Card(
       color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
@@ -317,7 +334,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              
+
               // Origen y Destino con iconos
               Row(
                 children: [
@@ -366,7 +383,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 color: isDark ? Colors.grey[600] : Colors.grey[300],
               ),
               const SizedBox(height: 8),
-              
+
               // Horarios disponibles
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

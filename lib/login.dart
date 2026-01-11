@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         final userName = responseData['user']['name'] ?? 'Usuario';
         await prefs.setString('userName', userName);
-        
+
         await prefs.setString('userEmail', _emailController.text.trim());
 
         // Guardar el ID del usuario

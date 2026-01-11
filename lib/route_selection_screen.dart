@@ -121,8 +121,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   List<String> _locations = [];
   List<dynamic> _routes = [];
   bool _loading = false;
-  final String _apiUrl =
-      "http://192.168.30.101/GoWay/api/routes_api.php";
+  final String _apiUrl = "http://192.168.30.101/GoWay/api/routes_api.php";
   Map<String, dynamic>? _selectedRoute;
 
   @override
@@ -1222,7 +1221,7 @@ class RouteDetailsScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
-    
+
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
@@ -1261,87 +1260,30 @@ class RouteDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            Text(
-              route['nombre'] ?? 'Ruta sin nombre',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${route['origen']} - ${route['destino']}',
-              style: TextStyle(
-                fontSize: 18,
-                color: isDark ? Colors.grey[300] : Colors.grey[700],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Divider(
-              color: isDark ? Colors.grey[600] : Colors.grey[300],
-            ),
-            const SizedBox(height: 16),
-
-            // Información de la empresa
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
-                  width: 2,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Información de la empresa:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
+                Text(
+                  route['nombre'] ?? 'Ruta sin nombre',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
-                  const SizedBox(height: 12),
-                  _buildInfoRow(Icons.business_rounded, 'Nombre:',
-                      route['empresa_nombre'],
-                      isDark: isDark),
-                  _buildInfoRow(Icons.phone_android_rounded, 'Teléfono:',
-                      route['empresa_telefono'],
-                      isDark: isDark),
-                  _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
-                      route['empresa_direccion'] ?? 'No especificada',
-                      isDark: isDark),
-                  _buildInfoRow(Icons.email_rounded, 'Email:',
-                      route['empresa_email'] ?? 'No especificado',
-                      isDark: isDark),
-                ],
-              ),
-            ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${route['origen']} - ${route['destino']}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Divider(
+                  color: isDark ? Colors.grey[600] : Colors.grey[300],
+                ),
+                const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
-            Divider(
-              color: isDark ? Colors.grey[600] : Colors.grey[300],
-            ),
-            const SizedBox(height: 16),
-
-            // Horarios disponibles
-            Text(
-              'Horarios disponibles:',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black,
-              ),
-            ),
-            const SizedBox(height: 20),
-            ...uniqueSchedules.map<Widget>((horario) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Container(
+                // Información de la empresa
+                Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
@@ -1353,286 +1295,353 @@ class RouteDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            route['empresa_nombre'],
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : Colors.black,
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_month_rounded,
-                                size: 20,
-                                color: Colors.green[700],
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                horario['dia_semana'],
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: isDark ? Colors.white : Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              route['origen'],
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
-                            ),
-                            Icon(Icons.arrow_forward,
-                                size: 16,
-                                color: isDark ? Colors.grey : Colors.black),
-                            Text(
-                              route['destino'],
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
-                            ),
-                          ],
+                      Text(
+                        'Información de la empresa:',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 22),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on_rounded,
-                                  size: 20,
-                                  color: Colors.blue,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Salida',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color:
-                                        isDark ? Colors.grey[400] : Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on_rounded,
-                                  size: 20,
-                                  color: Colors.red,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Llegada',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color:
-                                        isDark ? Colors.grey[400] : Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              horario['hora_salida'],
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
-                            ),
-                            Text(
-                              horario['hora_llegada'],
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 22),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.repeat_rounded,
-                              size: 20,
-                              color: Colors.orange,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Frecuencia: ${horario['frecuencia']}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isDark ? Colors.white : Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Paradas de la ruta
-                      Padding(
-                        padding: const EdgeInsets.only(left: 22),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.traffic_rounded,
-                                  size: 20,
-                                  color: Colors.purple,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Paradas:',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: isDark ? Colors.white : Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ...(route['paradas'] as List).map<Widget>((parada) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 28, bottom: 4),
-                                child: Text(
-                                  '• $parada',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: isDark ? Colors.white : Colors.black,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Información del conductor y vehículo
-                      Padding(
-                        padding: const EdgeInsets.only(left: 22),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Divider(),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.person_rounded,
-                                  size: 20,
-                                  color: Colors.blue[800],
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Conductor: ${horario['conductor_nombre'] ?? 'N/A'}',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.directions_bus_rounded,
-                                  size: 20,
-                                  color: Colors.blue[700],
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Vehículo: ${horario['vehiculo_modelo'] ?? 'N/A'}',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.confirmation_number_rounded,
-                                  size: 20,
-                                  color: Colors.orange[800],
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Placa: ${horario['vehiculo_placa'] ?? 'N/A'}',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.people_alt_rounded,
-                                  size: 20,
-                                  color: Colors.purple[800],
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Capacidad: ${horario['vehiculo_capacidad']?.toString() ?? 'N/A'} pasajeros',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                      const SizedBox(height: 12),
+                      _buildInfoRow(Icons.business_rounded, 'Nombre:',
+                          route['empresa_nombre'],
+                          isDark: isDark),
+                      _buildInfoRow(Icons.phone_android_rounded, 'Teléfono:',
+                          route['empresa_telefono'],
+                          isDark: isDark),
+                      _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
+                          route['empresa_direccion'] ?? 'No especificada',
+                          isDark: isDark),
+                      _buildInfoRow(Icons.email_rounded, 'Email:',
+                          route['empresa_email'] ?? 'No especificado',
+                          isDark: isDark),
                     ],
                   ),
                 ),
-              );
-            }).toList(),
+
+                const SizedBox(height: 16),
+                Divider(
+                  color: isDark ? Colors.grey[600] : Colors.grey[300],
+                ),
+                const SizedBox(height: 16),
+
+                // Horarios disponibles
+                Text(
+                  'Horarios disponibles:',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ...uniqueSchedules.map<Widget>((horario) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF3C3C3C)
+                              : Colors.grey[300]!,
+                          width: 2,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                route['empresa_nombre'],
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_month_rounded,
+                                    size: 20,
+                                    color: Colors.green[700],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    horario['dia_semana'],
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color:
+                                          isDark ? Colors.white : Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 2),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  route['origen'],
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                                Icon(Icons.arrow_forward,
+                                    size: 16,
+                                    color: isDark ? Colors.grey : Colors.black),
+                                Text(
+                                  route['destino'],
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 22),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on_rounded,
+                                      size: 20,
+                                      color: Colors.blue,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Salida',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark
+                                            ? Colors.grey[400]
+                                            : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on_rounded,
+                                      size: 20,
+                                      color: Colors.red,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Llegada',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark
+                                            ? Colors.grey[400]
+                                            : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  horario['hora_salida'],
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                                Text(
+                                  horario['hora_llegada'],
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 22),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.repeat_rounded,
+                                  size: 20,
+                                  color: Colors.orange,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Frecuencia: ${horario['frecuencia']}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // Paradas de la ruta
+                          Padding(
+                            padding: const EdgeInsets.only(left: 22),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.traffic_rounded,
+                                      size: 20,
+                                      color: Colors.purple,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Paradas:',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: isDark
+                                            ? Colors.white
+                                            : Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                ...(route['paradas'] as List)
+                                    .map<Widget>((parada) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 28, bottom: 4),
+                                    child: Text(
+                                      '• $parada',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: isDark
+                                            ? Colors.white
+                                            : Colors.black,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Información del conductor y vehículo
+                          Padding(
+                            padding: const EdgeInsets.only(left: 22),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Divider(),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.person_rounded,
+                                      size: 20,
+                                      color: Colors.blue[800],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Conductor: ${horario['conductor_nombre'] ?? 'N/A'}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.directions_bus_rounded,
+                                      size: 20,
+                                      color: Colors.blue[700],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Vehículo: ${horario['vehiculo_modelo'] ?? 'N/A'}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.confirmation_number_rounded,
+                                      size: 20,
+                                      color: Colors.orange[800],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Placa: ${horario['vehiculo_placa'] ?? 'N/A'}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.people_alt_rounded,
+                                      size: 20,
+                                      color: Colors.purple[800],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Capacidad: ${horario['vehiculo_capacidad']?.toString() ?? 'N/A'} pasajeros',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
               ],
             ),
           ),

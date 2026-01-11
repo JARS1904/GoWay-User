@@ -52,8 +52,7 @@ class _UserListScreenState extends State<UserListScreen> {
   List<User> users = [];
   bool isLoading = true;
   bool hasError = false;
-  final String apiUrl =
-      "http://192.168.30.101/GoWay/api/usuarios.php"; 
+  final String apiUrl = "http://192.168.30.101/GoWay/api/usuarios.php";
 
   @override
   void initState() {
