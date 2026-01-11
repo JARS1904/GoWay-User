@@ -147,8 +147,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   /// Carga los favoritos actuales del usuario
   Future<void> _loadFavorites() async {
     try {
-      final url =
-          '$_favoritesApiUrl?id_usuario=$_userId&action=get_favorites';
+      final url = '$_favoritesApiUrl?id_usuario=$_userId&action=get_favorites';
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {

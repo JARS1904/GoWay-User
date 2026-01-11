@@ -230,7 +230,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final empresaNombre = route['empresa_nombre'] ?? 'Empresa desconocida';
     final origen = route['origen'] ?? 'Origen desconocido';
     final destino = route['destino'] ?? 'Destino desconocido';
-    
+
     // Deduplicar horarios (igual que en route_selection_screen)
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
@@ -242,7 +242,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         .values
         .toList();
     final horarios = uniqueSchedules.length;
-    
+
     final routeId =
         route['id_ruta']?.toString() ?? route['id']?.toString() ?? '';
 
