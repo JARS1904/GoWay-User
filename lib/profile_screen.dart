@@ -58,6 +58,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               elevation: 0.8,
               backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
               foregroundColor: isDark ? Colors.white : Colors.black,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  tooltip: 'Cerrar sesión',
+                  onPressed: _showLogoutDialog,
+                ),
+              ],
             ),
       body: isTablet ? _buildTabletLayout(isDark) : _buildMobileLayout(isDark),
     );
@@ -436,6 +443,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context) => SettingsScreen(
           onThemeChange: widget.onThemeChange,
         ),
+      ),
+    );
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cerrar Sesión'),
+        content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              // Limpiar SharedPreferences
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.clear();
+
+              // Ir a la pantalla de login
+              if (mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login',
+                  (route) => false,
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+            ),
+            child: const Text(
+              'Cerrar Sesión',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
