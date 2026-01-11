@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
 
   // Configuración API
-  final String _loginApiUrl = "https://antiquewhite-jackal-206479.hostingersite.com/api/login.php";
+  final String _loginApiUrl = "http://192.168.30.101/GoWay/api/login.php";
 
   @override
   void dispose() {
@@ -47,6 +47,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final responseData = json.decode(response.body);
       debugPrint('Respuesta de login: $responseData');
+      print('========== LOGIN RESPONSE ==========');
+      print('Full response: $responseData');
+      if (responseData['user'] != null) {
+        print('User object: ${responseData['user']}');
+        print('User ID: ${responseData['user']['id']}');
+      }
+      print('========== END LOGIN ==========');
 
       if (response.statusCode == 200 && responseData['success'] == true) {
         final prefs = await SharedPreferences.getInstance();
@@ -58,9 +65,15 @@ class _LoginScreenState extends State<LoginScreen> {
         await prefs.setString('authToken', authToken);
         debugPrint('Token guardado: $authToken');
 
-        await prefs.setString(
-            'userName', responseData['user']['name'] ?? 'Usuario');
+        final userName = responseData['user']['name'] ?? 'Usuario';
+        await prefs.setString('userName', userName);
+        
         await prefs.setString('userEmail', _emailController.text.trim());
+
+        // Guardar el ID del usuario
+        final userId = responseData['user']['id'].toString();
+        await prefs.setString('userId', userId);
+        debugPrint('User ID guardado: $userId');
 
         if (_rememberMe) {
           await prefs.setBool('rememberMe', true);

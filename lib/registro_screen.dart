@@ -23,7 +23,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
   bool _obscureConfirmPassword = true;
 
   // URL de la API de registro
-  final String _apiUrl = "https://antiquewhite-jackal-206479.hostingersite.com/api/usuarios.php";
+  final String _apiUrl = "http://192.168.30.101/GoWay/api/usuarios.php";
 
   @override
   void dispose() {

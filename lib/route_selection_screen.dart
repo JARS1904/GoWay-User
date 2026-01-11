@@ -122,7 +122,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   List<dynamic> _routes = [];
   bool _loading = false;
   final String _apiUrl =
-      "https://antiquewhite-jackal-206479.hostingersite.com/api/routes_api.php";
+      "http://192.168.30.101/GoWay/api/routes_api.php";
   Map<String, dynamic>? _selectedRoute;
 
   @override
@@ -1220,6 +1220,9 @@ class RouteDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+    
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
@@ -1249,10 +1252,15 @@ class RouteDetailsScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        padding: EdgeInsets.all(isTablet ? 24.0 : 16.0),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isTablet ? 800 : double.infinity,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             Text(
               route['nombre'] ?? 'Ruta sin nombre',
               style: TextStyle(
@@ -1625,7 +1633,9 @@ class RouteDetailsScreen extends StatelessWidget {
                 ),
               );
             }).toList(),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );

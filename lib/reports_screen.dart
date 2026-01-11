@@ -160,7 +160,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         const SizedBox(height: 4),
                         Text(
                           'Gravedad: ${report['severity'].toString().toUpperCase()}',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
                                 color: _getSeverityColor(report['severity']),
                               ),
                         ),
