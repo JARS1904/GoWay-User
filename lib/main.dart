@@ -19,6 +19,8 @@ import 'package:goway_user/registro_screen.dart';
 import 'package:goway_user/route_selection_screen.dart';
 import 'package:goway_user/profile_screen.dart';
 import 'package:goway_user/get_started_screen.dart';
+import 'package:goway_user/favorites_screen.dart';
+import 'package:goway_user/reports_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Punto de entrada principal de la aplicación Flutter.
@@ -323,7 +325,6 @@ class MainNavigationWrapper extends StatefulWidget {
 /// - Carga de datos de usuario
 class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   int _currentIndex = 0; // Índice de pantalla actual (0 = Inicio, 1 = Perfil)
-  bool _extended = false; // Estado de expansión del NavigationRail (tablet)
   late List<Widget> _screens; // Lista de pantallas disponibles
 
   @override
@@ -332,6 +333,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     // Inicialización de pantallas
     _screens = [
       const RouteSelectionScreen(), // Pantalla de inicio
+      const FavoritesScreen(), // Pantalla de rutas favoritas
+      const ReportsScreen(), // Pantalla de reportes
       FutureBuilder(
         future: _loadUserData(), // Carga datos de usuario
         builder: (context, snapshot) {
@@ -397,7 +400,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
         height: 65,
         indicatorColor: Colors.blueAccent.withOpacity(isDark ? 0.3 : 0.2),
-        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
         destinations: [
@@ -415,6 +418,28 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               color: isDark ? Colors.blueAccent : Colors.blueAccent[700],
             ),
             label: 'Inicio',
+          ),
+          NavigationDestination(
+            icon: Icon(
+              Icons.favorite_outline,
+              color: isDark ? Colors.grey[500] : Colors.grey[600],
+            ),
+            selectedIcon: Icon(
+              Icons.favorite,
+              color: isDark ? Colors.blueAccent : Colors.blueAccent[700],
+            ),
+            label: 'Favoritos',
+          ),
+          NavigationDestination(
+            icon: Icon(
+              Icons.assignment_outlined,
+              color: isDark ? Colors.grey[500] : Colors.grey[600],
+            ),
+            selectedIcon: Icon(
+              Icons.assignment,
+              color: isDark ? Colors.blueAccent : Colors.blueAccent[700],
+            ),
+            label: 'Reportes',
           ),
           NavigationDestination(
             icon: Image.asset(
@@ -439,7 +464,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   /// Construye el layout para dispositivos tablet.
   ///
   /// Características:
-  /// - NavigationRail lateral expandible
+  /// - NavigationRail lateral con labels debajo de los iconos
   /// - Divisor vertical
   /// - Área de contenido principal
   Widget _buildTabletLayout() {
@@ -455,21 +480,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             selectedIndex: _currentIndex,
             onDestinationSelected: (index) =>
                 setState(() => _currentIndex = index),
-            extended: _extended, // Estado de expansión
-            minExtendedWidth: 150, // Ancho mínimo expandido
+            labelType: NavigationRailLabelType.all, // Labels siempre visibles
             backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
-            leading: Column(
-              children: [
-                const SizedBox(height: 16),
-                // Botón para expandir/contraer
-                IconButton(
-                  icon: Icon(
-                      _extended ? Icons.chevron_left : Icons.chevron_right),
-                  onPressed: () => setState(() => _extended = !_extended),
-                  tooltip: _extended ? 'Contraer barra' : 'Expandir barra',
-                ),
-              ],
-            ),
+            groupAlignment: 0.0, // Centra los iconos verticalmente
             // Destinos de navegación
             destinations: [
               NavigationRailDestination(
@@ -491,14 +504,45 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     color: _currentIndex == 0 ? selectedColor : unselectedColor,
                   ),
                 ),
-                padding: const EdgeInsets.only(top: 3, bottom: 5),
+              ),
+              NavigationRailDestination(
+                icon: Icon(
+                  Icons.favorite_outline,
+                  color: _currentIndex == 1 ? selectedColor : unselectedColor,
+                ),
+                selectedIcon: Icon(
+                  Icons.favorite,
+                  color: selectedColor,
+                ),
+                label: Text(
+                  'Favoritos',
+                  style: TextStyle(
+                    color: _currentIndex == 1 ? selectedColor : unselectedColor,
+                  ),
+                ),
+              ),
+              NavigationRailDestination(
+                icon: Icon(
+                  Icons.assignment_outlined,
+                  color: _currentIndex == 2 ? selectedColor : unselectedColor,
+                ),
+                selectedIcon: Icon(
+                  Icons.assignment,
+                  color: selectedColor,
+                ),
+                label: Text(
+                  'Reportes',
+                  style: TextStyle(
+                    color: _currentIndex == 2 ? selectedColor : unselectedColor,
+                  ),
+                ),
               ),
               NavigationRailDestination(
                 icon: Image.asset(
                   "lib/assets/icons/icon_user.png",
                   width: 24,
                   height: 24,
-                  color: _currentIndex == 1 ? selectedColor : unselectedColor,
+                  color: _currentIndex == 3 ? selectedColor : unselectedColor,
                 ),
                 selectedIcon: Image.asset(
                   "lib/assets/icons/icon_user.png",
@@ -509,10 +553,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 label: Text(
                   'Perfil',
                   style: TextStyle(
-                    color: _currentIndex == 1 ? selectedColor : unselectedColor,
+                    color: _currentIndex == 3 ? selectedColor : unselectedColor,
                   ),
                 ),
-                padding: const EdgeInsets.only(top: 3, bottom: 5),
               ),
             ],
           ),
