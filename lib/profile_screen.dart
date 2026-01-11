@@ -14,7 +14,6 @@
 // Mantenido por: Hydra. Inc
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'terms_and_conditions_screen.dart';
 import 'settings_screen.dart';
 
@@ -58,13 +57,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               elevation: 0.8,
               backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
               foregroundColor: isDark ? Colors.white : Colors.black,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.logout),
-                  tooltip: 'Cerrar sesión',
-                  onPressed: _showLogoutDialog,
-                ),
-              ],
             ),
       body: isTablet ? _buildTabletLayout(isDark) : _buildMobileLayout(isDark),
     );
@@ -138,22 +130,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () => _navigateToSettings(context),
               isDark: isDark,
             ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: _logout,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                minimumSize: const Size(double.infinity, 50),
-              ),
-              child: const Text(
-                'Cerrar Sesión',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
           ],
         ),
       ),
@@ -212,25 +188,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 40),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _logout,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                          child: const Text(
-                            'Cerrar Sesión',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -360,21 +317,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    // Remover token y datos de sesión
-    await prefs.remove('authToken');
-    await prefs.remove('userName');
-    await prefs.remove('userEmail');
-    await prefs.remove('rememberMe');
-    debugPrint('Sesión cerrada: authToken removido');
-
-    if (!mounted) return;
-
-    // Usar pushReplacementNamed para limpiar el stack de navegación
-    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-  }
-
   void _showEditProfileDialog() {
     final nameController = TextEditingController(text: widget.userName);
     final emailController = TextEditingController(text: widget.userEmail);
@@ -443,44 +385,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context) => SettingsScreen(
           onThemeChange: widget.onThemeChange,
         ),
-      ),
-    );
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cerrar Sesión'),
-        content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              // Limpiar SharedPreferences
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.clear();
-
-              // Ir a la pantalla de login
-              if (mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/login',
-                  (route) => false,
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-            ),
-            child: const Text(
-              'Cerrar Sesión',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
       ),
     );
   }
