@@ -30,6 +30,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     _initializeUserId();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadFavoriteRoutes();
+  }
+
   Future<void> _initializeUserId() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId') ?? '1';
@@ -163,6 +169,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         elevation: 0.8,
         backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
         foregroundColor: isDark ? Colors.white : Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadFavoriteRoutes,
+            tooltip: 'Recargar',
+          ),
+        ],
       ),
       body: _favoriteRoutes.isEmpty
           ? _buildEmptyState(isDark)
@@ -184,6 +197,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         title: const Text('Rutas Favoritas'),
         centerTitle: true,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadFavoriteRoutes,
+            tooltip: 'Recargar',
+          ),
+        ],
       ),
       body: _favoriteRoutes.isEmpty
           ? _buildEmptyState(isDark)
@@ -210,8 +230,19 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final empresaNombre = route['empresa_nombre'] ?? 'Empresa desconocida';
     final origen = route['origen'] ?? 'Origen desconocido';
     final destino = route['destino'] ?? 'Destino desconocido';
-    final horarios =
-        route['horarios'] is List ? (route['horarios'] as List).length : 0;
+    
+    // Deduplicar horarios (igual que en route_selection_screen)
+    final uniqueSchedules = (route['horarios'] as List)
+        .fold<Map<String, dynamic>>({}, (map, schedule) {
+          final key =
+              '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
+          map[key] = schedule;
+          return map;
+        })
+        .values
+        .toList();
+    final horarios = uniqueSchedules.length;
+    
     final routeId =
         route['id_ruta']?.toString() ?? route['id']?.toString() ?? '';
 

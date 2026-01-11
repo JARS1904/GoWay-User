@@ -121,13 +121,57 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   List<String> _locations = [];
   List<dynamic> _routes = [];
   bool _loading = false;
+  late String _userId;
   final String _apiUrl = "http://192.168.30.101/GoWay/api/routes_api.php";
+  final String _favoritesApiUrl =
+      "http://192.168.30.101/GoWay/api/favorites_routes_api.php";
   Map<String, dynamic>? _selectedRoute;
+  Set<String> _favoriteRouteIds = {};
 
   @override
   void initState() {
     super.initState();
+    _initializeUserId();
+  }
+
+  Future<void> _initializeUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId') ?? '1';
+    setState(() {
+      _userId = userId;
+    });
+    _loadFavorites();
     _fetchLocations();
+  }
+
+  /// Carga los favoritos actuales del usuario
+  Future<void> _loadFavorites() async {
+    try {
+      final url =
+          '$_favoritesApiUrl?id_usuario=$_userId&action=get_favorites';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final decodedResponse = jsonDecode(response.body);
+
+        Set<String> favoriteIds = {};
+        if (decodedResponse is List) {
+          for (var route in decodedResponse) {
+            if (route is Map && route.containsKey('id_ruta')) {
+              favoriteIds.add(route['id_ruta'].toString());
+            } else if (route is Map && route.containsKey('id')) {
+              favoriteIds.add(route['id'].toString());
+            }
+          }
+        }
+
+        setState(() {
+          _favoriteRouteIds = favoriteIds;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error al cargar favoritos: $e');
+    }
   }
 
   Future<void> _fetchLocations() async {
@@ -768,27 +812,89 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 6,
-                    horizontal: 20,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      _favoriteRouteIds.contains(route['id_ruta']?.toString())
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                    ),
+                    color: Colors.redAccent,
+                    onPressed: () async {
+                      final routeId = route['id_ruta']?.toString() ?? '';
+                      if (routeId.isEmpty) return;
+
+                      final isFavorite = _favoriteRouteIds.contains(routeId);
+                      try {
+                        final response = await http.post(
+                          Uri.parse(_favoritesApiUrl),
+                          headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                          },
+                          body: {
+                            'id_usuario': _userId,
+                            'id_ruta': routeId,
+                            'action':
+                                isFavorite ? 'remove_favorite' : 'add_favorite'
+                          },
+                        );
+
+                        if (response.statusCode == 200) {
+                          setState(() {
+                            if (isFavorite) {
+                              _favoriteRouteIds.remove(routeId);
+                            } else {
+                              _favoriteRouteIds.add(routeId);
+                            }
+                          });
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(isFavorite
+                                    ? 'Removido de favoritos'
+                                    : 'Agregado a favoritos'),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent[700],
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(20),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 20,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent[700],
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        'Ver detalles',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Ver detalles',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                ],
               ),
             ],
           ),
