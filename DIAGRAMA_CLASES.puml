@@ -1,0 +1,164 @@
+@startuml GoWay_Logic_Classes
+!theme plain
+left to right direction
+
+' ============================================================================
+' DIAGRAMA DE CLASES - GOWAY TRANSPORTE PÚBLICO
+' ============================================================================
+' Proyecto: GoWay User | Versión: 2.0.0 | Fecha: 21-01-2026
+' Enfoque: Lógica de negocio esencial
+' ============================================================================
+
+package "Data Models" {
+  class User {
+    - id: int
+    - name: String
+    - email: String
+    --
+    + fromJson(json): User
+    + toJson(): Map
+  }
+
+  class Route {
+    - id: String
+    - origin: String
+    - destination: String
+  }
+
+  class Location {
+    - latitude: double
+    - longitude: double
+  }
+}
+
+package "Authentication" {
+  class LoginController {
+    + login(): Future<bool>
+    + validate(): bool
+  }
+
+  class RegistroController {
+    + registrar(): Future<bool>
+    + validate(): bool
+  }
+
+  class AuthenticationService {
+    + checkAuthentication(): Future<bool>
+    + logout(): Future<void>
+  }
+}
+
+package "Core Services" {
+  class RouteController {
+    - routes: List<Route>
+    - selectedRoute: Route?
+    --
+    + searchRoutes(origin, destination): Future<void>
+    + selectRoute(route: Route): void
+  }
+
+  class FavoritesController {
+    - favoriteRoutes: List<Route>
+    --
+    + loadFavorites(): Future<void>
+    + addFavorite(routeId): Future<bool>
+    + removeFavorite(routeId): Future<bool>
+  }
+
+  class MapController {
+    - currentLocation: Location
+    --
+    + centerMap(location: Location): void
+    + getCurrentLocation(): Location
+  }
+
+  class LocationService {
+    + getCurrentPosition(): Future<Location>
+  }
+}
+
+package "User & Settings" {
+  class ProfileController {
+    - user: User
+    --
+    + loadUserData(): Future<void>
+    + updateProfile(name, email): Future<bool>
+  }
+
+  class ThemeController {
+    - isDarkMode: bool
+    --
+    + toggleDarkMode(): void
+    + loadThemePreference(): Future<void>
+  }
+}
+
+package "Infrastructure" {
+  class ApiClient {
+    + get(endpoint): Future
+    + post(endpoint, body): Future
+  }
+
+  class PreferenceManager {
+    + loadBool(key): Future<bool>
+    + saveBool(key, value): Future<void>
+    + loadString(key): Future<String?>
+  }
+}
+
+' ============================================================================
+' RELACIONES
+' ============================================================================
+
+User "1" -- "1" ProfileController
+Route "many" -- "1" RouteController
+Route "many" -- "1" FavoritesController
+Location "1" -- "1" MapController
+
+LoginController --> AuthenticationService
+RegistroController --> AuthenticationService
+
+AuthenticationService --> ApiClient
+AuthenticationService --> PreferenceManager
+
+RouteController --> ApiClient
+RouteController --> FavoritesController
+RouteController --> PreferenceManager
+
+FavoritesController --> ApiClient
+FavoritesController --> PreferenceManager
+
+MapController --> LocationService
+LocationService --> PreferenceManager
+
+ProfileController --> AuthenticationService
+ProfileController --> ApiClient
+
+ThemeController --> PreferenceManager
+
+note bottom of User
+  Estructura de datos
+  del usuario
+end note
+
+note bottom of LoginController
+  Gestiona lógica
+  de autenticación
+end note
+
+note bottom of RouteController
+  Orquesta búsqueda
+  y selección de rutas
+end note
+
+note bottom of MapController
+  Controla interacción
+  con el mapa
+end note
+
+note bottom of ApiClient
+  Cliente HTTP para
+  comunicación con API
+end note
+
+@enduml

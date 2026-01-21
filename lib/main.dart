@@ -20,7 +20,7 @@ import 'package:goway_user/route_selection_screen.dart';
 import 'package:goway_user/profile_screen.dart';
 import 'package:goway_user/get_started_screen.dart';
 import 'package:goway_user/favorites_screen.dart';
-import 'package:goway_user/reports_screen.dart';
+import 'package:goway_user/map_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Punto de entrada principal de la aplicación Flutter.
@@ -334,7 +334,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     _screens = [
       const RouteSelectionScreen(), // Pantalla de inicio
       const FavoritesScreen(), // Pantalla de rutas favoritas
-      const ReportsScreen(), // Pantalla de reportes
+      const MapScreen(), // Pantalla de mapas
       FutureBuilder(
         future: _loadUserData(), // Carga datos de usuario
         builder: (context, snapshot) {
@@ -432,14 +432,14 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           ),
           NavigationDestination(
             icon: Icon(
-              Icons.assignment_outlined,
+              Icons.map_outlined,
               color: isDark ? Colors.grey[500] : Colors.grey[600],
             ),
             selectedIcon: Icon(
-              Icons.assignment,
+              Icons.map,
               color: isDark ? Colors.blueAccent : Colors.blueAccent[700],
             ),
-            label: 'Reportes',
+            label: 'Mapas',
           ),
           NavigationDestination(
             icon: Image.asset(
@@ -523,15 +523,15 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               ),
               NavigationRailDestination(
                 icon: Icon(
-                  Icons.assignment_outlined,
+                  Icons.map_outlined,
                   color: _currentIndex == 2 ? selectedColor : unselectedColor,
                 ),
                 selectedIcon: Icon(
-                  Icons.assignment,
+                  Icons.map,
                   color: selectedColor,
                 ),
                 label: Text(
-                  'Reportes',
+                  'Mapas',
                   style: TextStyle(
                     color: _currentIndex == 2 ? selectedColor : unselectedColor,
                   ),

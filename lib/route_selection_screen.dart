@@ -16,6 +16,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:goway_user/map_screen.dart';
 import 'package:goway_user/profile_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,6 +39,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     super.initState();
     _screens = [
       const RouteSelectionScreen(),
+      const MapScreen(),
       FutureBuilder(
         future: _loadUserData(),
         builder: (context, snapshot) {
@@ -90,11 +92,22 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             label: 'Inicio',
           ),
           BottomNavigationBarItem(
+            icon: Icon(
+              Icons.map,
+              color: _currentIndex == 1
+                  ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                  : Theme.of(context)
+                      .bottomNavigationBarTheme
+                      .unselectedItemColor,
+            ),
+            label: 'Mapas',
+          ),
+          BottomNavigationBarItem(
             icon: Image.asset(
               "lib/assets/icons/icon_user.png",
               width: 24,
               height: 24,
-              color: _currentIndex == 1
+              color: _currentIndex == 2
                   ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
                   : Theme.of(context)
                       .bottomNavigationBarTheme
@@ -137,9 +150,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   Future<void> _initializeUserId() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId') ?? '1';
-    setState(() {
-      _userId = userId;
-    });
+    if (mounted) {
+      setState(() {
+        _userId = userId;
+      });
+    }
     _loadFavorites();
     _fetchLocations();
   }
@@ -164,9 +179,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
           }
         }
 
-        setState(() {
-          _favoriteRouteIds = favoriteIds;
-        });
+        if (mounted) {
+          setState(() {
+            _favoriteRouteIds = favoriteIds;
+          });
+        }
       }
     } catch (e) {
       debugPrint('Error al cargar favoritos: $e');
@@ -190,9 +207,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
         final dynamic data = jsonDecode(response.body);
 
         if (data is List) {
-          setState(() {
-            _locations = data.cast<String>();
-          });
+          if (mounted) {
+            setState(() {
+              _locations = data.cast<String>();
+            });
+          }
           return;
         } else if (data is Map && data.containsKey('error')) {
           throw Exception(data['error']);
@@ -211,11 +230,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   Future<void> _searchRoutes() async {
     if (_origin == null || _destination == null) return;
 
-    setState(() {
-      _loading = true;
-      _routes = [];
-      _selectedRoute = null;
-    });
+    if (mounted) {
+      setState(() {
+        _loading = true;
+        _routes = [];
+        _selectedRoute = null;
+      });
+    }
 
     try {
       final response = await http.post(
@@ -236,9 +257,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
         if (responseData is List) {
           final processedRoutes =
               _processRoutes(responseData.cast<Map<String, dynamic>>());
-          setState(() {
-            _routes = processedRoutes;
-          });
+          if (mounted) {
+            setState(() {
+              _routes = processedRoutes;
+            });
+          }
         } else if (responseData is Map && responseData.containsKey('error')) {
           _showError(responseData['error']);
         } else {
@@ -250,9 +273,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
     } catch (e) {
       _showError('Error de conexión: ${e.toString()}');
     } finally {
-      setState(() {
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     }
   }
 
@@ -841,13 +866,15 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                         );
 
                         if (response.statusCode == 200) {
-                          setState(() {
-                            if (isFavorite) {
-                              _favoriteRouteIds.remove(routeId);
-                            } else {
-                              _favoriteRouteIds.add(routeId);
-                            }
-                          });
+                          if (mounted) {
+                            setState(() {
+                              if (isFavorite) {
+                                _favoriteRouteIds.remove(routeId);
+                              } else {
+                                _favoriteRouteIds.add(routeId);
+                              }
+                            });
+                          }
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
