@@ -135,9 +135,9 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   List<dynamic> _routes = [];
   bool _loading = false;
   late String _userId;
-  final String _apiUrl = "http://192.168.30.101/GoWay/api/routes_api.php";
+  final String _apiUrl = "http://172.31.99.111/GoWay/api/routes_api.php";
   final String _favoritesApiUrl =
-      "http://192.168.30.101/GoWay/api/favorites_routes_api.php";
+      "http://172.31.99.111/GoWay/api/favorites_routes_api.php";
   Map<String, dynamic>? _selectedRoute;
   Set<String> _favoriteRouteIds = {};
 
