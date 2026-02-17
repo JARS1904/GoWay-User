@@ -1,0 +1,125 @@
+@startuml Diagrama_Configuraciones_GoWay
+
+!theme aws-orange
+
+title
+==Diagrama de Configuraciones Esenciales
+**Aplicación GoWay User**
+Versión 2.0.0 | Hydra Inc.
+end title
+
+package "**Configuraciones Principales**" as MAIN_CONFIG {
+    
+    class ConfiguracionTema {
+        - isDarkMode: Boolean
+        --
+        + toggleDarkMode(value: Boolean)
+        + saveThemePreference(isDark: Boolean)
+        + loadThemePreference()
+    }
+    
+    class PerfilUsuario {
+        - userName: String
+        - userEmail: String
+        - userId: int
+        --
+        + updateProfile()
+        + validateEmail()
+    }
+    
+    class SesionUsuario {
+        - isLoggedIn: Boolean
+        --
+        + initSession()
+        + closeSession()
+        + showLogoutDialog()
+    }
+}
+
+package "**Almacenamiento Local**" as STORAGE {
+    
+    class SharedPreferences {
+        --
+        + setBool(key: String, value: Boolean)
+        + getBool(key: String): Boolean
+        + setString(key: String, value: String)
+        + getString(key: String): String
+    }
+    
+    note right of SharedPreferences
+        **Claves utilizadas:**
+        - "isDarkMode"
+        - Datos de sesión
+        - Información del usuario
+    end note
+}
+
+package "**Pantallas de Configuración**" as UI {
+    
+    class SettingsScreen {
+        - isDarkMode: Boolean
+        - onThemeChange: Function(Boolean)
+        --
+        + initState()
+        + build(BuildContext)
+        + buildMobileLayout()
+        + buildTabletLayout()
+        + buildSettingOption()
+        + showLogoutDialog()
+    }
+    
+    class MyApp {
+        - isDarkMode: Boolean
+        --
+        + build()
+        + loadThemePreference()
+        + toggleTheme(isDark: Boolean)
+    }
+}
+
+package "**Modelo de Datos**" as MODEL {
+    
+    class User {
+        + id: int
+        + name: String
+        + email: String
+        --
+        + fromJson(Map<String, dynamic>)
+        + toJson(): Map<String, dynamic>
+        + toString(): String
+    }
+}
+
+' Relaciones principales
+ConfiguracionTema ||--|| SharedPreferences : persiste
+PerfilUsuario ||--|| User : utiliza
+SesionUsuario ||--|| SharedPreferences : guarda estado
+
+SettingsScreen ||--|| ConfiguracionTema : controla
+SettingsScreen ||--|| SesionUsuario : maneja
+MyApp ||--|| ConfiguracionTema : aplica tema
+
+PerfilUsuario ||--|| SettingsScreen : se muestra en
+
+note top of MAIN_CONFIG
+    **Configuraciones Implementadas**
+    - Modo oscuro/claro con persistencia
+    - Datos básicos del perfil de usuario
+    - Gestión simple de sesión
+end note
+
+note bottom of STORAGE
+    **Persistencia Simple**
+    - SharedPreferences para configuraciones
+    - Almacenamiento local en dispositivo
+    - Persistencia entre sesiones de la app
+end note
+
+note right of UI
+    **Interfaces de Usuario**
+    - Pantalla de configuraciones con switch
+    - Aplicación principal con tema dinámico
+    - Diseño responsivo (móvil/tablet)
+end note
+
+@enduml

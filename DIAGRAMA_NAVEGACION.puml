@@ -1,0 +1,79 @@
+@startuml DIAGRAMA_NAVEGACION
+title GoWay aplicación móvil - Diagrama de navegación
+skinparam backgroundColor #F0F0F0
+skinparam state {
+    BackgroundColor #FFFFFF
+    BorderColor #666666
+    ArrowColor #333333
+}
+
+state "GetStarted Screen" as GetStarted
+note right of GetStarted : Pantalla de onboarding inicial
+
+state "Login Screen" as Login
+note right of Login : Autenticación de usuario
+
+state "Registro Screen" as Registro
+note right of Registro : Registro de nuevo usuario
+
+state "Main Navigation Wrapper" as MainNav {
+    state "Route Selection Screen" as RouteSelection
+    note right of RouteSelection : Selección de rutas
+
+    state "Favorites Screen" as Favorites
+    note right of Favorites : Rutas favoritas
+
+    state "Map Screen" as Map
+    note right of Map : Pantalla con mapa
+    
+    state "Profile Screen" as Profile
+    note right of Profile : Perfil del usuario
+    
+    state "Settings Screen" as Settings
+    note right of Settings : Configuración de la app
+    
+    state "Terms and Conditions Screen" as TermsConditions
+    note right of TermsConditions : Términos y condiciones
+}
+
+' Transiciones principales
+[*] --> GetStarted: Inicio de la aplicación
+
+GetStarted --> Login: Usuario no visto onboarding
+GetStarted --> MainNav: Usuario autenticado\ny visto onboarding
+
+Login --> Registro: Crear cuenta nueva
+Login --> MainNav: Login exitoso
+
+Registro --> Login: Usuario registrado
+Registro --> MainNav: Auto-login después\nde registro
+
+' Transiciones dentro de Main Navigation
+MainNav --> [*]: Cerrar sesión
+
+Map --> RouteSelection: Seleccionar ruta
+Map --> Favorites: Acceder a favoritos
+Map --> Profile: Ver perfil
+Map --> Settings: Acceder a configuración
+
+RouteSelection --> Map: Ruta seleccionada/cancelar
+
+Favorites --> Map: Volver atrás
+Favorites --> RouteSelection: Seleccionar ruta favorita
+
+Profile --> Map: Volver atrás
+Profile --> Settings: Acceder a configuración
+Profile --> TermsConditions: Ver términos
+
+Settings --> Map: Volver atrás
+Settings --> TermsConditions: Ver términos
+
+TermsConditions --> Settings: Volver a configuración
+TermsConditions --> Profile: Volver a perfil
+
+note bottom of MainNav
+    Pantalla principal con navegación inferior (BottomNavigationBar)
+    que permite cambiar entre las diferentes secciones de la aplicación
+end note
+
+@enduml

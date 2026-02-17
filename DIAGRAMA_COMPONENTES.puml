@@ -1,0 +1,72 @@
+@startuml GoWay_Components
+!theme plain
+left to right direction
+
+package "Presentation" {
+  component [Login] as L1
+  component [Register] as L2
+  component [Route Selection] as L3
+  component [Map] as L4
+  component [Favorites] as L5
+  component [Profile] as L6
+  component [Settings] as L7
+}
+
+package "Controllers" {
+  component [Auth Controller] as C1
+  component [Route Controller] as C2
+  component [Map Controller] as C3
+  component [Favorites Controller] as C4
+  component [Profile Controller] as C5
+  component [Settings Controller] as C6
+}
+
+package "Services" {
+  component [Auth Service] as S1
+  component [Location Service] as S2
+  component [Storage Service] as S3
+  component [Theme Service] as S4
+}
+
+package "Libraries" {
+  component [HTTP] as LIB1
+  component [Geolocator] as LIB2
+  component [Flutter Map] as LIB3
+  component [SharedPreferences] as LIB4
+}
+
+package "Backend" {
+  component [GoWay Server] as BACKEND
+}
+
+L1 --> C1
+L2 --> C1
+L3 --> C2
+L4 --> C3
+L5 --> C4
+L6 --> C5
+L7 --> C6
+
+C1 --> S1
+C1 --> S3
+C2 --> LIB1
+C2 --> S3
+C3 --> S2
+C3 --> LIB3
+C4 --> LIB1
+C4 --> S3
+C5 --> LIB1
+C5 --> S3
+C6 --> S4
+C6 --> S3
+
+S1 --> LIB1
+S1 --> LIB4
+S2 --> LIB2
+S3 --> LIB4
+S4 --> LIB4
+
+LIB1 --> BACKEND
+LIB2 --> BACKEND
+
+@enduml

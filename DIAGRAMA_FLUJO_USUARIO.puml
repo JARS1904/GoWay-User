@@ -1,0 +1,83 @@
+@startuml GoWay_UserFlow
+skinparam backgroundColor #FEFEFE
+skinparam ArrowColor #2962FF
+skinparam ArrowFontColor #1565C0
+skinparam ActivityBackgroundColor #BBDEFB
+skinparam ActivityBorderColor #1565C0
+skinparam StartEndColor #4CAF50
+skinparam EndColor #F44336
+skinparam DecisionBackgroundColor #FFF9C4
+skinparam DecisionBorderColor #F57F17
+
+start
+:Usuario abre la app;
+
+if (¿Token válido?) then (Sí)
+  :Usar token existente;
+else (No)
+  :Mostrar pantalla Login;
+  :Ingresar credenciales;
+  :Validar en servidor;
+  :Guardar token en Storage;
+endif
+
+:Mostrar pantalla principal;
+:Usuario selecciona opción;
+
+if (¿Opción?) then (Buscar Rutas)
+  :Ingresar origen y destino;
+  :Buscar rutas disponibles;
+  :Mostrar lista de rutas;
+  if (¿Selecciona ruta?) then (Sí)
+    :Mostrar detalles;
+    :Empresa, horarios, paradas;
+    if (¿Ver en mapa?) then (Sí)
+      :Renderizar mapa;
+      :Mostrar ubicación actual;
+    endif
+    if (¿Marcar favorita?) then (Sí)
+      :Guardar en API;
+      :Guardar en Storage;
+      :Cambiar icono ♡→♥;
+    endif
+  endif
+else if (Ver Favoritas)
+  :Cargar favoritas;
+  :Mostrar lista;
+  :Sincronizar con servidor;
+  if (¿Selecciona favorita?) then (Sí)
+    :Mostrar detalles de ruta;
+    if (¿Remover favorita?) then (Sí)
+      :Eliminar de API;
+      :Eliminar de Storage;
+      :Cambiar icono ♥→♡;
+    endif
+  endif
+else if (Perfil)
+  :Cargar datos del usuario;
+  :Mostrar perfil;
+  if (¿Editar datos?) then (Sí)
+    :Abrir formulario;
+    :Actualizar datos;
+    :Guardar cambios en API;
+  endif
+else if (Configuración)
+  :Cargar preferencias;
+  :Mostrar opciones;
+  if (¿Cambiar opciones?) then (Sí)
+    :Actualizar opciones;
+    :Guardar en Storage;
+    :Aplicar cambios;
+  endif
+else if (Cerrar Sesión)
+  :Eliminar token;
+  :Limpiar Storage;
+  stop
+else (Salir)
+  :Cerrar aplicación;
+  stop
+endif
+
+:Volver a pantalla principal;
+
+@enduml

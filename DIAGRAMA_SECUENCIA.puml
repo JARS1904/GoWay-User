@@ -1,0 +1,95 @@
+@startuml GoWay_Sequence
+skinparam backgroundColor #FEFEFE
+skinparam sequenceArrowColor #2962FF
+skinparam sequenceParticipantBackgroundColor #BBDEFB
+skinparam sequenceParticipantBorderColor #1565C0
+skinparam sequenceGroupBkgColor #F5F5F5
+skinparam noteBkgColor #FFF9C4
+
+actor Usuario
+participant "App" as APP
+participant "Controllers" as CTRL
+participant "Services" as SRV
+participant "Backend API" as API
+database "Local Storage" as STORAGE
+
+group UC-01: Autenticación
+  Usuario -> APP: Ingresa credenciales
+  APP -> CTRL: Login/Register
+  CTRL -> SRV: Validar usuario
+  SRV -> API: POST /auth/login
+  API --> SRV: Token + datos usuario
+  SRV -> STORAGE: Guardar token
+  STORAGE --> SRV: Token guardado
+  SRV --> CTRL: Autenticación exitosa
+  CTRL --> APP: Mostrar pantalla principal
+end
+
+group UC-02: Búsqueda de rutas
+  Usuario -> APP: Selecciona origen y destino
+  APP -> CTRL: Buscar rutas
+  CTRL -> SRV: Obtener rutas disponibles
+  SRV -> API: POST /routes/search
+  API --> SRV: Array rutas
+  SRV --> CTRL: Array rutas
+  CTRL --> APP: Renderizar rutas
+  Usuario -> APP: Selecciona una ruta
+  APP -> CTRL: Mostrar detalles
+  note over APP: Empresa, horarios,\nparadas, conductor
+end
+
+group UC-03: Visualizar mapa
+  APP -> SRV: Obtener ubicación
+  SRV --> APP: Ubicación GPS
+  APP -> APP: Renderizar mapa
+end
+
+group UC-04: Marcar favorita
+  Usuario -> APP: Clic ♡
+  APP -> CTRL: Agregar a favoritos
+  CTRL -> SRV: Guardar favorito
+  SRV -> API: POST /favorites/add
+  API --> SRV: {success: true}
+  SRV -> STORAGE: Guardar localmente
+  STORAGE --> SRV: Guardado
+  SRV --> CTRL: Favorito guardado
+  CTRL --> APP: Cambiar icono ♡→♥
+end
+
+group UC-05: Remover favorita
+  Usuario -> APP: Clic ♥
+  APP -> CTRL: Remover de favoritos
+  CTRL -> SRV: Eliminar favorito
+  SRV -> API: DELETE /favorites/remove
+  API --> SRV: {success: true}
+  SRV -> STORAGE: Eliminar localmente
+  STORAGE --> SRV: Eliminado
+  SRV --> CTRL: Favorito eliminado
+  CTRL --> APP: Cambiar icono ♥→♡
+end
+
+group UC-06: Ver favoritas
+  Usuario -> APP: Accede a Favoritos
+  APP -> STORAGE: Obtener favoritas (cache)
+  STORAGE --> APP: Lista favoritas
+  APP -> SRV: Sincronizar con servidor
+  SRV -> API: GET /favorites/list
+  API --> SRV: Lista actualizada
+  SRV -> STORAGE: Actualizar cache
+  STORAGE --> SRV: Actualizado
+  SRV --> APP: Lista sincronizada
+  APP -> APP: Renderizar lista
+end
+
+group UC-07: Perfil de usuario
+  Usuario -> APP: Accede a Perfil
+  APP -> SRV: Obtener datos usuario
+  SRV -> API: GET /user/profile
+  API --> SRV: Datos guardados
+  SRV -> STORAGE: Guardar localmente
+  STORAGE --> SRV: Guardado
+  SRV --> APP: Datos usuario
+  APP -> APP: Mostrar información
+end
+
+@enduml
