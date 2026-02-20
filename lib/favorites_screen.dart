@@ -22,7 +22,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   late String _userId;
 
   final String _apiUrl =
-      "http://172.31.99.111/GoWay/api/favorites_routes_api.php";
+      "http://192.168.30.101/GoWay/api/favorites_routes_api.php";
 
   @override
   void initState() {
