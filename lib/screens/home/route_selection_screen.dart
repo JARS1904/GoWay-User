@@ -16,8 +16,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:goway_user/map_screen.dart';
-import 'package:goway_user/profile_screen.dart';
+import 'package:goway_user/screens/map/map_screen.dart';
+import 'package:goway_user/screens/profile/profile_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 

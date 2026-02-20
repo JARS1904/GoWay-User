@@ -14,13 +14,13 @@
 // Mantenido por: Hydra. Inc
 
 import 'package:flutter/material.dart';
-import 'package:goway_user/login.dart';
-import 'package:goway_user/registro_screen.dart';
-import 'package:goway_user/route_selection_screen.dart';
-import 'package:goway_user/profile_screen.dart';
-import 'package:goway_user/get_started_screen.dart';
-import 'package:goway_user/favorites_screen.dart';
-import 'package:goway_user/map_screen.dart';
+import 'package:goway_user/screens/auth/login.dart';
+import 'package:goway_user/screens/auth/registro_screen.dart';
+import 'package:goway_user/screens/home/route_selection_screen.dart';
+import 'package:goway_user/screens/profile/profile_screen.dart';
+import 'package:goway_user/screens/auth/get_started_screen.dart';
+import 'package:goway_user/screens/favorites/favorites_screen.dart';
+import 'package:goway_user/screens/map/map_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Punto de entrada principal de la aplicación Flutter.

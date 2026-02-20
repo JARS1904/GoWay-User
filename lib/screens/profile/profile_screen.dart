@@ -14,9 +14,8 @@
 // Mantenido por: Hydra. Inc
 
 import 'package:flutter/material.dart';
-import 'package:goway_user/screens/profile/terms_and_conditions_screen.dart';
-import 'package:goway_user/screens/profile/settings_screen.dart';
-
+import 'terms_and_conditions_screen.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userName;

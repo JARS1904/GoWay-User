@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'route_selection_screen.dart';
+import '../home/route_selection_screen.dart';
 
 /// Pantalla de Rutas Favoritas
 ///
