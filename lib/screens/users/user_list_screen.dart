@@ -14,6 +14,7 @@
 // Mantenido por: Hydra. Inc
 
 import 'package:flutter/material.dart';
+import 'package:goway_user/services/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../models/user.dart';
@@ -47,12 +48,11 @@ class UserListScreen extends StatefulWidget {
 /// - users: Listado actual de usuarios
 /// - isLoading: Indicador de carga
 /// - hasError: Indicador de error
-/// - apiUrl: Endpoint de la API (ajustar IP según entorno)
+/// - API: Endpoint configurado en ApiService
 class _UserListScreenState extends State<UserListScreen> {
   List<User> users = [];
   bool isLoading = true;
   bool hasError = false;
-  final String apiUrl = "http://192.168.30.101/GoWay/api/usuarios.php";
 
   @override
   void initState() {
@@ -77,7 +77,7 @@ class _UserListScreenState extends State<UserListScreen> {
     });
 
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await http.get(Uri.parse(ApiService.usuariosUrl));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -108,7 +108,7 @@ class _UserListScreenState extends State<UserListScreen> {
   Future<void> _addUser(User user, String password) async {
     try {
       final response = await http.post(
-        Uri.parse(apiUrl),
+        Uri.parse(ApiService.usuariosUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(
             {'nombre': user.name, 'email': user.email, 'password': password}),
@@ -141,7 +141,7 @@ class _UserListScreenState extends State<UserListScreen> {
   Future<void> _updateUser(User user, [String password = '']) async {
     try {
       final response = await http.put(
-        Uri.parse(apiUrl),
+        Uri.parse(ApiService.usuariosUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'id': user.id,
@@ -172,7 +172,7 @@ class _UserListScreenState extends State<UserListScreen> {
   Future<void> _deleteUser(int id) async {
     try {
       final response = await http.delete(
-        Uri.parse('$apiUrl?id=$id'),
+        Uri.parse('${ApiService.usuariosUrl}?id=$id'),
       );
 
       if (response.statusCode == 200) {

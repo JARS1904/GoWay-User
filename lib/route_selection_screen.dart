@@ -16,7 +16,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:goway_user/map_screen.dart';
+import 'package:goway_user/screens/map/map_screen.dart';
+import 'package:goway_user/services/api_service.dart';
 import 'package:goway_user/screens/profile/profile_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -135,9 +136,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   List<dynamic> _routes = [];
   bool _loading = false;
   late String _userId;
-  final String _apiUrl = "http://192.168.30.101/GoWay/api/routes_api.php";
-  final String _favoritesApiUrl =
-      "http://192.168.30.101/GoWay/api/favorites_routes_api.php";
   Map<String, dynamic>? _selectedRoute;
   Set<String> _favoriteRouteIds = {};
 
@@ -162,7 +160,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   /// Carga los favoritos actuales del usuario
   Future<void> _loadFavorites() async {
     try {
-      final url = '$_favoritesApiUrl?id_usuario=$_userId&action=get_favorites';
+      final url =
+          '${ApiService.favoritesUrl}?id_usuario=$_userId&action=get_favorites';
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -192,7 +191,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
 
   Future<void> _fetchLocations() async {
     try {
-      final url = Uri.parse('$_apiUrl?action=locations');
+      final url = Uri.parse('${ApiService.routesUrl}?action=locations');
       debugPrint('Consultando API en: $url');
 
       final response = await http.get(
@@ -240,7 +239,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse(_apiUrl),
+        Uri.parse(ApiService.routesUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'action': 'search_routes',
@@ -853,7 +852,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
                       final isFavorite = _favoriteRouteIds.contains(routeId);
                       try {
                         final response = await http.post(
-                          Uri.parse(_favoritesApiUrl),
+                          Uri.parse(ApiService.favoritesUrl),
                           headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
                           },

@@ -100,11 +100,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 40),
-            _buildProfileOption(
-              icon: Icons.person_outline,
-              title: 'Editar Perfil',
-              onTap: () => _showEditProfileDialog(),
-              isDark: isDark,
+            Visibility(
+              visible: false,
+              child: _buildProfileOption(
+                icon: Icons.person_outline,
+                title: 'Editar Perfil',
+                onTap: () => _showEditProfileDialog(),
+                isDark: isDark,
+              ),
             ),
             /*
             _buildProfileOption(
@@ -217,12 +220,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      _buildProfileOption(
-                        icon: Icons.person_outline,
-                        title: 'Editar Perfil',
-                        onTap: () => _showEditProfileDialog(),
-                        tabletMode: true,
-                        isDark: isDark,
+                      Visibility(
+                        visible: false,
+                        child: _buildProfileOption(
+                          icon: Icons.person_outline,
+                          title: 'Editar Perfil',
+                          onTap: () => _showEditProfileDialog(),
+                          tabletMode: true,
+                          isDark: isDark,
+                        ),
                       ),
                       /*
                       _buildProfileOption(

@@ -20,22 +20,15 @@ class _GetStartedScreenState extends State<GetStartedScreen>
     OnboardingPage(
       title: '¡Bienvenido a GoWay!',
       description:
-          'Tu aplicación para gestionar transporte público de forma fácil y rápida',
+          'Tu aplicación de consulta de rutas y horarios del transporte público',
       icon: Icons.directions_bus,
       color: const Color(0xFF6366F1),
       gradientEnd: const Color(0xFF8B5CF6),
     ),
     OnboardingPage(
-      title: 'Rastreo en Tiempo Real',
-      description:
-          'Sigue tus rutas de transporte en tiempo real y nunca llegues tarde',
-      icon: Icons.location_on,
-      color: const Color(0xFF10B981),
-      gradientEnd: const Color(0xFF059669),
-    ),
-    OnboardingPage(
       title: 'Gestiona tus Preferencias',
-      description: 'Personaliza tus rutas favoritas, horarios y notificaciones',
+      description:
+          'Agrega tus rutas favoritas para acceder directamente a ellas. También puedes cambiar el tema de blanco a oscuro',
       icon: Icons.settings,
       color: const Color(0xFF3B82F6),
       gradientEnd: const Color(0xFF1D4ED8),

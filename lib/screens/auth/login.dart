@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:goway_user/screens/auth/registro_screen.dart';
+import 'package:goway_user/services/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -20,9 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _rememberMe = false;
 
-  // Configuración API
-  final String _loginApiUrl = "http://192.168.30.101/GoWay/api/login.php";
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -37,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse(_loginApiUrl),
+        Uri.parse(ApiService.loginUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'email': _emailController.text.trim(),

@@ -334,7 +334,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     _screens = [
       const RouteSelectionScreen(), // Pantalla de inicio
       const FavoritesScreen(), // Pantalla de rutas favoritas
-      const MapScreen(), // Pantalla de mapas
       FutureBuilder(
         future: _loadUserData(), // Carga datos de usuario
         builder: (context, snapshot) {
@@ -431,17 +430,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             label: 'Favoritos',
           ),
           NavigationDestination(
-            icon: Icon(
-              Icons.map_outlined,
-              color: isDark ? Colors.grey[500] : Colors.grey[600],
-            ),
-            selectedIcon: Icon(
-              Icons.map,
-              color: isDark ? Colors.blueAccent : Colors.blueAccent[700],
-            ),
-            label: 'Mapas',
-          ),
-          NavigationDestination(
             icon: Image.asset(
               "lib/assets/icons/icon_user.png",
               width: 24,
@@ -522,27 +510,11 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 ),
               ),
               NavigationRailDestination(
-                icon: Icon(
-                  Icons.map_outlined,
-                  color: _currentIndex == 2 ? selectedColor : unselectedColor,
-                ),
-                selectedIcon: Icon(
-                  Icons.map,
-                  color: selectedColor,
-                ),
-                label: Text(
-                  'Mapas',
-                  style: TextStyle(
-                    color: _currentIndex == 2 ? selectedColor : unselectedColor,
-                  ),
-                ),
-              ),
-              NavigationRailDestination(
                 icon: Image.asset(
                   "lib/assets/icons/icon_user.png",
                   width: 24,
                   height: 24,
-                  color: _currentIndex == 3 ? selectedColor : unselectedColor,
+                  color: _currentIndex == 2 ? selectedColor : unselectedColor,
                 ),
                 selectedIcon: Image.asset(
                   "lib/assets/icons/icon_user.png",
@@ -553,7 +525,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 label: Text(
                   'Perfil',
                   style: TextStyle(
-                    color: _currentIndex == 3 ? selectedColor : unselectedColor,
+                    color: _currentIndex == 2 ? selectedColor : unselectedColor,
                   ),
                 ),
               ),

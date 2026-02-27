@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goway_user/services/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'login.dart';
@@ -21,9 +22,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-
-  // URL de la API de registro
-  final String _apiUrl = "http://192.168.30.101/GoWay/api/usuarios.php";
 
   @override
   void dispose() {
@@ -48,7 +46,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse(_apiUrl),
+        Uri.parse(ApiService.usuariosUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'nombre': _nombreController.text.trim(),

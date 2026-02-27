@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:goway_user/services/api_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,9 +21,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   late String _userId;
-
-  final String _apiUrl =
-      "http://192.168.30.101/GoWay/api/favorites_routes_api.php";
 
   @override
   void initState() {
@@ -53,7 +51,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         _errorMessage = null;
       });
 
-      final url = '$_apiUrl?id_usuario=$_userId&action=get_favorites';
+      final url =
+          '${ApiService.favoritesUrl}?id_usuario=$_userId&action=get_favorites';
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -324,7 +323,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       if (routeId.isNotEmpty) {
                         try {
                           final response = await http.post(
-                            Uri.parse(_apiUrl),
+                            Uri.parse(ApiService.favoritesUrl),
                             headers: {
                               'Content-Type':
                                   'application/x-www-form-urlencoded'
