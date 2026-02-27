@@ -326,13 +326,15 @@ class MainNavigationWrapper extends StatefulWidget {
 class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   int _currentIndex = 0; // Índice de pantalla actual (0 = Inicio, 1 = Perfil)
   late List<Widget> _screens; // Lista de pantallas disponibles
+  final GlobalKey _routeSelectionKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     // Inicialización de pantallas
     _screens = [
-      const RouteSelectionScreen(), // Pantalla de inicio
+      RouteSelectionScreen(
+          key: _routeSelectionKey), // Pantalla de inicio con GlobalKey
       const FavoritesScreen(), // Pantalla de rutas favoritas
       FutureBuilder(
         future: _loadUserData(), // Carga datos de usuario
@@ -401,7 +403,13 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         indicatorColor: Colors.blueAccent.withOpacity(isDark ? 0.3 : 0.2),
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         selectedIndex: _currentIndex,
-        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        onDestinationSelected: (index) {
+          setState(() => _currentIndex = index);
+          // Recargar favoritos cuando se vuelve a la pantalla de inicio
+          if (index == 0) {
+            (_routeSelectionKey.currentState as dynamic)?.refreshFavorites();
+          }
+        },
         destinations: [
           NavigationDestination(
             icon: Image.asset(
@@ -466,8 +474,14 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           // Barra de navegación lateral
           NavigationRail(
             selectedIndex: _currentIndex,
-            onDestinationSelected: (index) =>
-                setState(() => _currentIndex = index),
+            onDestinationSelected: (index) {
+              setState(() => _currentIndex = index);
+              // Recargar favoritos cuando se vuelve a la pantalla de inicio
+              if (index == 0) {
+                (_routeSelectionKey.currentState as dynamic)
+                    ?.refreshFavorites();
+              }
+            },
             labelType: NavigationRailLabelType.all, // Labels siempre visibles
             backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
             groupAlignment: 0.0, // Centra los iconos verticalmente

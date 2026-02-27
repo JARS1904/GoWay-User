@@ -129,7 +129,8 @@ class RouteSelectionScreen extends StatefulWidget {
   State<RouteSelectionScreen> createState() => _RouteSelectionScreenState();
 }
 
-class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
+class _RouteSelectionScreenState extends State<RouteSelectionScreen>
+    with WidgetsBindingObserver {
   String? _origin;
   String? _destination;
   List<String> _locations = [];
@@ -138,11 +139,34 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen> {
   late String _userId;
   Map<String, dynamic>? _selectedRoute;
   Set<String> _favoriteRouteIds = {};
+  AppLifecycleState? _lastLifecycleState;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeUserId();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _lastLifecycleState = state;
+    if (state == AppLifecycleState.resumed) {
+      // Recargar favoritos cuando la app vuelve al foreground
+      _loadFavorites();
+    }
+  }
+
+  /// Método público para recargar favoritos desde el exterior
+  /// Se llama cuando se vuelve a la pantalla de inicio desde otra pantalla
+  void refreshFavorites() {
+    _loadFavorites();
   }
 
   Future<void> _initializeUserId() async {
