@@ -1,0 +1,86 @@
+@startuml GoWay_Implementation
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam componentBackgroundColor #BBDEFB
+skinparam componentBorderColor #1565C0
+skinparam databaseBackgroundColor #FFE0B2
+skinparam databaseBorderColor #E65100
+skinparam nodeBackgroundColor #C8E6C9
+skinparam nodeBorderColor #2E7D32
+skinparam ArrowColor #2962FF
+
+node "Dispositivo móvil" as Mobile {
+  package "Aplicación móvil del usuario" as App {
+    package "Pantallas" as PresentationLayer {
+      component [Auth: login, registro] as Auth
+      component [Main: route_selection, map, favorites, profile, settings] as Main
+      component [Utilities: get_started, terms_and_conditions] as Util
+    }
+    
+    package "Lógica" as LogicLayer {
+      component [api_service.dart] as ApiService
+      component [user.dart] as UserModel
+    }
+    
+    package "Librerías" as Libraries {
+      component [http] as HTTP
+      component [geolocator] as Geolocator
+      component [flutter_map] as FlutterMap
+      component [shared_preferences] as SharedPrefs
+    }
+  }
+}
+
+node "Backend Server PHP" as Backend {
+  package "APIs REST" as APIs {
+    component [usuarios.php] as UsuariosAPI
+    component [routes_api.php] as RoutasAPI
+    component [favorites_routes.php] as FavoritasAPI
+    component [login.php] as UbicacionesAPI
+  }
+}
+
+node "Base de datos" as Database {
+  database [MySQL] as DB
+}
+
+node "Servicios externos" as External {
+  component [Flutter Map] as Maps
+  component [Geolocator] as GPS
+}
+
+
+
+ApiService --> UserModel
+ApiService --> HTTP
+ApiService --> UsuariosAPI
+ApiService --> RoutasAPI
+ApiService --> FavoritasAPI
+ApiService --> UbicacionesAPI
+
+Auth --> ApiService
+Main --> ApiService
+Main --> FlutterMap
+Util --> ApiService
+
+ApiService --> UserModel
+
+ApiService --> HTTP
+Main --> Geolocator
+Main --> FlutterMap
+
+FlutterMap --> Maps
+Geolocator --> GPS
+
+FlutterMap --> Maps
+Geolocator --> GPS
+
+UsuariosAPI --> DB
+RoutasAPI --> DB
+FavoritasAPI --> DB
+UbicacionesAPI --> DB
+
+UbicacionesAPI --> GPS
+RoutasAPI --> Maps
+
+@enduml
