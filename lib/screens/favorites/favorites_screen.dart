@@ -347,9 +347,24 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             _loadFavoriteRoutes();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Removido de favoritos'),
-                                  duration: Duration(seconds: 1),
+                                SnackBar(
+                                  content: const Row(
+                                    children: [
+                                      Icon(Icons.heart_broken_rounded,
+                                          color: Colors.white, size: 20),
+                                      SizedBox(width: 10),
+                                      Text('Removido de favoritos',
+                                          style:
+                                              TextStyle(color: Colors.white)),
+                                    ],
+                                  ),
+                                  backgroundColor: Colors.grey[700],
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16)),
+                                  margin: const EdgeInsets.fromLTRB(
+                                      16, 16, 16, 96),
+                                  duration: const Duration(seconds: 1),
                                 ),
                               );
                             }
@@ -360,8 +375,24 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('Error: $e'),
-                                backgroundColor: Colors.red,
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.error_rounded,
+                                        color: Colors.white, size: 20),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                        child: Text('Error: $e',
+                                            style: const TextStyle(
+                                                color: Colors.white))),
+                                  ],
+                                ),
+                                backgroundColor: Colors.redAccent[700],
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16)),
+                                margin:
+                                    const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                                duration: const Duration(seconds: 3),
                               ),
                             );
                           }

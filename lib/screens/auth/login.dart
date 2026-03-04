@@ -77,15 +77,70 @@ class _LoginScreenState extends State<LoginScreen> {
           await prefs.setBool('rememberMe', true);
         }
 
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.check_circle_rounded,
+                      color: Colors.white, size: 20),
+                  SizedBox(width: 10),
+                  Text('¡Sesión iniciada correctamente!',
+                      style: TextStyle(color: Colors.white)),
+                ],
+              ),
+              backgroundColor: Colors.green[700],
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
         Navigator.pushReplacementNamed(context, '/main');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(responseData['error'] ?? 'Error desconocido')),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_rounded,
+                    color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: Text(
+                        responseData['error'] ?? 'Error desconocido',
+                        style: const TextStyle(color: Colors.white))),
+              ],
+            ),
+            backgroundColor: Colors.redAccent[700],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16)),
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            duration: const Duration(seconds: 3),
+          ),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error de conexión: ${e.toString()}')),
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                  child: Text('Error de conexión: ${e.toString()}',
+                      style: const TextStyle(color: Colors.white))),
+            ],
+          ),
+          backgroundColor: Colors.redAccent[700],
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          duration: const Duration(seconds: 3),
+        ),
       );
     } finally {
       setState(() => _isLoading = false);
