@@ -137,6 +137,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   List<dynamic> _routes = [];
   bool _loading = false;
   late String _userId;
+  String _userName = 'Usuario';
   Map<String, dynamic>? _selectedRoute;
   Set<String> _favoriteRouteIds = {};
   AppLifecycleState? _lastLifecycleState;
@@ -172,9 +173,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   Future<void> _initializeUserId() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId') ?? '1';
+    final userName = prefs.getString('userName') ?? 'Usuario';
     if (mounted) {
       setState(() {
         _userId = userId;
+        _userName = userName;
       });
     }
     _loadFavorites();
@@ -336,7 +339,22 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_rounded, color: Colors.white, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+                child:
+                    Text(message, style: const TextStyle(color: Colors.white))),
+          ],
+        ),
+        backgroundColor: Colors.redAccent[700],
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+        duration: const Duration(seconds: 3),
+      ),
     );
   }
 
@@ -366,23 +384,22 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
-        elevation: .8,
-        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
-        foregroundColor: isDark ? Colors.white : Colors.black,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'lib/assets/images/logo.png',
-              height: 40,
-              width: 40,
+            Icon(
+              Icons.directions_bus_rounded,
+              size: 30,
+              color: isDark ? Colors.white : Colors.blueAccent[700],
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Text(
               'GoWay',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -392,18 +409,31 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Saludo al usuario
+            Text(
+              'Hola, $_userName 👋',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
             Text(
               '¿A dónde quieres ir?',
               style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black,
+                fontSize: 14,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
             const SizedBox(height: 20),
 
             // Selector de origen
             DropdownButtonFormField<String>(
+              isExpanded: true,
+              borderRadius: BorderRadius.circular(16),
+              dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
               decoration: InputDecoration(
                 labelText: 'Seleccione el origen',
                 border: OutlineInputBorder(
@@ -418,7 +448,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               items: _locations.map((String location) {
                 return DropdownMenuItem<String>(
                   value: location,
-                  child: Text(location),
+                  child: Text(
+                    location,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
                 );
               }).toList(),
               onChanged: (String? newValue) {
@@ -433,6 +469,9 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
 
             // Selector de destino
             DropdownButtonFormField<String>(
+              isExpanded: true,
+              borderRadius: BorderRadius.circular(16),
+              dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
               decoration: InputDecoration(
                 labelText: 'Seleccione el destino',
                 border: OutlineInputBorder(
@@ -447,7 +486,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               items: _locations.map((String location) {
                 return DropdownMenuItem<String>(
                   value: location,
-                  child: Text(location),
+                  child: Text(
+                    location,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
                 );
               }).toList(),
               onChanged: (String? newValue) {
@@ -461,28 +506,33 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             const SizedBox(height: 24),
 
             // Botón de búsqueda
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _origin != null && _destination != null
-                    ? _searchRoutes
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent[700],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+            _PressScale(
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: _origin != null && _destination != null
+                      ? _searchRoutes
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent[700],
+                    foregroundColor: Colors.white,
+                    elevation: 3,
+                    animationDuration: const Duration(milliseconds: 150),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
-                ),
-                child: _loading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Buscar',
-                        style: TextStyle(
-                          fontSize: 16,
+                  icon: _loading
+                      ? const SizedBox.shrink()
+                      : const Icon(Icons.search_rounded, size: 20),
+                  label: _loading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Buscar',
+                          style: TextStyle(fontSize: 16),
                         ),
-                      ),
+                ),
               ),
             ),
 
@@ -531,23 +581,22 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
-        elevation: .8,
-        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
-        foregroundColor: isDark ? Colors.white : Colors.black,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'lib/assets/images/logo.png',
-              height: 40,
-              width: 40,
+            Icon(
+              Icons.directions_bus_rounded,
+              size: 30,
+              color: isDark ? Colors.white : Colors.blueAccent[700],
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Text(
               'GoWay',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -562,18 +611,32 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Saludo al usuario
+                  Text(
+                    'Hola, $_userName 👋',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
                   Text(
                     '¿A dónde quieres ir?',
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
                     ),
                   ),
                   const SizedBox(height: 20),
 
                   // Selector de origen
                   DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    borderRadius: BorderRadius.circular(16),
+                    dropdownColor:
+                        isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
                     decoration: InputDecoration(
                       labelText: 'Seleccione el origen',
                       border: OutlineInputBorder(
@@ -588,7 +651,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     items: _locations.map((String location) {
                       return DropdownMenuItem<String>(
                         value: location,
-                        child: Text(location),
+                        child: Text(
+                          location,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
@@ -603,6 +672,10 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
 
                   // Selector de destino
                   DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    borderRadius: BorderRadius.circular(16),
+                    dropdownColor:
+                        isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
                     decoration: InputDecoration(
                       labelText: 'Seleccione el destino',
                       border: OutlineInputBorder(
@@ -617,7 +690,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     items: _locations.map((String location) {
                       return DropdownMenuItem<String>(
                         value: location,
-                        child: Text(location),
+                        child: Text(
+                          location,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
@@ -631,28 +710,34 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   const SizedBox(height: 24),
 
                   // Botón de búsqueda
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _origin != null && _destination != null
-                          ? _searchRoutes
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent[700],
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                  _PressScale(
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: _origin != null && _destination != null
+                            ? _searchRoutes
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent[700],
+                          foregroundColor: Colors.white,
+                          elevation: 3,
+                          animationDuration: const Duration(milliseconds: 150),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                         ),
-                      ),
-                      child: _loading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              'Buscar',
-                              style: TextStyle(
-                                fontSize: 16,
+                        icon: _loading
+                            ? const SizedBox.shrink()
+                            : const Icon(Icons.search_rounded, size: 20),
+                        label: _loading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
+                            : const Text(
+                                'Buscar',
+                                style: TextStyle(fontSize: 16),
                               ),
-                            ),
+                      ),
                     ),
                   ),
 
@@ -734,218 +819,267 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         .values
         .toList();
 
-    return Card(
-      color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-      elevation: 1,
-      shadowColor: isDark ? Colors.black54 : Colors.grey[300],
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
-          width: 2,
+    return _PressScale(
+      child: Card(
+        color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+        elevation: 1,
+        shadowColor: isDark ? Colors.black54 : Colors.grey[300],
+        margin: const EdgeInsets.only(bottom: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
+            width: 2,
+          ),
         ),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          if (forTablet) {
-            _selectRoute(route);
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RouteDetailsScreen(
-                  route: {
-                    ...route,
-                    'horarios': uniqueSchedules,
-                  },
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () async {
+            if (forTablet) {
+              _selectRoute(route);
+            } else {
+              await Future.delayed(const Duration(milliseconds: 120));
+              if (!mounted) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RouteDetailsScreen(
+                    route: {
+                      ...route,
+                      'horarios': uniqueSchedules,
+                    },
+                  ),
                 ),
-              ),
-            );
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.business_rounded,
-                    size: 25,
-                    color: Colors.blueAccent,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    route['empresa_nombre'],
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 16,
+              );
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.business_rounded,
+                      size: 25,
+                      color: Colors.blueAccent,
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.location_on_rounded,
-                    size: 20,
-                    color: Colors.red,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    route['origen'],
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.arrow_forward,
-                    size: 16,
-                    color: isDark ? Colors.grey : Colors.black,
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.location_on_rounded,
-                    size: 20,
-                    color: Colors.green[400],
-                  ),
-                  Text(
-                    route['destino'],
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Divider(
-                color: isDark ? Colors.grey[600] : Colors.grey[300],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.calendar_month_rounded,
-                        size: 20,
-                        color: Colors.blueAccent,
+                    const SizedBox(width: 8),
+                    Text(
+                      route['empresa_nombre'],
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 16,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Horarios disponibles:',
-                        style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on_rounded,
+                      size: 20,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      route['origen'],
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward,
+                      size: 16,
+                      color: isDark ? Colors.grey : Colors.black,
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: 20,
+                      color: Colors.green[400],
+                    ),
+                    Text(
+                      route['destino'],
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Divider(
+                  color: isDark ? Colors.grey[600] : Colors.grey[300],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_month_rounded,
+                          size: 20,
+                          color: Colors.blueAccent,
                         ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Horarios disponibles:',
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                    Text(
+                      '${uniqueSchedules.length}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
-                      const SizedBox(width: 8),
-                    ],
-                  ),
-                  Text(
-                    '${uniqueSchedules.length}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      _favoriteRouteIds.contains(route['id_ruta']?.toString())
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                    ),
-                    color: Colors.redAccent,
-                    onPressed: () async {
-                      final routeId = route['id_ruta']?.toString() ?? '';
-                      if (routeId.isEmpty) return;
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final routeId = route['id_ruta']?.toString() ?? '';
+                        if (routeId.isEmpty) return;
 
-                      final isFavorite = _favoriteRouteIds.contains(routeId);
-                      try {
-                        final response = await http.post(
-                          Uri.parse(ApiService.favoritesUrl),
-                          headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                          },
-                          body: {
-                            'id_usuario': _userId,
-                            'id_ruta': routeId,
-                            'action':
-                                isFavorite ? 'remove_favorite' : 'add_favorite'
-                          },
-                        );
+                        final isFavorite = _favoriteRouteIds.contains(routeId);
+                        try {
+                          final response = await http.post(
+                            Uri.parse(ApiService.favoritesUrl),
+                            headers: {
+                              'Content-Type':
+                                  'application/x-www-form-urlencoded'
+                            },
+                            body: {
+                              'id_usuario': _userId,
+                              'id_ruta': routeId,
+                              'action': isFavorite
+                                  ? 'remove_favorite'
+                                  : 'add_favorite'
+                            },
+                          );
 
-                        if (response.statusCode == 200) {
-                          if (mounted) {
-                            setState(() {
-                              if (isFavorite) {
-                                _favoriteRouteIds.remove(routeId);
-                              } else {
-                                _favoriteRouteIds.add(routeId);
-                              }
-                            });
+                          if (response.statusCode == 200) {
+                            if (mounted) {
+                              setState(() {
+                                if (isFavorite) {
+                                  _favoriteRouteIds.remove(routeId);
+                                } else {
+                                  _favoriteRouteIds.add(routeId);
+                                }
+                              });
+                            }
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Row(
+                                    children: [
+                                      Icon(
+                                        isFavorite
+                                            ? Icons.heart_broken_rounded
+                                            : Icons.favorite_rounded,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        isFavorite
+                                            ? 'Removido de favoritos'
+                                            : 'Agregado a favoritos',
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: isFavorite
+                                      ? Colors.grey[700]
+                                      : Colors.blueAccent[700],
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16)),
+                                  margin:
+                                      const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                                  duration: const Duration(seconds: 1),
+                                ),
+                              );
+                            }
                           }
+                        } catch (e) {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(isFavorite
-                                    ? 'Removido de favoritos'
-                                    : 'Agregado a favoritos'),
-                                duration: const Duration(seconds: 1),
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.error_rounded,
+                                        color: Colors.white, size: 20),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                        child: Text('Error: $e',
+                                            style: const TextStyle(
+                                                color: Colors.white))),
+                                  ],
+                                ),
+                                backgroundColor: Colors.redAccent[700],
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16)),
+                                margin:
+                                    const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                                duration: const Duration(seconds: 3),
                               ),
                             );
                           }
                         }
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Error: $e'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    },
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 20,
+                      },
+                      child: Icon(
+                        _favoriteRouteIds.contains(route['id_ruta']?.toString())
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        color: Colors.redAccent,
+                        size: 26,
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent[700],
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(20),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 20,
                         ),
-                      ),
-                      child: const Text(
-                        'Ver detalles',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent[700],
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(20),
+                          ),
+                        ),
+                        child: const Text(
+                          'Ver detalles',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1366,6 +1500,34 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   }
 }
 
+/// Widget con animación de presión estilo iOS: se hunde al presionar y regresa al soltar.
+class _PressScale extends StatefulWidget {
+  final Widget child;
+  const _PressScale({required this.child});
+
+  @override
+  State<_PressScale> createState() => _PressScaleState();
+}
+
+class _PressScaleState extends State<_PressScale> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      onPointerDown: (_) => setState(() => _pressed = true),
+      onPointerUp: (_) => setState(() => _pressed = false),
+      onPointerCancel: (_) => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.94 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOut,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
 class RouteDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> route;
 
@@ -1390,8 +1552,8 @@ class RouteDetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
-        elevation: 0.8,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+        elevation: 0,
         foregroundColor: isDark ? Colors.white : Colors.black,
         title: Text(
           route['empresa_nombre'],

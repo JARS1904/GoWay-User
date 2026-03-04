@@ -53,9 +53,9 @@ class TermsAndConditionsScreen extends StatelessWidget {
           'Términos y Condiciones',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
         ),
-        centerTitle: true,
-        elevation: 0.8,
-        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+        centerTitle: false,
+        elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
         foregroundColor: isDark ? Colors.white : Colors.black,
       ),
       body: isTablet
@@ -73,7 +73,7 @@ class TermsAndConditionsScreen extends StatelessWidget {
           Row(
             children: [
               Image.asset(
-                'lib/assets/images/logo.png',
+                'lib/assets/images/logo_sin_nombre.png',
                 height: 40,
                 width: 40,
               ),
@@ -83,7 +83,6 @@ class TermsAndConditionsScreen extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: Color(0xFF0560fc),
                 ),
               ),
             ],
@@ -175,7 +174,7 @@ class TermsAndConditionsScreen extends StatelessWidget {
               Row(
                 children: [
                   Image.asset(
-                    'lib/assets/images/logo.png',
+                    'lib/assets/images/logo_sin_nombre.png',
                     height: 40,
                     width: 40,
                   ),
@@ -185,7 +184,6 @@ class TermsAndConditionsScreen extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-                      color: Color(0xFF0560fc),
                     ),
                   ),
                 ],

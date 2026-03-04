@@ -53,9 +53,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Mi Perfil',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              centerTitle: true,
-              elevation: 0.8,
-              backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+              centerTitle: false,
+              elevation: 0,
+              backgroundColor:
+                  isDark ? const Color(0xFF121212) : Colors.grey[50],
               foregroundColor: isDark ? Colors.white : Colors.black,
             ),
       body: isTablet ? _buildTabletLayout(isDark) : _buildMobileLayout(isDark),
@@ -287,6 +288,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(15),
+          splashFactory: NoSplash.splashFactory,
+          highlightColor: Colors.blueAccent.withValues(alpha: 0.12),
           child: ListTile(
             leading: Container(
               padding: const EdgeInsets.all(8),

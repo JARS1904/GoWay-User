@@ -21,6 +21,7 @@ import 'package:goway_user/screens/profile/profile_screen.dart';
 import 'package:goway_user/screens/auth/get_started_screen.dart';
 import 'package:goway_user/screens/favorites/favorites_screen.dart';
 import 'package:goway_user/screens/map/map_screen.dart';
+import 'package:goway_user/screens/reports/reports_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Punto de entrada principal de la aplicación Flutter.
@@ -177,10 +178,12 @@ class _MyAppState extends State<MyApp> {
       useMaterial3: true,
       scaffoldBackgroundColor: Colors.grey[50],
       appBarTheme: AppBarTheme(
-        centerTitle: true,
-        elevation: 0.8,
-        backgroundColor: Colors.white,
+        centerTitle: false,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        backgroundColor: Colors.grey[50],
         foregroundColor: Colors.black,
+        surfaceTintColor: Colors.transparent,
       ),
       cardTheme: CardThemeData(
         elevation: 2,
@@ -244,10 +247,12 @@ class _MyAppState extends State<MyApp> {
       useMaterial3: true,
       scaffoldBackgroundColor: const Color(0xFF121212),
       appBarTheme: AppBarTheme(
-        centerTitle: true,
-        elevation: 0.8,
-        backgroundColor: const Color(0xFF1F1F1F),
+        centerTitle: false,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        backgroundColor: const Color(0xFF121212),
         foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
       ),
       cardTheme: CardThemeData(
         elevation: 2,
@@ -327,6 +332,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   int _currentIndex = 0; // Índice de pantalla actual (0 = Inicio, 1 = Perfil)
   late List<Widget> _screens; // Lista de pantallas disponibles
   final GlobalKey _routeSelectionKey = GlobalKey();
+  final GlobalKey _favoritesKey = GlobalKey();
+  final GlobalKey _reportsKey = GlobalKey();
 
   @override
   void initState() {
@@ -335,7 +342,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     _screens = [
       RouteSelectionScreen(
           key: _routeSelectionKey), // Pantalla de inicio con GlobalKey
-      const FavoritesScreen(), // Pantalla de rutas favoritas
+      FavoritesScreen(key: _favoritesKey), // Pantalla de rutas favoritas
+      ReportsScreen(key: _reportsKey), // Pantalla de reportes
       FutureBuilder(
         future: _loadUserData(), // Carga datos de usuario
         builder: (context, snapshot) {
@@ -391,68 +399,165 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   /// - Labels que cambian de color al seleccionarse
   Widget _buildMobileLayout() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedColor = isDark ? Colors.blueAccent : Colors.blueAccent[700]!;
+    final unselectedColor = isDark ? Colors.grey[500]! : Colors.grey[600]!;
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex, // Pantalla actual
-        children: _screens, // Lista de pantallas
-      ),
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
-        height: 65,
-        indicatorColor: Colors.blueAccent.withOpacity(isDark ? 0.3 : 0.2),
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() => _currentIndex = index);
-          // Recargar favoritos cuando se vuelve a la pantalla de inicio
-          if (index == 0) {
-            (_routeSelectionKey.currentState as dynamic)?.refreshFavorites();
-          }
-        },
-        destinations: [
-          NavigationDestination(
-            icon: Image.asset(
-              "lib/assets/icons/icon_home.png",
-              width: 24,
-              height: 24,
-              color: isDark ? Colors.grey[500] : Colors.grey[600],
+      body: Stack(
+        children: [
+          // Contenido principal: ocupa toda la pantalla, la barra flota encima
+          Positioned.fill(
+            child: MediaQuery(
+              // Inyecta 96px de padding inferior para que los ListView/Scroll
+              // dejen espacio al final y no queden tapados por la barra flotante
+              data: MediaQuery.of(context).copyWith(
+                padding: MediaQuery.of(context).padding.copyWith(
+                      bottom: MediaQuery.of(context).padding.bottom + 96,
+                    ),
+              ),
+              child: Stack(
+                children: List.generate(_screens.length, (i) {
+                  return AnimatedOpacity(
+                    opacity: i == _currentIndex ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                    child: IgnorePointer(
+                      ignoring: i != _currentIndex,
+                      child: _screens[i],
+                    ),
+                  );
+                }),
+              ),
             ),
-            selectedIcon: Image.asset(
-              "lib/assets/icons/icon_home.png",
-              width: 24,
-              height: 24,
-              color: isDark ? Colors.blueAccent : Colors.blueAccent[700],
-            ),
-            label: 'Inicio',
           ),
-          NavigationDestination(
-            icon: Icon(
-              Icons.favorite_outline,
-              color: isDark ? Colors.grey[500] : Colors.grey[600],
+          // Barra de navegación flotante
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 16,
+            child: Container(
+              height: 65,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.18),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildFloatingNavItem(
+                    icon: _currentIndex == 0
+                        ? Icons.home_rounded
+                        : Icons.home_outlined,
+                    label: 'Inicio',
+                    isSelected: _currentIndex == 0,
+                    selectedColor: selectedColor,
+                    unselectedColor: unselectedColor,
+                    onTap: () {
+                      if (_currentIndex == 0) {
+                        (_routeSelectionKey.currentState as dynamic)
+                            ?.refreshFavorites();
+                      }
+                      setState(() => _currentIndex = 0);
+                      (_routeSelectionKey.currentState as dynamic)
+                          ?.refreshFavorites();
+                    },
+                  ),
+                  _buildFloatingNavItem(
+                    icon: _currentIndex == 1
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                    label: 'Favoritos',
+                    isSelected: _currentIndex == 1,
+                    selectedColor: selectedColor,
+                    unselectedColor: unselectedColor,
+                    onTap: () {
+                      if (_currentIndex == 1) {
+                        (_favoritesKey.currentState as dynamic)?.refresh();
+                      }
+                      setState(() => _currentIndex = 1);
+                    },
+                  ),
+                  _buildFloatingNavItem(
+                    icon: _currentIndex == 2
+                        ? Icons.description_rounded
+                        : Icons.description_outlined,
+                    label: 'Reportes',
+                    isSelected: _currentIndex == 2,
+                    selectedColor: selectedColor,
+                    unselectedColor: unselectedColor,
+                    onTap: () {
+                      if (_currentIndex == 2) {
+                        (_reportsKey.currentState as dynamic)?.refresh();
+                      }
+                      setState(() => _currentIndex = 2);
+                    },
+                  ),
+                  _buildFloatingNavItem(
+                    icon: _currentIndex == 3
+                        ? Icons.person_rounded
+                        : Icons.person_outline_rounded,
+                    label: 'Perfil',
+                    isSelected: _currentIndex == 3,
+                    selectedColor: selectedColor,
+                    unselectedColor: unselectedColor,
+                    onTap: () => setState(() => _currentIndex = 3),
+                  ),
+                ],
+              ),
             ),
-            selectedIcon: Icon(
-              Icons.favorite,
-              color: isDark ? Colors.blueAccent : Colors.blueAccent[700],
-            ),
-            label: 'Favoritos',
-          ),
-          NavigationDestination(
-            icon: Image.asset(
-              "lib/assets/icons/icon_user.png",
-              width: 24,
-              height: 24,
-              color: isDark ? Colors.grey[500] : Colors.grey[600],
-            ),
-            selectedIcon: Image.asset(
-              "lib/assets/icons/icon_user.png",
-              width: 24,
-              height: 24,
-              color: isDark ? Colors.blueAccent : Colors.blueAccent[700],
-            ),
-            label: 'Perfil',
           ),
         ],
+      ),
+    );
+  }
+
+  /// Construye un ítem de la barra de navegación flotante con animaciones.
+  Widget _buildFloatingNavItem({
+    String? iconAsset,
+    IconData? icon,
+    required String label,
+    required bool isSelected,
+    required Color selectedColor,
+    required Color unselectedColor,
+    required VoidCallback onTap,
+  }) {
+    final color = isSelected ? selectedColor : unselectedColor;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedScale(
+              scale: isSelected ? 1.18 : 1.0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.elasticOut,
+              child: iconAsset != null
+                  ? Image.asset(iconAsset, width: 24, height: 24, color: color)
+                  : Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(height: 3),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              style: TextStyle(
+                color: color,
+                fontSize: isSelected ? 12.0 : 11.0,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+              ),
+              child: Text(label),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -475,6 +580,15 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           NavigationRail(
             selectedIndex: _currentIndex,
             onDestinationSelected: (index) {
+              if (index == _currentIndex) {
+                if (index == 0)
+                  (_routeSelectionKey.currentState as dynamic)
+                      ?.refreshFavorites();
+                if (index == 1)
+                  (_favoritesKey.currentState as dynamic)?.refresh();
+                if (index == 2)
+                  (_reportsKey.currentState as dynamic)?.refresh();
+              }
               setState(() => _currentIndex = index);
               // Recargar favoritos cuando se vuelve a la pantalla de inicio
               if (index == 0) {
@@ -488,16 +602,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             // Destinos de navegación
             destinations: [
               NavigationRailDestination(
-                icon: Image.asset(
-                  "lib/assets/icons/icon_home.png",
-                  width: 24,
-                  height: 24,
+                icon: Icon(
+                  Icons.home_outlined,
                   color: _currentIndex == 0 ? selectedColor : unselectedColor,
                 ),
-                selectedIcon: Image.asset(
-                  "lib/assets/icons/icon_home.png",
-                  width: 24,
-                  height: 24,
+                selectedIcon: Icon(
+                  Icons.home_rounded,
                   color: selectedColor,
                 ),
                 label: Text(
@@ -509,11 +619,11 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               ),
               NavigationRailDestination(
                 icon: Icon(
-                  Icons.favorite_outline,
+                  Icons.favorite_border_rounded,
                   color: _currentIndex == 1 ? selectedColor : unselectedColor,
                 ),
                 selectedIcon: Icon(
-                  Icons.favorite,
+                  Icons.favorite_rounded,
                   color: selectedColor,
                 ),
                 label: Text(
@@ -524,22 +634,34 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 ),
               ),
               NavigationRailDestination(
-                icon: Image.asset(
-                  "lib/assets/icons/icon_user.png",
-                  width: 24,
-                  height: 24,
+                icon: Icon(
+                  Icons.description_outlined,
                   color: _currentIndex == 2 ? selectedColor : unselectedColor,
                 ),
-                selectedIcon: Image.asset(
-                  "lib/assets/icons/icon_user.png",
-                  width: 24,
-                  height: 24,
+                selectedIcon: Icon(
+                  Icons.description_rounded,
+                  color: selectedColor,
+                ),
+                label: Text(
+                  'Reportes',
+                  style: TextStyle(
+                    color: _currentIndex == 2 ? selectedColor : unselectedColor,
+                  ),
+                ),
+              ),
+              NavigationRailDestination(
+                icon: Icon(
+                  Icons.person_outline_rounded,
+                  color: _currentIndex == 3 ? selectedColor : unselectedColor,
+                ),
+                selectedIcon: Icon(
+                  Icons.person_rounded,
                   color: selectedColor,
                 ),
                 label: Text(
                   'Perfil',
                   style: TextStyle(
-                    color: _currentIndex == 2 ? selectedColor : unselectedColor,
+                    color: _currentIndex == 3 ? selectedColor : unselectedColor,
                   ),
                 ),
               ),

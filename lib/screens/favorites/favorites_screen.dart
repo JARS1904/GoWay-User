@@ -44,6 +44,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   /// Carga las rutas favoritas desde la API
+  /// Método público para refrescar desde fuera (e.g. nav bar)
+  void refresh() => _loadFavoriteRoutes();
+
   Future<void> _loadFavoriteRoutes() async {
     try {
       setState(() {
@@ -98,9 +101,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             'Rutas favoritas',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          centerTitle: true,
-          elevation: 0.8,
-          backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+          centerTitle: false,
+          elevation: 0,
+          backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
           foregroundColor: isDark ? Colors.white : Colors.black,
         ),
         body: const Center(
@@ -116,9 +119,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             'Rutas favoritas',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          centerTitle: true,
-          elevation: 0.8,
-          backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+          centerTitle: false,
+          elevation: 0,
+          backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
           foregroundColor: isDark ? Colors.white : Colors.black,
         ),
         body: Center(
@@ -164,9 +167,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           'Rutas favoritas',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        centerTitle: true,
-        elevation: 0.8,
-        backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+        centerTitle: false,
+        elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
         foregroundColor: isDark ? Colors.white : Colors.black,
         actions: [
           IconButton(
@@ -193,9 +196,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget _buildTabletLayout(bool isDark) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rutas Favoritas'),
-        centerTitle: true,
+        title: const Text(
+          'Rutas Favoritas',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: false,
         elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+        foregroundColor: isDark ? Colors.white : Colors.black,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

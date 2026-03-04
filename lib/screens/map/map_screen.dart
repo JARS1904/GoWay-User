@@ -82,9 +82,10 @@ class _MapScreenState extends State<MapScreen> {
                 'Mapa',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              centerTitle: true,
-              elevation: 0.8,
-              backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+              centerTitle: false,
+              elevation: 0,
+              backgroundColor:
+                  isDark ? const Color(0xFF121212) : Colors.grey[50],
               foregroundColor: isDark ? Colors.white : Colors.black,
             ),
       body: Stack(

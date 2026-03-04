@@ -55,6 +55,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return MediaQuery.of(context).size.width >= 600;
   }
 
+  /// Método público para refrescar desde fuera (e.g. nav bar)
+  void refresh() => setState(() {});
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -66,9 +69,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget _buildMobileLayout(bool isDark) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reportes'),
-        centerTitle: true,
+        title: const Text(
+          'Reportes',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: false,
         elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+        foregroundColor: isDark ? Colors.white : Colors.black,
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
@@ -94,9 +102,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget _buildTabletLayout(bool isDark) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reportes'),
-        centerTitle: true,
+        title: const Text(
+          'Reportes',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: false,
         elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+        foregroundColor: isDark ? Colors.white : Colors.black,
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
