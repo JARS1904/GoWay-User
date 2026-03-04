@@ -77,8 +77,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
           SnackBar(
             content: const Row(
               children: [
-                Icon(Icons.check_circle_rounded,
-                    color: Colors.white, size: 20),
+                Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
                 SizedBox(width: 10),
                 Text('¡Registro exitoso!',
                     style: TextStyle(color: Colors.white)),
@@ -86,8 +85,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
             ),
             backgroundColor: Colors.green[700],
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
             duration: const Duration(seconds: 2),
           ),
@@ -102,8 +101,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_rounded,
-                    color: Colors.white, size: 20),
+                const Icon(Icons.error_rounded, color: Colors.white, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                     child: Text(errorMsg,
@@ -112,8 +110,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
             ),
             backgroundColor: Colors.redAccent[700],
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
             duration: const Duration(seconds: 3),
           ),

@@ -104,19 +104,17 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_rounded,
-                    color: Colors.white, size: 20),
+                const Icon(Icons.error_rounded, color: Colors.white, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
-                    child: Text(
-                        responseData['error'] ?? 'Error desconocido',
+                    child: Text(responseData['error'] ?? 'Error desconocido',
                         style: const TextStyle(color: Colors.white))),
               ],
             ),
             backgroundColor: Colors.redAccent[700],
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
             duration: const Duration(seconds: 3),
           ),
