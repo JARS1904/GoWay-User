@@ -15,10 +15,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:goway_user/main.dart';
-import 'package:goway_user/registro_screen.dart';
+import 'package:goway_user/screens/auth/registro_screen.dart';
+import 'package:goway_user/screens/home/route_selection_screen.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// ---------------------------------------------------------------------------
 /// [LoginScreen]
