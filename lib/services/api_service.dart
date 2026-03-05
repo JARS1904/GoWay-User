@@ -10,4 +10,5 @@ class ApiService {
   static const String usuariosUrl = "$baseUrl/usuarios.php";
   static const String routesUrl = "$baseUrl/routes_api.php";
   static const String favoritesUrl = "$baseUrl/favorites_routes_api.php";
+  static const String reportsUrl = "$baseUrl/reportes_api.php";
 }
