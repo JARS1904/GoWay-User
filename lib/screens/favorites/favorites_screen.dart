@@ -233,12 +233,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   /// Widget para la tarjeta de ruta favorita
   Widget _buildFavoriteCard(
       Map<String, dynamic> route, bool isDark, int index) {
-    // Extraer los datos de la ruta
     final empresaNombre = route['empresa_nombre'] ?? 'Empresa desconocida';
     final origen = route['origen'] ?? 'Origen desconocido';
     final destino = route['destino'] ?? 'Destino desconocido';
 
-    // Deduplicar horarios (igual que en route_selection_screen)
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
@@ -268,17 +266,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () {
-          // Deduplicar horarios como en route_selection_screen
-          final uniqueSchedules = (route['horarios'] as List)
-              .fold<Map<String, dynamic>>({}, (map, schedule) {
-                final key =
-                    '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
-                map[key] = schedule;
-                return map;
-              })
-              .values
-              .toList();
-
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -296,188 +283,219 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Nombre de la empresa con icono
+              // ── Header ──────────────────────────────────────────
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.directions_bus_rounded,
+                        color: Colors.blueAccent, size: 22),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.business_rounded,
-                          size: 25,
-                          color: Colors.blueAccent,
+                        Text(
+                          empresaNombre,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            empresaNombre,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 16,
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.location_on_rounded,
+                                size: 12, color: Colors.red),
+                            const SizedBox(width: 2),
+                            Flexible(
+                              child: Text(
+                                origen,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600],
+                                    ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            const SizedBox(width: 4),
+                            Icon(Icons.arrow_forward,
+                                size: 11,
+                                color: isDark
+                                    ? Colors.grey[500]
+                                    : Colors.grey[400]),
+                            const SizedBox(width: 4),
+                            Icon(Icons.location_on_rounded,
+                                size: 12, color: Colors.green[400]),
+                            const SizedBox(width: 2),
+                            Flexible(
+                              child: Text(
+                                destino,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600],
+                                    ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.favorite),
-                    color: Colors.redAccent,
-                    onPressed: () async {
-                      if (routeId.isNotEmpty) {
-                        try {
-                          final response = await http.post(
-                            Uri.parse(ApiService.favoritesUrl),
-                            headers: {
-                              'Content-Type':
-                                  'application/x-www-form-urlencoded'
-                            },
-                            body: {
-                              'id_usuario': _userId,
-                              'id_ruta': routeId,
-                              'action': 'remove_favorite'
-                            },
-                          );
-
-                          if (response.statusCode == 200) {
-                            _loadFavoriteRoutes();
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Row(
-                                    children: [
-                                      Icon(Icons.heart_broken_rounded,
-                                          color: Colors.white, size: 20),
-                                      SizedBox(width: 10),
-                                      Text('Removido de favoritos',
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                    ],
-                                  ),
-                                  backgroundColor: Colors.grey[700],
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16)),
-                                  margin: const EdgeInsets.fromLTRB(
-                                      16, 16, 16, 96),
-                                  duration: const Duration(seconds: 1),
-                                ),
-                              );
-                            }
-                          } else {
-                            throw Exception('Error al eliminar');
-                          }
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Row(
-                                  children: [
-                                    const Icon(Icons.error_rounded,
-                                        color: Colors.white, size: 20),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                        child: Text('Error: $e',
-                                            style: const TextStyle(
-                                                color: Colors.white))),
-                                  ],
-                                ),
-                                backgroundColor: Colors.redAccent[700],
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16)),
-                                margin:
-                                    const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                                duration: const Duration(seconds: 3),
-                              ),
-                            );
-                          }
-                        }
-                      }
-                    },
-                  ),
                 ],
               ),
-              const SizedBox(height: 16),
-
-              // Origen y Destino con iconos
-              Row(
-                children: [
-                  const Icon(
-                    Icons.location_on_rounded,
-                    size: 20,
-                    color: Colors.red,
-                  ),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      origen,
-                      style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.arrow_forward,
-                    size: 16,
-                    color: isDark ? Colors.grey : Colors.black,
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.location_on_rounded,
-                    size: 20,
-                    color: Colors.green[400],
-                  ),
-                  Expanded(
-                    child: Text(
-                      destino,
-                      style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Divider(
-                color: isDark ? Colors.grey[600] : Colors.grey[300],
-              ),
-              const SizedBox(height: 8),
-
-              // Horarios disponibles
+                  height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
+              const SizedBox(height: 10),
+              // ── Horarios disponibles ─────────────────────────────
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
-                      const Icon(
-                        Icons.calendar_month_rounded,
-                        size: 20,
-                        color: Colors.blueAccent,
-                      ),
+                      Icon(Icons.calendar_month_rounded,
+                          size: 15,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600]),
                       const SizedBox(width: 8),
                       Text(
-                        'Horarios disponibles:',
-                        style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
+                        'Horarios disponibles',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color:
+                                  isDark ? Colors.grey[400] : Colors.grey[600],
+                            ),
                       ),
                     ],
                   ),
-                  Text(
-                    '$horarios',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '$horarios',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isDark
+                            ? Colors.blueAccent[100]
+                            : Colors.blueAccent[700],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // ── Acciones: corazón + ver detalles ────────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      if (routeId.isEmpty) return;
+                      try {
+                        final response = await http.post(
+                          Uri.parse(ApiService.favoritesUrl),
+                          headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                          },
+                          body: {
+                            'id_usuario': _userId,
+                            'id_ruta': routeId,
+                            'action': 'remove_favorite'
+                          },
+                        );
+                        if (response.statusCode == 200) {
+                          _loadFavoriteRoutes();
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Row(
+                                  children: [
+                                    Icon(Icons.heart_broken_rounded,
+                                        color: Colors.white, size: 20),
+                                    SizedBox(width: 10),
+                                    Text('Removido de favoritos',
+                                        style: TextStyle(color: Colors.white)),
+                                  ],
+                                ),
+                                backgroundColor: Colors.grey[700],
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16)),
+                                margin:
+                                    const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        } else {
+                          throw Exception('Error al eliminar');
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  const Icon(Icons.error_rounded,
+                                      color: Colors.white, size: 20),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                      child: Text('Error: $e',
+                                          style: const TextStyle(
+                                              color: Colors.white))),
+                                ],
+                              ),
+                              backgroundColor: Colors.redAccent[700],
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16)),
+                              margin: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: const Icon(
+                      Icons.favorite_rounded,
+                      color: Colors.redAccent,
+                      size: 26,
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 6, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent[700],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'Ver detalles',
+                      style: TextStyle(fontSize: 12, color: Colors.white),
                     ),
                   ),
                 ],
