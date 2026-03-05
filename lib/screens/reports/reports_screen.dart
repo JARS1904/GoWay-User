@@ -195,235 +195,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  Widget _buildReportCard(Map<String, dynamic> report, bool isDark) {
-    final severityColor =
-        _getSeverityColor(report['gravedad'] as String? ?? '');
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-      elevation: isDark ? 0 : 1,
-      child: InkWell(
-        onTap: () => _showReportDetails(report),
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: severityColor.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(Icons.warning_amber_rounded,
-                        color: severityColor, size: 22),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          report['tipo_incidente'] as String? ?? '-',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 2),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: severityColor.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            (report['gravedad'] as String? ?? '').toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: severityColor,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.orange.withOpacity(0.15)
-                          : Colors.orange[50],
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.orange.withOpacity(0.3)
-                            : Colors.orange[200]!,
-                      ),
-                    ),
-                    child: Text(
-                      'Reportado',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.orange[300] : Colors.orange[800],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Divider(
-                  height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
-              const SizedBox(height: 10),
-              _buildInfoRow(
-                icon: Icons.directions_car_outlined,
-                label: 'Vehiculo',
-                value: report['vehiculo_placa'] as String? ?? '-',
-                isDark: isDark,
-              ),
-              const SizedBox(height: 6),
-              _buildInfoRow(
-                icon: Icons.person_outline,
-                label: 'Conductor',
-                value: report['conductor_nombre'] as String? ?? '-',
-                isDark: isDark,
-              ),
-              const SizedBox(height: 6),
-              _buildInfoRow(
-                icon: Icons.route_outlined,
-                label: 'Ruta',
-                value: report['ruta_nombre'] != null
-                    ? '${report['ruta_nombre']} (${report['origen']} -> ${report['destino']})'
-                    : '-',
-                isDark: isDark,
-              ),
-              const SizedBox(height: 6),
-              _buildInfoRow(
-                icon: Icons.schedule_outlined,
-                label: 'Fecha y Hora',
-                value: report['fecha_hora'] as String? ?? '-',
-                isDark: isDark,
-              ),
-              if ((report['descripcion'] as String? ?? '').isNotEmpty) ...[
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1F1F1F) : Colors.grey[50],
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: isDark ? Colors.white10 : Colors.grey[200]!),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.notes_rounded,
-                          size: 15,
-                          color: isDark ? Colors.grey[400] : Colors.grey[500]),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          report['descripcion'] as String,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: isDark
-                                        ? Colors.grey[300]
-                                        : Colors.grey[700],
-                                    height: 1.4,
-                                  ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              const SizedBox(height: 10),
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () => _showReportDetails(report),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 6, horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.blueAccent[700],
-                      borderRadius: const BorderRadius.all(Radius.circular(20)),
-                    ),
-                    child: const Text(
-                      'Ver detalles',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow({
-    required IconData icon,
-    required String label,
-    required String value,
-    required bool isDark,
-  }) {
-    return Row(
-      children: [
-        Icon(icon,
-            size: 15, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: isDark ? Colors.grey[500] : Colors.grey[600],
-                    ),
-              ),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.bodySmall,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Color _getSeverityColor(String severity) {
-    switch (severity.toLowerCase()) {
-      case 'alta':
-        return Colors.redAccent;
-      case 'critica':
-        return Colors.deepOrange;
-      case 'media':
-        return Colors.orangeAccent;
-      case 'baja':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
+  Widget _buildReportCard(Map<String, dynamic> report, bool isDark) =>
+      _ReportCard(report: report, isDark: isDark);
 
   Widget _buildEmptyState(bool isDark) {
     return Center(
@@ -496,135 +269,302 @@ class _ReportsScreenState extends State<ReportsScreen> {
       ),
     );
   }
+}
 
-  void _showReportDetails(Map<String, dynamic> report) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        builder: (context, scrollController) => SingleChildScrollView(
-          controller: scrollController,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
+// =============================================================================
+// Tarjeta de reporte expandible
+// =============================================================================
+
+class _ReportCard extends StatefulWidget {
+  final Map<String, dynamic> report;
+  final bool isDark;
+
+  const _ReportCard({required this.report, required this.isDark});
+
+  @override
+  State<_ReportCard> createState() => _ReportCardState();
+}
+
+class _ReportCardState extends State<_ReportCard> {
+  bool _expanded = false;
+
+  static Color _colorForSeverity(String severity) {
+    switch (severity.toLowerCase()) {
+      case 'alta':
+        return Colors.redAccent;
+      case 'critica':
+        return Colors.deepOrange;
+      case 'media':
+        return Colors.orangeAccent;
+      case 'baja':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final report = widget.report;
+    final isDark = widget.isDark;
+    final severityColor =
+        _colorForSeverity(report['gravedad'] as String? ?? '');
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+      elevation: isDark ? 0 : 1,
+      child: InkWell(
+        onTap: () => setState(() => _expanded = !_expanded),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Header (siempre visible) ──────────────────────
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
                     decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                      borderRadius: BorderRadius.circular(2),
+                      color: severityColor.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(Icons.warning_amber_rounded,
+                        color: severityColor, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          report['tipo_incidente'] as String? ?? '-',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: severityColor.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                (report['gravedad'] as String? ?? '')
+                                    .toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: severityColor,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                report['fecha_hora'] as String? ?? '-',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600],
+                                    ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  report['tipo_incidente'] as String? ?? '-',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color:
-                        _getSeverityColor(report['gravedad'] as String? ?? '')
-                            .withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    (report['gravedad'] as String? ?? '').toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: _getSeverityColor(
-                          report['gravedad'] as String? ?? ''),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Divider(color: isDark ? Colors.white12 : Colors.grey[200]),
-                const SizedBox(height: 8),
-                _buildDetailRow('Vehiculo',
-                    report['vehiculo_placa'] as String? ?? '-', isDark),
-                _buildDetailRow('Conductor',
-                    report['conductor_nombre'] as String? ?? '-', isDark),
-                if (report['ruta_nombre'] != null)
-                  _buildDetailRow(
-                    'Ruta',
-                    '${report['ruta_nombre']} (${report['origen']} -> ${report['destino']})',
-                    isDark,
-                  ),
-                _buildDetailRow('Fecha y Hora',
-                    report['fecha_hora'] as String? ?? '-', isDark),
-                const SizedBox(height: 12),
-                Text(
-                  'Descripcion',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  report['descripcion'] as String? ?? '',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent[700],
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.orange.withOpacity(0.15)
+                              : Colors.orange[50],
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.orange.withOpacity(0.3)
+                                : Colors.orange[200]!,
+                          ),
+                        ),
+                        child: Text(
+                          'Reportado',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? Colors.orange[300]
+                                : Colors.orange[800],
+                          ),
+                        ),
                       ),
-                    ),
-                    child: const Text('Cerrar'),
+                      const SizedBox(height: 4),
+                      Icon(
+                        _expanded
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
+                        size: 20,
+                        color: isDark ? Colors.grey[400] : Colors.grey[500],
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+              // ── Contenido expandible ──────────────────────────
+              AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                child: _expanded
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12),
+                          Divider(
+                              height: 1,
+                              color:
+                                  isDark ? Colors.white12 : Colors.grey[200]),
+                          const SizedBox(height: 10),
+                          _infoRow(
+                            context,
+                            Icons.directions_car_outlined,
+                            'Vehiculo',
+                            [
+                              report['vehiculo_placa'] as String? ?? '-',
+                              if ((report['vehiculo_modelo'] as String? ?? '')
+                                  .isNotEmpty)
+                                report['vehiculo_modelo'] as String,
+                            ].join(' · '),
+                            isDark,
+                          ),
+                          const SizedBox(height: 6),
+                          _infoRow(
+                            context,
+                            Icons.person_outline,
+                            'Conductor',
+                            report['conductor_nombre'] as String? ?? '-',
+                            isDark,
+                          ),
+                          const SizedBox(height: 6),
+                          _infoRow(
+                            context,
+                            Icons.route_outlined,
+                            'Ruta',
+                            report['ruta_nombre'] != null
+                                ? '${report['ruta_nombre']} (${report['origen']} → ${report['destino']})'
+                                : '-',
+                            isDark,
+                          ),
+                          const SizedBox(height: 6),
+                          _infoRow(
+                            context,
+                            Icons.schedule_outlined,
+                            'Fecha y Hora',
+                            report['fecha_hora'] as String? ?? '-',
+                            isDark,
+                          ),
+                          if ((report['descripcion'] as String? ?? '')
+                              .isNotEmpty) ...[
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? const Color(0xFF1F1F1F)
+                                    : Colors.grey[50],
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                    color: isDark
+                                        ? Colors.white10
+                                        : Colors.grey[200]!),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.notes_rounded,
+                                      size: 15,
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[500]),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      report['descripcion'] as String,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: isDark
+                                                ? Colors.grey[300]
+                                                : Colors.grey[700],
+                                            height: 1.4,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 4),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 110,
-            child: Text(
-              '$label:',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                  ),
-            ),
+  Widget _infoRow(BuildContext context, IconData icon, String label,
+      String value, bool isDark) {
+    return Row(
+      children: [
+        Icon(icon,
+            size: 15, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                    ),
+              ),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.bodySmall,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
-          Expanded(
-            child: Text(value, style: Theme.of(context).textTheme.bodySmall),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
