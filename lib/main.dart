@@ -355,6 +355,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             return ProfileScreen(
               userName: snapshot.data?['name'] ?? 'Usuario',
               userEmail: snapshot.data?['email'] ?? 'email@ejemplo.com',
+              userPhotoUrl: snapshot.data?['photoUrl'],
               onThemeChange: widget.onThemeChange,
             );
           }
@@ -369,11 +370,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   /// Retorna un Map con:
   /// - name: Nombre del usuario
   /// - email: Email del usuario
-  Future<Map<String, String>> _loadUserData() async {
+  Future<Map<String, String?>> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     return {
       'name': prefs.getString('userName') ?? 'Usuario',
       'email': prefs.getString('userEmail') ?? 'email@ejemplo.com',
+      'photoUrl': prefs.getString('userPhotoUrl'),
     };
   }
 

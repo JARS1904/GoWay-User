@@ -14,18 +14,21 @@
 // Mantenido por: Hydra. Inc
 
 import 'package:flutter/material.dart';
+import 'package:goway_user/services/api_service.dart';
 import 'terms_and_conditions_screen.dart';
 import 'settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userName;
   final String userEmail;
+  final String? userPhotoUrl;
   final Function(bool)? onThemeChange;
 
   const ProfileScreen({
     super.key,
     required this.userName,
     required this.userEmail,
+    this.userPhotoUrl,
     this.onThemeChange,
   });
 
@@ -34,6 +37,8 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  bool _photoLoadError = false;
+
   @override
   void initState() {
     super.initState();
@@ -73,15 +78,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
             CircleAvatar(
               radius: 60,
               backgroundColor: Colors.blueAccent[700],
-              child: Text(
-                widget.userName.isNotEmpty
-                    ? widget.userName[0].toUpperCase()
-                    : 'U',
-                style: const TextStyle(
-                  fontSize: 40,
-                  color: Colors.white,
-                ),
-              ),
+              backgroundImage: (widget.userPhotoUrl != null && !_photoLoadError)
+                  ? NetworkImage(ApiService.buildPhotoUrl(widget.userPhotoUrl)!)
+                  : null,
+              onBackgroundImageError:
+                  (widget.userPhotoUrl != null && !_photoLoadError)
+                      ? (_, __) {
+                          if (!_photoLoadError)
+                            setState(() => _photoLoadError = true);
+                        }
+                      : null,
+              child: (widget.userPhotoUrl == null || _photoLoadError)
+                  ? Text(
+                      widget.userName.isNotEmpty
+                          ? widget.userName[0].toUpperCase()
+                          : 'U',
+                      style: const TextStyle(
+                        fontSize: 40,
+                        color: Colors.white,
+                      ),
+                    )
+                  : null,
             ),
             const SizedBox(height: 20),
             Text(
@@ -164,15 +181,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       CircleAvatar(
                         radius: 80,
                         backgroundColor: Colors.blueAccent[700],
-                        child: Text(
-                          widget.userName.isNotEmpty
-                              ? widget.userName[0].toUpperCase()
-                              : 'U',
-                          style: const TextStyle(
-                            fontSize: 50,
-                            color: Colors.white,
-                          ),
-                        ),
+                        backgroundImage: (widget.userPhotoUrl != null &&
+                                !_photoLoadError)
+                            ? NetworkImage(
+                                ApiService.buildPhotoUrl(widget.userPhotoUrl)!)
+                            : null,
+                        onBackgroundImageError:
+                            (widget.userPhotoUrl != null && !_photoLoadError)
+                                ? (_, __) {
+                                    if (!_photoLoadError)
+                                      setState(() => _photoLoadError = true);
+                                  }
+                                : null,
+                        child: (widget.userPhotoUrl == null || _photoLoadError)
+                            ? Text(
+                                widget.userName.isNotEmpty
+                                    ? widget.userName[0].toUpperCase()
+                                    : 'U',
+                                style: const TextStyle(
+                                  fontSize: 50,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : null,
                       ),
                       const SizedBox(height: 30),
                       Text(

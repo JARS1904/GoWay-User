@@ -1,4 +1,4 @@
-// ██╗   ██╗███████╗███████╗██████╗ 
+// ██╗   ██╗███████╗███████╗██████╗
 // ██║   ██║██╔════╝██╔════╝██╔══██╗
 // ██║   ██║███████╗█████╗  ██████╔╝
 // ██║   ██║╚════██║██╔══╝  ██╔══██╗
@@ -36,11 +36,15 @@ class User {
   /// Correo electrónico válido del usuario
   final String email;
 
+  /// URL relativa de la foto de perfil (puede ser null)
+  final String? photoUrl;
+
   /// Constructor principal
   User({
     required this.id,
     required this.name,
     required this.email,
+    this.photoUrl,
   });
 
   /// -------------------------------------------------------------------------
@@ -64,6 +68,7 @@ class User {
       id: int.parse(json['id'].toString()), // Conversión segura a int
       name: json['nombre'], // Mapeo de nombre en español
       email: json['email'],
+      photoUrl: json['foto_url'] as String?,
     );
   }
 
@@ -81,14 +86,15 @@ class User {
   ///
   /// Ejemplo de uso:
   /// ```dart
-  /// final json = user.toJson(); 
+  /// final json = user.toJson();
   /// {'id': 1, 'nombre': 'Juan', 'email': 'juan@example.com'}
   /// ```
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'nombre': name, // Conserva nombre en español para la API
-    'email': email,
-  };
+        'id': id,
+        'nombre': name, // Conserva nombre en español para la API
+        'email': email,
+        if (photoUrl != null) 'foto_url': photoUrl,
+      };
 
   /// -------------------------------------------------------------------------
   /// [toString]
@@ -101,7 +107,7 @@ class User {
   /// ```
   @override
   String toString() {
-    return 'User{id: $id, name: $name, email: $email}';
+    return 'User{id: $id, name: $name, email: $email, photoUrl: $photoUrl}';
   }
 
   /// -------------------------------------------------------------------------
@@ -122,11 +128,13 @@ class User {
     int? id,
     String? name,
     String? email,
+    String? photoUrl,
   }) {
     return User(
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
+      photoUrl: photoUrl ?? this.photoUrl,
     );
   }
 }

@@ -422,7 +422,16 @@ class _UserListScreenState extends State<UserListScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
               leading: CircleAvatar(
-                child: Text(user.id.toString()),
+                backgroundColor: Colors.blueAccent[700],
+                backgroundImage: user.photoUrl != null
+                    ? NetworkImage(ApiService.buildPhotoUrl(user.photoUrl)!)
+                    : null,
+                child: user.photoUrl == null
+                    ? Text(
+                        user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+                        style: const TextStyle(color: Colors.white),
+                      )
+                    : null,
               ),
               title: Text(user.name),
               subtitle: Text(user.email),

@@ -73,6 +73,37 @@ class _LoginScreenState extends State<LoginScreen> {
         await prefs.setString('userId', userId);
         debugPrint('User ID guardado: $userId');
 
+        // Obtener foto de perfil: primero intenta desde login, si no hace GET a usuarios
+        final fotoDesdeLogin = responseData['user']['foto_url'] as String?;
+        if (fotoDesdeLogin != null && fotoDesdeLogin.isNotEmpty) {
+          await prefs.setString('userPhotoUrl', fotoDesdeLogin);
+          debugPrint('userPhotoUrl desde login: $fotoDesdeLogin');
+        } else {
+          // login.php no devuelve foto_url, buscamos en usuarios.php
+          try {
+            final usuariosResp =
+                await http.get(Uri.parse(ApiService.usuariosUrl));
+            if (usuariosResp.statusCode == 200) {
+              final List<dynamic> lista = json.decode(usuariosResp.body);
+              final match = lista.firstWhere(
+                (u) => u['id'].toString() == userId,
+                orElse: () => null,
+              );
+              final fotoUrl = match?['foto_url'] as String?;
+              if (fotoUrl != null && fotoUrl.isNotEmpty) {
+                await prefs.setString('userPhotoUrl', fotoUrl);
+                debugPrint('userPhotoUrl desde usuarios: $fotoUrl');
+              } else {
+                await prefs.remove('userPhotoUrl');
+                debugPrint('Usuario sin foto de perfil');
+              }
+            }
+          } catch (e) {
+            await prefs.remove('userPhotoUrl');
+            debugPrint('Error al obtener foto: $e');
+          }
+        }
+
         if (_rememberMe) {
           await prefs.setBool('rememberMe', true);
         }
