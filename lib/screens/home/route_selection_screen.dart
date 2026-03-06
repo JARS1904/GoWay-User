@@ -892,7 +892,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                           Row(
                             children: [
                               const Icon(Icons.location_on_rounded,
-                                  size: 12, color: Colors.red),
+                                  size: 12, color: Colors.blue),
                               const SizedBox(width: 2),
                               Flexible(
                                 child: Text(
@@ -917,7 +917,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                       : Colors.grey[400]),
                               const SizedBox(width: 4),
                               Icon(Icons.location_on_rounded,
-                                  size: 12, color: Colors.green[400]),
+                                  size: 12, color: Colors.red),
                               const SizedBox(width: 2),
                               Flexible(
                                 child: Text(
@@ -936,6 +936,52 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                               ),
                             ],
                           ),
+                          // Badge y paradas de tramo
+                          if (route['es_tramo'] == 1) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    'Tramo parcial',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark
+                                          ? Colors.orange[300]
+                                          : Colors.orange[800],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Icon(Icons.directions_walk_rounded,
+                                    size: 11,
+                                    color: isDark
+                                        ? Colors.orange[300]
+                                        : Colors.orange[700]),
+                                const SizedBox(width: 2),
+                                Flexible(
+                                  child: Text(
+                                    '${route['parada_embarque'] ?? '-'} → ${route['parada_bajada'] ?? '-'}',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: isDark
+                                          ? Colors.orange[300]
+                                          : Colors.orange[800],
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -953,8 +999,9 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                       children: [
                         Icon(Icons.calendar_month_rounded,
                             size: 15,
-                            color:
-                                isDark ? Colors.grey[400] : Colors.grey[600]),
+                            color: isDark
+                                ? Colors.blueAccent[100]
+                                : Colors.blueAccent[700]),
                         const SizedBox(width: 8),
                         Text(
                           'Horarios disponibles',
@@ -1142,22 +1189,163 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            route['nombre'] ?? 'Ruta sin nombre',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black,
+          if (route['es_tramo'] != 1) ...[
+            // Nombre de ruta completa con icono
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  route['origen'] ?? '',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 22,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                Text(
+                  route['destino'] ?? '',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${route['origen']} - ${route['destino']}',
-            style: TextStyle(
-              fontSize: 18,
-              color: isDark ? Colors.grey[300] : Colors.grey[700],
+            const SizedBox(height: 8),
+          ],
+          if (route['es_tramo'] == 1) ...[
+            // Tramo: nombre en grande + badge + ruta completa
+            // Tramo title con icono
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  route['parada_embarque'] ?? '-',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 22,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                Text(
+                  route['parada_bajada'] ?? '-',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+              ],
             ),
-          ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '✂  Tramo parcial',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.orange[300] : Colors.orange[800],
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            // Ruta completa subtitle con icono
+            Row(
+              children: [
+                Text(
+                  'Ruta completa: ',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                Flexible(
+                  child: Text(
+                    route['origen'],
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 14,
+                    color: isDark ? Colors.grey[500] : Colors.grey[500],
+                  ),
+                ),
+                Flexible(
+                  child: Text(
+                    route['destino'],
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ] else ...[
+            // Ruta completa
+            Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    route['origen'],
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: isDark ? Colors.grey[300] : Colors.grey[700],
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 18,
+                    color: isDark ? Colors.grey[500] : Colors.grey[400],
+                  ),
+                ),
+                Flexible(
+                  child: Text(
+                    route['destino'],
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: isDark ? Colors.grey[300] : Colors.grey[700],
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 16),
           Divider(
             color: isDark ? Colors.grey[600] : Colors.grey[300],
@@ -1339,22 +1527,161 @@ class RouteDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  route['nombre'] ?? 'Ruta sin nombre',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black,
+                if (route['es_tramo'] != 1) ...[
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        route['origen'] ?? '',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 22,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                      Text(
+                        route['destino'] ?? '',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${route['origen']} - ${route['destino']}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: isDark ? Colors.grey[300] : Colors.grey[700],
+                  const SizedBox(height: 8),
+                ],
+                if (route['es_tramo'] == 1) ...[
+                  // Tramo: nombre en grande con icono + badge + ruta completa
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        route['parada_embarque'] ?? '-',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 22,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                      Text(
+                        route['parada_bajada'] ?? '-',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '✂  Tramo parcial',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.orange[300] : Colors.orange[800],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Text(
+                        'Ruta completa: ',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          route['origen'],
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 14,
+                          color: isDark ? Colors.grey[500] : Colors.grey[500],
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          route['destino'],
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  // Ruta completa con icono
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          route['origen'],
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 18,
+                          color: isDark ? Colors.grey[500] : Colors.grey[400],
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          route['destino'],
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 16),
                 Divider(
                   color: isDark ? Colors.grey[600] : Colors.grey[300],
@@ -1657,15 +1984,18 @@ class _ScheduleCardState extends State<_ScheduleCard> {
               Divider(
                   height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
               const SizedBox(height: 10),
-              // Horas de salida y llegada
+              // Horas de salida y llegada (o abordaje/bajada si es tramo)
               Row(
                 children: [
                   Expanded(
                     child: _infoRow(
                       context,
                       Icons.location_on_rounded,
-                      'Salida',
-                      horario['hora_salida'],
+                      route['es_tramo'] == 1 ? 'Abordaje' : 'Salida',
+                      (route['es_tramo'] == 1 &&
+                              horario['hora_abordaje'] != null)
+                          ? horario['hora_abordaje']
+                          : (horario['hora_salida'] ?? '-'),
                       isDark,
                       iconColor: Colors.blue,
                     ),
@@ -1675,8 +2005,10 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                     child: _infoRow(
                       context,
                       Icons.location_on_rounded,
-                      'Llegada',
-                      horario['hora_llegada'],
+                      route['es_tramo'] == 1 ? 'Bajada' : 'Llegada',
+                      (route['es_tramo'] == 1 && horario['hora_bajada'] != null)
+                          ? horario['hora_bajada']
+                          : (horario['hora_llegada'] ?? '-'),
                       isDark,
                       iconColor: Colors.red,
                     ),
@@ -1700,6 +2032,27 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                             isDark,
                             iconColor: Colors.orange[700],
                           ),
+                          // Para tramos: mostrar horario real de la ruta completa
+                          if (route['es_tramo'] == 1) ...[
+                            const SizedBox(height: 6),
+                            _infoRow(
+                              context,
+                              Icons.schedule_rounded,
+                              'Salida de ruta',
+                              horario['hora_salida'] ?? '-',
+                              isDark,
+                              iconColor: Colors.grey[600],
+                            ),
+                            const SizedBox(height: 6),
+                            _infoRow(
+                              context,
+                              Icons.schedule_rounded,
+                              'Llegada de ruta',
+                              horario['hora_llegada'] ?? '-',
+                              isDark,
+                              iconColor: Colors.grey[600],
+                            ),
+                          ],
                           const SizedBox(height: 10),
                           Divider(
                               height: 1,
@@ -1741,7 +2094,9 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                             isDark,
                             iconColor: Colors.purple[700],
                           ),
-                          if ((route['paradas'] as List).isNotEmpty) ...[
+                          if ((route['paradas'] as List).isNotEmpty ||
+                              (route['paradas_ruta'] as List?)?.isNotEmpty ==
+                                  true) ...[
                             const SizedBox(height: 10),
                             Divider(
                                 height: 1,
@@ -1752,7 +2107,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(Icons.traffic_rounded,
-                                    size: 15, color: Colors.purple[600]),
+                                    size: 15, color: Colors.amber[700]),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Column(
@@ -1770,19 +2125,64 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                                   : Colors.grey[600],
                                             ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      ...(route['paradas'] as List)
-                                          .map<Widget>((parada) => Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 2),
-                                                child: Text(
-                                                  '• $parada',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall,
+                                      const SizedBox(height: 6),
+                                      // Paradas estructuradas (paradas_ruta tiene prioridad)
+                                      if ((route['paradas_ruta'] as List?)
+                                              ?.isNotEmpty ==
+                                          true)
+                                        ...(route['paradas_ruta'] as List)
+                                            .map<Widget>((p) {
+                                          final nombre =
+                                              p['nombre']?.toString() ?? '';
+                                          final mins =
+                                              p['minutos_desde_origen'];
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 4),
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.circle,
+                                                    size: 6,
+                                                    color: isDark
+                                                        ? Colors.amber[400]
+                                                        : Colors.amber[700]),
+                                                const SizedBox(width: 6),
+                                                Expanded(
+                                                  child: Text(
+                                                    nombre,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodySmall,
+                                                  ),
                                                 ),
-                                              ))
-                                          .toList(),
+                                                if (mins != null)
+                                                  Text(
+                                                    '+${mins}min',
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color: isDark
+                                                          ? Colors.grey[500]
+                                                          : Colors.grey[600],
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList()
+                                      else
+                                        ...(route['paradas'] as List)
+                                            .map<Widget>((parada) => Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 2),
+                                                  child: Text(
+                                                    '• $parada',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodySmall,
+                                                  ),
+                                                ))
+                                            .toList(),
                                     ],
                                   ),
                                 ),
