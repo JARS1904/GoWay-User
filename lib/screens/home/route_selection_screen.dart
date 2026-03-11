@@ -2127,48 +2127,74 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                       ),
                                       const SizedBox(height: 6),
                                       // Paradas estructuradas (paradas_ruta tiene prioridad)
-                                      if ((route['paradas_ruta'] as List?)
-                                              ?.isNotEmpty ==
-                                          true)
-                                        ...(route['paradas_ruta'] as List)
-                                            .map<Widget>((p) {
-                                          final nombre =
-                                              p['nombre']?.toString() ?? '';
-                                          final mins =
-                                              p['minutos_desde_origen'];
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 4),
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.circle,
-                                                    size: 6,
-                                                    color: isDark
-                                                        ? Colors.amber[400]
-                                                        : Colors.amber[700]),
-                                                const SizedBox(width: 6),
-                                                Expanded(
-                                                  child: Text(
-                                                    nombre,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodySmall,
+                                      if ((route['paradas_ruta'] as List?)?.isNotEmpty == true) ...[
+                                        ...(() {
+                                          final paradasRuta = route['paradas_ruta'] as List;
+                                          // Si es tramo parcial, filtrar solo las paradas entre embarque y bajada (inclusive)
+                                          if (route['es_tramo'] == 1 && route['parada_embarque'] != null && route['parada_bajada'] != null) {
+                                            final idxEmbarque = paradasRuta.indexWhere((p) => p['nombre'] == route['parada_embarque']);
+                                            final idxBajada = paradasRuta.indexWhere((p) => p['nombre'] == route['parada_bajada']);
+                                            if (idxEmbarque != -1 && idxBajada != -1 && idxEmbarque < idxBajada) {
+                                              final tramo = paradasRuta.sublist(idxEmbarque, idxBajada + 1);
+                                              return tramo.map<Widget>((p) {
+                                                final nombre = p['nombre']?.toString() ?? '';
+                                                final mins = p['minutos_desde_origen'];
+                                                return Padding(
+                                                  padding: const EdgeInsets.only(bottom: 4),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(Icons.circle, size: 6, color: isDark ? Colors.amber[400] : Colors.amber[700]),
+                                                      const SizedBox(width: 6),
+                                                      Expanded(
+                                                        child: Text(
+                                                          nombre,
+                                                          style: Theme.of(context).textTheme.bodySmall,
+                                                        ),
+                                                      ),
+                                                      if (mins != null)
+                                                        Text(
+                                                          '+${mins}min',
+                                                          style: TextStyle(
+                                                            fontSize: 10,
+                                                            color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                                          ),
+                                                        ),
+                                                    ],
                                                   ),
-                                                ),
-                                                if (mins != null)
-                                                  Text(
-                                                    '+${mins}min',
-                                                    style: TextStyle(
-                                                      fontSize: 10,
-                                                      color: isDark
-                                                          ? Colors.grey[500]
-                                                          : Colors.grey[600],
+                                                );
+                                              }).toList();
+                                            }
+                                          }
+                                          // Si no es tramo parcial, mostrar todas las paradas
+                                          return paradasRuta.map<Widget>((p) {
+                                            final nombre = p['nombre']?.toString() ?? '';
+                                            final mins = p['minutos_desde_origen'];
+                                            return Padding(
+                                              padding: const EdgeInsets.only(bottom: 4),
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.circle, size: 6, color: isDark ? Colors.amber[400] : Colors.amber[700]),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      nombre,
+                                                      style: Theme.of(context).textTheme.bodySmall,
                                                     ),
                                                   ),
-                                              ],
-                                            ),
-                                          );
-                                        }).toList()
+                                                  if (mins != null)
+                                                    Text(
+                                                      '+${mins}min',
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList();
+                                        })()
+                                      ]
                                       else
                                         ...(route['paradas'] as List)
                                             .map<Widget>((parada) => Padding(
