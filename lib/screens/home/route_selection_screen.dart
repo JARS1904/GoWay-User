@@ -1958,7 +1958,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          horario['dia_semana'],
+                          horario['tipo_dia'],
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -2127,28 +2127,57 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                       ),
                                       const SizedBox(height: 6),
                                       // Paradas estructuradas (paradas_ruta tiene prioridad)
-                                      if ((route['paradas_ruta'] as List?)?.isNotEmpty == true) ...[
+                                      if ((route['paradas_ruta'] as List?)
+                                              ?.isNotEmpty ==
+                                          true) ...[
                                         ...(() {
-                                          final paradasRuta = route['paradas_ruta'] as List;
+                                          final paradasRuta =
+                                              route['paradas_ruta'] as List;
                                           // Si es tramo parcial, filtrar solo las paradas entre embarque y bajada (inclusive)
-                                          if (route['es_tramo'] == 1 && route['parada_embarque'] != null && route['parada_bajada'] != null) {
-                                            final idxEmbarque = paradasRuta.indexWhere((p) => p['nombre'] == route['parada_embarque']);
-                                            final idxBajada = paradasRuta.indexWhere((p) => p['nombre'] == route['parada_bajada']);
-                                            if (idxEmbarque != -1 && idxBajada != -1 && idxEmbarque < idxBajada) {
-                                              final tramo = paradasRuta.sublist(idxEmbarque, idxBajada + 1);
+                                          if (route['es_tramo'] == 1 &&
+                                              route['parada_embarque'] !=
+                                                  null &&
+                                              route['parada_bajada'] != null) {
+                                            final idxEmbarque =
+                                                paradasRuta.indexWhere((p) =>
+                                                    p['nombre'] ==
+                                                    route['parada_embarque']);
+                                            final idxBajada =
+                                                paradasRuta.indexWhere((p) =>
+                                                    p['nombre'] ==
+                                                    route['parada_bajada']);
+                                            if (idxEmbarque != -1 &&
+                                                idxBajada != -1 &&
+                                                idxEmbarque < idxBajada) {
+                                              final tramo = paradasRuta.sublist(
+                                                  idxEmbarque, idxBajada + 1);
                                               return tramo.map<Widget>((p) {
-                                                final nombre = p['nombre']?.toString() ?? '';
-                                                final mins = p['minutos_desde_origen'];
+                                                final nombre =
+                                                    p['nombre']?.toString() ??
+                                                        '';
+                                                final mins =
+                                                    p['minutos_desde_origen'];
                                                 return Padding(
-                                                  padding: const EdgeInsets.only(bottom: 4),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 4),
                                                   child: Row(
                                                     children: [
-                                                      Icon(Icons.circle, size: 6, color: isDark ? Colors.amber[400] : Colors.amber[700]),
+                                                      Icon(Icons.circle,
+                                                          size: 6,
+                                                          color: isDark
+                                                              ? Colors
+                                                                  .amber[400]
+                                                              : Colors
+                                                                  .amber[700]),
                                                       const SizedBox(width: 6),
                                                       Expanded(
                                                         child: Text(
                                                           nombre,
-                                                          style: Theme.of(context).textTheme.bodySmall,
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .bodySmall,
                                                         ),
                                                       ),
                                                       if (mins != null)
@@ -2156,7 +2185,11 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                                           '+${mins}min',
                                                           style: TextStyle(
                                                             fontSize: 10,
-                                                            color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                                            color: isDark
+                                                                ? Colors
+                                                                    .grey[500]
+                                                                : Colors
+                                                                    .grey[600],
                                                           ),
                                                         ),
                                                     ],
@@ -2167,18 +2200,27 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                           }
                                           // Si no es tramo parcial, mostrar todas las paradas
                                           return paradasRuta.map<Widget>((p) {
-                                            final nombre = p['nombre']?.toString() ?? '';
-                                            final mins = p['minutos_desde_origen'];
+                                            final nombre =
+                                                p['nombre']?.toString() ?? '';
+                                            final mins =
+                                                p['minutos_desde_origen'];
                                             return Padding(
-                                              padding: const EdgeInsets.only(bottom: 4),
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 4),
                                               child: Row(
                                                 children: [
-                                                  Icon(Icons.circle, size: 6, color: isDark ? Colors.amber[400] : Colors.amber[700]),
+                                                  Icon(Icons.circle,
+                                                      size: 6,
+                                                      color: isDark
+                                                          ? Colors.amber[400]
+                                                          : Colors.amber[700]),
                                                   const SizedBox(width: 6),
                                                   Expanded(
                                                     child: Text(
                                                       nombre,
-                                                      style: Theme.of(context).textTheme.bodySmall,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodySmall,
                                                     ),
                                                   ),
                                                   if (mins != null)
@@ -2186,7 +2228,9 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                                       '+${mins}min',
                                                       style: TextStyle(
                                                         fontSize: 10,
-                                                        color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                                        color: isDark
+                                                            ? Colors.grey[500]
+                                                            : Colors.grey[600],
                                                       ),
                                                     ),
                                                 ],
@@ -2194,8 +2238,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                             );
                                           }).toList();
                                         })()
-                                      ]
-                                      else
+                                      ] else
                                         ...(route['paradas'] as List)
                                             .map<Widget>((parada) => Padding(
                                                   padding:
