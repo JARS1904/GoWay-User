@@ -15,6 +15,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:goway_user/services/api_service.dart';
+import 'id_card_screen.dart';
 import 'terms_and_conditions_screen.dart';
 import 'settings_screen.dart';
 
@@ -22,6 +23,10 @@ class ProfileScreen extends StatefulWidget {
   final String userName;
   final String userEmail;
   final String? userPhotoUrl;
+  final int? userId;
+  final String? userPhone;
+  final String? userRegistrationDate;
+  final String? userType;
   final Function(bool)? onThemeChange;
 
   const ProfileScreen({
@@ -29,6 +34,10 @@ class ProfileScreen extends StatefulWidget {
     required this.userName,
     required this.userEmail,
     this.userPhotoUrl,
+    this.userId,
+    this.userPhone,
+    this.userRegistrationDate,
+    this.userType,
     this.onThemeChange,
   });
 
@@ -139,6 +148,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () => _showComingSoonSnackbar(),
             ),
             */
+            _buildProfileOption(
+              icon: Icons.badge_outlined,
+              title: 'Tarjeta',
+              onTap: () => _navigateToIdCard(),
+              isDark: isDark,
+            ),
             _buildProfileOption(
               icon: Icons.description_outlined,
               title: 'Términos y condiciones',
@@ -276,6 +291,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         tabletMode: true,
                       ),
                       */
+                      _buildProfileOption(
+                        icon: Icons.badge_outlined,
+                        title: 'Tarjeta',
+                        onTap: () => _navigateToIdCard(),
+                        tabletMode: true,
+                        isDark: isDark,
+                      ),
                       _buildProfileOption(
                         icon: Icons.description_outlined,
                         title: 'Términos y condiciones',
@@ -757,6 +779,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       MaterialPageRoute(
         builder: (context) => SettingsScreen(
           onThemeChange: widget.onThemeChange,
+        ),
+      ),
+    );
+  }
+
+  void _navigateToIdCard() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => IdCardScreen(
+          userName: widget.userName,
+          userEmail: widget.userEmail,
+          userPhotoUrl: widget.userPhotoUrl,
+          userId: widget.userId,
+          userPhone: widget.userPhone,
+          userRegistrationDate: widget.userRegistrationDate,
+          userType: widget.userType,
         ),
       ),
     );

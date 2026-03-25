@@ -89,10 +89,28 @@ class _LoginScreenState extends State<LoginScreen> {
                 (u) => u['id'].toString() == userId,
                 orElse: () => null,
               );
-              final fotoUrl = match?['foto_url'] as String?;
-              if (fotoUrl != null && fotoUrl.isNotEmpty) {
-                await prefs.setString('userPhotoUrl', fotoUrl);
-                debugPrint('userPhotoUrl desde usuarios: $fotoUrl');
+              if (match != null) {
+                final fotoUrl = match['foto_url'] as String?;
+                if (fotoUrl != null && fotoUrl.isNotEmpty) {
+                  await prefs.setString('userPhotoUrl', fotoUrl);
+                  debugPrint('userPhotoUrl desde usuarios: $fotoUrl');
+                } else {
+                  await prefs.remove('userPhotoUrl');
+                  debugPrint('Usuario sin foto de perfil');
+                }
+                // Guardar campos extra para la tarjeta de identificación
+                final telefono = match['telefono'] as String?;
+                if (telefono != null && telefono.isNotEmpty) {
+                  await prefs.setString('userPhone', telefono);
+                }
+                final fechaRegistro = match['fecha_registro'] as String?;
+                if (fechaRegistro != null && fechaRegistro.isNotEmpty) {
+                  await prefs.setString('userRegistrationDate', fechaRegistro);
+                }
+                final tipoUsuario = match['tipo_usuario'] as String?;
+                if (tipoUsuario != null && tipoUsuario.isNotEmpty) {
+                  await prefs.setString('userType', tipoUsuario);
+                }
               } else {
                 await prefs.remove('userPhotoUrl');
                 debugPrint('Usuario sin foto de perfil');
@@ -100,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
             }
           } catch (e) {
             await prefs.remove('userPhotoUrl');
-            debugPrint('Error al obtener foto: $e');
+            debugPrint('Error al obtener datos de usuario: $e');
           }
         }
 

@@ -344,7 +344,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           key: _routeSelectionKey), // Pantalla de inicio con GlobalKey
       FavoritesScreen(key: _favoritesKey), // Pantalla de rutas favoritas
       ReportsScreen(key: _reportsKey), // Pantalla de reportes
-      FutureBuilder(
+      FutureBuilder<Map<String, dynamic>>(
         future: _loadUserData(), // Carga datos de usuario
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
@@ -353,9 +353,13 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             }
             // Pantalla de perfil con datos de usuario
             return ProfileScreen(
-              userName: snapshot.data?['name'] ?? 'Usuario',
-              userEmail: snapshot.data?['email'] ?? 'email@ejemplo.com',
-              userPhotoUrl: snapshot.data?['photoUrl'],
+              userName: snapshot.data?['name'] as String? ?? 'Usuario',
+              userEmail: snapshot.data?['email'] as String? ?? 'email@ejemplo.com',
+              userPhotoUrl: snapshot.data?['photoUrl'] as String?,
+              userId: snapshot.data?['userId'] as int?,
+              userPhone: snapshot.data?['phone'] as String?,
+              userRegistrationDate: snapshot.data?['registrationDate'] as String?,
+              userType: snapshot.data?['userType'] as String?,
               onThemeChange: widget.onThemeChange,
             );
           }
@@ -367,15 +371,18 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
   /// Carga los datos del usuario desde SharedPreferences.
   ///
-  /// Retorna un Map con:
-  /// - name: Nombre del usuario
-  /// - email: Email del usuario
-  Future<Map<String, String?>> _loadUserData() async {
+  /// Retorna un Map con todos los campos del perfil del usuario.
+  Future<Map<String, dynamic>> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+    final userIdStr = prefs.getString('userId');
     return {
       'name': prefs.getString('userName') ?? 'Usuario',
       'email': prefs.getString('userEmail') ?? 'email@ejemplo.com',
       'photoUrl': prefs.getString('userPhotoUrl'),
+      'userId': userIdStr != null ? int.tryParse(userIdStr) : null,
+      'phone': prefs.getString('userPhone'),
+      'registrationDate': prefs.getString('userRegistrationDate'),
+      'userType': prefs.getString('userType'),
     };
   }
 
