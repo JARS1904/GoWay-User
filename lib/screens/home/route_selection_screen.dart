@@ -13,12 +13,14 @@
 //          Emilio Domíngez Silva
 // Mantenido por: Hydra. Inc
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:goway_user/services/api_service.dart';
 import 'package:goway_user/screens/map/map_screen.dart';
 import 'package:goway_user/screens/profile/profile_screen.dart';
+import 'package:goway_user/screens/home/notifications_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -141,16 +143,29 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   Map<String, dynamic>? _selectedRoute;
   Set<String> _favoriteRouteIds = {};
   AppLifecycleState? _lastLifecycleState;
+  int _unreadNotifications = 0;
+  Timer? _notificationTimer;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeUserId();
+    _startNotificationTimer();
+  }
+
+  void _startNotificationTimer() {
+    _notificationTimer?.cancel();
+    _notificationTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      if (mounted) {
+        _fetchUnreadNotificationsCount();
+      }
+    });
   }
 
   @override
   void dispose() {
+    _notificationTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -161,6 +176,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     if (state == AppLifecycleState.resumed) {
       // Recargar favoritos cuando la app vuelve al foreground
       _loadFavorites();
+      _fetchUnreadNotificationsCount();
     }
   }
 
@@ -168,6 +184,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   /// Se llama cuando se vuelve a la pantalla de inicio desde otra pantalla
   void refreshFavorites() {
     _loadFavorites();
+    _fetchUnreadNotificationsCount();
   }
 
   Future<void> _initializeUserId() async {
@@ -182,6 +199,26 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     }
     _loadFavorites();
     _fetchLocations();
+    _fetchUnreadNotificationsCount();
+  }
+
+  Future<void> _fetchUnreadNotificationsCount() async {
+    try {
+      final url = Uri.parse('${ApiService.notificationsUrl}?action=get_notifications&id_usuario=$_userId');
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true && data['unread_count'] != null) {
+          if (mounted) {
+            setState(() {
+              _unreadNotifications = int.tryParse(data['unread_count'].toString()) ?? 0;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetch notifications: $e');
+    }
   }
 
   /// Carga los favoritos actuales del usuario
@@ -369,6 +406,52 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     return mediaQuery.size.width >= 600;
   }
 
+  Widget _buildNotificationIcon() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, size: 28),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+              );
+              _fetchUnreadNotificationsCount();
+            },
+          ),
+          if (_unreadNotifications > 0)
+            Positioned(
+              right: 8,
+              top: 8,
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                constraints: const BoxConstraints(
+                  minWidth: 16,
+                  minHeight: 16,
+                ),
+                child: Text(
+                  _unreadNotifications > 9 ? '9+' : '$_unreadNotifications',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isTablet) {
@@ -391,10 +474,10 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.directions_bus_rounded,
-              size: 30,
-              color: isDark ? Colors.white : Colors.blueAccent[700],
+            Image.asset(
+              'lib/assets/images/logo_sin_nombre.png',
+              width: 32,
+              height: 32,
             ),
             const SizedBox(width: 8),
             Text(
@@ -403,6 +486,9 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             ),
           ],
         ),
+        actions: [
+          _buildNotificationIcon(),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -588,10 +674,10 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.directions_bus_rounded,
-              size: 30,
-              color: isDark ? Colors.white : Colors.blueAccent[700],
+            Image.asset(
+              'lib/assets/images/logo_sin_nombre.png',
+              width: 32,
+              height: 32,
             ),
             const SizedBox(width: 8),
             Text(
@@ -600,6 +686,9 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             ),
           ],
         ),
+        actions: [
+          _buildNotificationIcon(),
+        ],
       ),
       body: Row(
         children: [
@@ -784,14 +873,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             flex: 3,
             child: _selectedRoute != null
                 ? _buildRouteDetails(_selectedRoute!)
-                : const Center(
+                : Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.directions_bus,
-                            size: 60, color: Colors.grey),
-                        SizedBox(height: 16),
-                        Text(
+                        Image.asset('lib/assets/images/logo_sin_nombre.png', width: 60, height: 60),
+                        const SizedBox(height: 16),
+                        const Text(
                           'Selecciona una ruta para ver los detalles',
                           style: TextStyle(
                             fontSize: 18,

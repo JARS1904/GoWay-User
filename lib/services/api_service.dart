@@ -3,8 +3,8 @@
 /// Todos los endpoints centralizados en un solo lugar
 /// Para cambiar la IP: solo modifica [baseUrl]
 class ApiService {
-  static const String baseUrl = "http://172.31.99.124/GoWay/api";
-  static const String baseGoWayUrl = "http://172.31.99.124/GoWay";
+  static const String baseUrl = "http://192.168.0.121/GoWay/api";
+  static const String baseGoWayUrl = "http://192.168.0.121/GoWay";
 
   /// Construye la URL completa de una foto de perfil a partir de su ruta relativa.
   static String? buildPhotoUrl(String? relativeUrl) {
@@ -18,4 +18,5 @@ class ApiService {
   static const String routesUrl = "$baseUrl/routes_api.php";
   static const String favoritesUrl = "$baseUrl/favorites_routes_api.php";
   static const String reportsUrl = "$baseUrl/reportes_api.php";
+  static const String notificationsUrl = "$baseUrl/notificaciones_api.php";
 }
