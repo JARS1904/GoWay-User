@@ -354,11 +354,13 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             // Pantalla de perfil con datos de usuario
             return ProfileScreen(
               userName: snapshot.data?['name'] as String? ?? 'Usuario',
-              userEmail: snapshot.data?['email'] as String? ?? 'email@ejemplo.com',
+              userEmail:
+                  snapshot.data?['email'] as String? ?? 'email@ejemplo.com',
               userPhotoUrl: snapshot.data?['photoUrl'] as String?,
               userId: snapshot.data?['userId'] as int?,
               userPhone: snapshot.data?['phone'] as String?,
-              userRegistrationDate: snapshot.data?['registrationDate'] as String?,
+              userRegistrationDate:
+                  snapshot.data?['registrationDate'] as String?,
               userType: snapshot.data?['userType'] as String?,
               onThemeChange: widget.onThemeChange,
             );
