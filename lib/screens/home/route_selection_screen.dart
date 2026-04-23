@@ -204,14 +204,16 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
 
   Future<void> _fetchUnreadNotificationsCount() async {
     try {
-      final url = Uri.parse('${ApiService.notificationsUrl}?action=get_notifications&id_usuario=$_userId');
+      final url = Uri.parse(
+          '${ApiService.notificationsUrl}?action=get_notifications&id_usuario=$_userId');
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true && data['unread_count'] != null) {
           if (mounted) {
             setState(() {
-              _unreadNotifications = int.tryParse(data['unread_count'].toString()) ?? 0;
+              _unreadNotifications =
+                  int.tryParse(data['unread_count'].toString()) ?? 0;
             });
           }
         }
@@ -417,7 +419,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             onPressed: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const NotificationsScreen()),
               );
               _fetchUnreadNotificationsCount();
             },
@@ -651,8 +654,16 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               )
             else if (_origin != null && _destination != null && !_loading)
               const Center(
-                child: Text(
-                  'No se encontraron rutas para esta combinación',
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(top: 16, left: 30, bottom: 16, right: 30),
+                  child: Text(
+                    'No se encontraron rutas para esta combinación',
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
           ],
@@ -877,7 +888,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset('lib/assets/images/logo_sin_nombre.png', width: 60, height: 60),
+                        Image.asset('lib/assets/images/logo_sin_nombre.png',
+                            width: 60, height: 60),
                         const SizedBox(height: 16),
                         const Text(
                           'Selecciona una ruta para ver los detalles',
@@ -980,7 +992,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                           Row(
                             children: [
                               const Icon(Icons.location_on_rounded,
-                                  size: 12, color: Colors.blue),
+                                  size: 13, color: Colors.blue),
                               const SizedBox(width: 2),
                               Flexible(
                                 child: Text(
@@ -992,6 +1004,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                         color: isDark
                                             ? Colors.grey[400]
                                             : Colors.grey[600],
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -999,13 +1013,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                               ),
                               const SizedBox(width: 4),
                               Icon(Icons.arrow_forward,
-                                  size: 11,
+                                  size: 12,
                                   color: isDark
                                       ? Colors.grey[500]
                                       : Colors.grey[400]),
                               const SizedBox(width: 4),
                               Icon(Icons.location_on_rounded,
-                                  size: 12, color: Colors.red),
+                                  size: 13, color: Colors.red),
                               const SizedBox(width: 2),
                               Flexible(
                                 child: Text(
@@ -1017,6 +1031,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                         color: isDark
                                             ? Colors.grey[400]
                                             : Colors.grey[600],
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -1039,8 +1055,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                   child: Text(
                                     'Tramo parcial',
                                     style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
                                       color: isDark
                                           ? Colors.orange[300]
                                           : Colors.orange[800],
@@ -1049,7 +1065,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                 ),
                                 const SizedBox(width: 6),
                                 Icon(Icons.directions_walk_rounded,
-                                    size: 11,
+                                    size: 12,
                                     color: isDark
                                         ? Colors.orange[300]
                                         : Colors.orange[700]),
@@ -1058,7 +1074,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                   child: Text(
                                     '${route['parada_embarque'] ?? '-'} → ${route['parada_bajada'] ?? '-'}',
                                     style: TextStyle(
-                                      fontSize: 10,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
                                       color: isDark
                                           ? Colors.orange[300]
                                           : Colors.orange[800],
@@ -1086,7 +1103,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     Row(
                       children: [
                         Icon(Icons.calendar_month_rounded,
-                            size: 15,
+                            size: 20,
                             color: isDark
                                 ? Colors.blueAccent[100]
                                 : Colors.blueAccent[700]),
@@ -1098,6 +1115,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                     color: isDark
                                         ? Colors.grey[400]
                                         : Colors.grey[600],
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
                                   ),
                         ),
                       ],
@@ -1106,7 +1125,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.blueAccent.withOpacity(0.12),
+                        color: Colors.blueAccent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -1245,6 +1264,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                           'Ver detalles',
                           style: TextStyle(
                             fontSize: 12,
+                            fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
                         ),
@@ -1365,7 +1385,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                 Text(
                   'Ruta completa: ',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],
                   ),
                 ),
@@ -1373,7 +1393,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   child: Text(
                     route['origen'],
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -1391,7 +1411,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   child: Text(
                     route['destino'],
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -1466,8 +1486,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                 _buildInfoRow(
                     Icons.business_rounded, 'Nombre:', route['empresa_nombre'],
                     isDark: isDark),
-                _buildInfoRow(Icons.phone_android_rounded, 'Teléfono:',
-                    route['empresa_telefono'],
+                _buildInfoRow(
+                    Icons.phone_rounded, 'Teléfono:', route['empresa_telefono'],
                     isDark: isDark),
                 _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
                     route['empresa_direccion'] ?? 'No especificada',
@@ -1518,6 +1538,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   label,
                   style: TextStyle(
                     fontSize: 14,
+                    fontWeight: FontWeight.w500,
                     color: isDark ? Colors.grey[400] : Colors.grey,
                   ),
                 ),
@@ -1702,6 +1723,7 @@ class RouteDetailsScreen extends StatelessWidget {
                         'Ruta completa: ',
                         style: TextStyle(
                           fontSize: 14,
+                          fontWeight: FontWeight.w500,
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
                         ),
                       ),
@@ -1710,6 +1732,7 @@ class RouteDetailsScreen extends StatelessWidget {
                           route['origen'],
                           style: TextStyle(
                             fontSize: 14,
+                            fontWeight: FontWeight.w500,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -1728,6 +1751,7 @@ class RouteDetailsScreen extends StatelessWidget {
                           route['destino'],
                           style: TextStyle(
                             fontSize: 14,
+                            fontWeight: FontWeight.w500,
                             color: isDark ? Colors.grey[400] : Colors.grey[600],
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -1803,7 +1827,7 @@ class RouteDetailsScreen extends StatelessWidget {
                       _buildInfoRow(Icons.business_rounded, 'Nombre:',
                           route['empresa_nombre'],
                           isDark: isDark),
-                      _buildInfoRow(Icons.phone_android_rounded, 'Teléfono:',
+                      _buildInfoRow(Icons.phone_rounded, 'Teléfono:',
                           route['empresa_telefono'],
                           isDark: isDark),
                       _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
@@ -1861,6 +1885,7 @@ class RouteDetailsScreen extends StatelessWidget {
                   label,
                   style: TextStyle(
                     fontSize: 14,
+                    fontWeight: FontWeight.w500,
                     color: isDark ? Colors.grey[400] : Colors.grey,
                   ),
                 ),
@@ -1910,7 +1935,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon,
-            size: 16,
+            size: 20,
             color: iconColor ?? (isDark ? Colors.grey[400] : Colors.grey[600])),
         const SizedBox(width: 8),
         Expanded(
@@ -1920,12 +1945,15 @@ class _ScheduleCardState extends State<_ScheduleCard> {
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: isDark ? Colors.grey[500] : Colors.grey[600],
-                    ),
+                    color: isDark ? Colors.grey[500] : Colors.grey[600],
+                    fontSize: 13),
               ),
               Text(
                 value,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: isDark ? Colors.white : Colors.black,
+                      fontSize: 14,
+                    ),
               ),
             ],
           ),
@@ -1961,7 +1989,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.12),
+                      color: Colors.green.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(Icons.calendar_month_rounded,
@@ -1998,6 +2026,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                       color: isDark
                                           ? Colors.grey[400]
                                           : Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
                                     ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -2023,6 +2052,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                       color: isDark
                                           ? Colors.grey[400]
                                           : Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
                                     ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -2078,7 +2108,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                   Expanded(
                     child: _infoRow(
                       context,
-                      Icons.location_on_rounded,
+                      Icons.directions_bus_rounded,
                       route['es_tramo'] == 1 ? 'Abordaje' : 'Salida',
                       (route['es_tramo'] == 1 &&
                               horario['hora_abordaje'] != null)
@@ -2092,13 +2122,13 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                   Expanded(
                     child: _infoRow(
                       context,
-                      Icons.location_on_rounded,
+                      Icons.directions_bus_rounded,
                       route['es_tramo'] == 1 ? 'Bajada' : 'Llegada',
                       (route['es_tramo'] == 1 && horario['hora_bajada'] != null)
                           ? horario['hora_bajada']
                           : (horario['hora_llegada'] ?? '-'),
                       isDark,
-                      iconColor: Colors.red,
+                      iconColor: Colors.redAccent,
                     ),
                   ),
                 ],
@@ -2114,7 +2144,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                           const SizedBox(height: 10),
                           _infoRow(
                             context,
-                            Icons.repeat_rounded,
+                            Icons.refresh_rounded,
                             'Frecuencia',
                             horario['frecuencia']?.toString() ?? '-',
                             isDark,
@@ -2176,11 +2206,11 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                           const SizedBox(height: 6),
                           _infoRow(
                             context,
-                            Icons.people_alt_rounded,
+                            Icons.event_seat_rounded,
                             'Capacidad',
                             '${horario['vehiculo_capacidad']?.toString() ?? 'N/A'} pasajeros',
                             isDark,
-                            iconColor: Colors.purple[700],
+                            iconColor: const Color.fromARGB(255, 246, 186, 66),
                           ),
                           if ((route['paradas'] as List).isNotEmpty ||
                               (route['paradas_ruta'] as List?)?.isNotEmpty ==
@@ -2195,7 +2225,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(Icons.traffic_rounded,
-                                    size: 15, color: Colors.amber[700]),
+                                    size: 20, color: Colors.amber[700]),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Column(
@@ -2208,10 +2238,11 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                             .textTheme
                                             .labelSmall
                                             ?.copyWith(
-                                              color: isDark
-                                                  ? Colors.grey[500]
-                                                  : Colors.grey[600],
-                                            ),
+                                                color: isDark
+                                                    ? Colors.grey[500]
+                                                    : Colors.grey[600],
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500),
                                       ),
                                       const SizedBox(height: 6),
                                       // Paradas estructuradas (paradas_ruta tiene prioridad)
@@ -2265,14 +2296,23 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
-                                                                  .bodySmall,
+                                                                  .bodySmall
+                                                                  ?.copyWith(
+                                                                    color: isDark
+                                                                        ? Colors
+                                                                            .white
+                                                                        : Colors
+                                                                            .black,
+                                                                    fontSize:
+                                                                        14,
+                                                                  ),
                                                         ),
                                                       ),
                                                       if (mins != null)
                                                         Text(
-                                                          '+${mins}min',
+                                                          '+${mins} min',
                                                           style: TextStyle(
-                                                            fontSize: 10,
+                                                            fontSize: 13,
                                                             color: isDark
                                                                 ? Colors
                                                                     .grey[500]
@@ -2308,14 +2348,20 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                                       nombre,
                                                       style: Theme.of(context)
                                                           .textTheme
-                                                          .bodySmall,
+                                                          .bodySmall
+                                                          ?.copyWith(
+                                                            color: isDark
+                                                                ? Colors.white
+                                                                : Colors.black,
+                                                            fontSize: 14,
+                                                          ),
                                                     ),
                                                   ),
                                                   if (mins != null)
                                                     Text(
-                                                      '+${mins}min',
+                                                      '+${mins} min',
                                                       style: TextStyle(
-                                                        fontSize: 10,
+                                                        fontSize: 13,
                                                         color: isDark
                                                             ? Colors.grey[500]
                                                             : Colors.grey[600],

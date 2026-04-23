@@ -315,7 +315,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         Row(
                           children: [
                             const Icon(Icons.location_on_rounded,
-                                size: 12, color: Colors.red),
+                                size: 13, color: Colors.blue),
                             const SizedBox(width: 2),
                             Flexible(
                               child: Text(
@@ -327,6 +327,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                       color: isDark
                                           ? Colors.grey[400]
                                           : Colors.grey[600],
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -334,13 +336,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             ),
                             const SizedBox(width: 4),
                             Icon(Icons.arrow_forward,
-                                size: 11,
+                                size: 12,
                                 color: isDark
                                     ? Colors.grey[500]
                                     : Colors.grey[400]),
                             const SizedBox(width: 4),
                             Icon(Icons.location_on_rounded,
-                                size: 12, color: Colors.green[400]),
+                                size: 13, color: Colors.red),
                             const SizedBox(width: 2),
                             Flexible(
                               child: Text(
@@ -352,6 +354,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                       color: isDark
                                           ? Colors.grey[400]
                                           : Colors.grey[600],
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -375,14 +379,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   Row(
                     children: [
                       Icon(Icons.calendar_month_rounded,
-                          size: 15,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                          size: 20,
+                          color: isDark
+                              ? Colors.blueAccent[100]
+                              : Colors.blueAccent[700]),
                       const SizedBox(width: 8),
                       Text(
                         'Horarios disponibles',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color:
                                   isDark ? Colors.grey[400] : Colors.grey[600],
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
                             ),
                       ),
                     ],
@@ -495,7 +503,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     ),
                     child: const Text(
                       'Ver detalles',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],

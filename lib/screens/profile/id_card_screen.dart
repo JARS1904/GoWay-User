@@ -261,7 +261,8 @@ class _IdCardScreenState extends State<IdCardScreen>
               'Transporte Público',
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.7),
-                fontSize: 9,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
                 letterSpacing: 0.5,
               ),
             ),
@@ -279,7 +280,7 @@ class _IdCardScreenState extends State<IdCardScreen>
                   widget.userType!,
                   style: const TextStyle(
                     color: Colors.amber,
-                    fontSize: 9,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
                   ),
@@ -320,9 +321,9 @@ class _IdCardScreenState extends State<IdCardScreen>
         Text(
           widget.userEmail,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.9),
-            fontSize: 12,
-          ),
+              color: Colors.white.withValues(alpha: 0.9),
+              fontSize: 12,
+              fontWeight: FontWeight.w500),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -334,9 +335,9 @@ class _IdCardScreenState extends State<IdCardScreen>
         Text(
           widget.userPhone ?? 'No disponible',
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.9),
-            fontSize: 12,
-          ),
+              color: Colors.white.withValues(alpha: 0.9),
+              fontSize: 12,
+              fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 14),
 
@@ -346,9 +347,9 @@ class _IdCardScreenState extends State<IdCardScreen>
         Text(
           widget.userType ?? 'Estudiante',
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.9),
-            fontSize: 12,
-          ),
+              color: Colors.white.withValues(alpha: 0.9),
+              fontSize: 12,
+              fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 14),
 
@@ -442,7 +443,7 @@ class _IdCardScreenState extends State<IdCardScreen>
                     'Activo',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.95),
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -465,7 +466,7 @@ class _IdCardScreenState extends State<IdCardScreen>
           'Emisión: ${_today()}',
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.45),
-            fontSize: 9,
+            fontSize: 11,
             letterSpacing: 0.5,
           ),
         ),
@@ -480,7 +481,7 @@ class _IdCardScreenState extends State<IdCardScreen>
       label,
       style: TextStyle(
         color: Colors.white.withValues(alpha: 0.5),
-        fontSize: 8,
+        fontSize: 11,
         fontWeight: FontWeight.w700,
         letterSpacing: 1.5,
       ),

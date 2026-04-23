@@ -503,7 +503,7 @@ class _ReportCardState extends State<_ReportCard> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Icon(Icons.notes_rounded,
-                                      size: 15,
+                                      size: 20,
                                       color: isDark
                                           ? Colors.grey[400]
                                           : Colors.grey[500]),
@@ -518,6 +518,7 @@ class _ReportCardState extends State<_ReportCard> {
                                             color: isDark
                                                 ? Colors.grey[300]
                                                 : Colors.grey[700],
+                                            fontSize: 14,
                                             height: 1.4,
                                           ),
                                     ),
@@ -543,7 +544,7 @@ class _ReportCardState extends State<_ReportCard> {
     return Row(
       children: [
         Icon(icon,
-            size: 15, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+            size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -553,11 +554,15 @@ class _ReportCardState extends State<_ReportCard> {
                 label,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: isDark ? Colors.grey[500] : Colors.grey[600],
+                      fontSize: 13,
                     ),
               ),
               Text(
                 value,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: isDark ? Colors.white : Colors.black,
+                      fontSize: 14,
+                    ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -970,7 +975,8 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                   ],
                   if (_assignmentData != null) ...[
                     const SizedBox(height: 10),
-                    _AssignmentInfoCard(data: _assignmentData!, esRetorno: _esRetorno),
+                    _AssignmentInfoCard(
+                        data: _assignmentData!, esRetorno: _esRetorno),
                     if (_assignmentData!['id_ruta_retorno'] != null) ...[
                       const SizedBox(height: 8),
                       Row(
@@ -978,10 +984,13 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                         children: [
                           Text(
                             'Es trayecto de regreso',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.grey[300] : Colors.grey[800],
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark
+                                          ? Colors.grey[300]
+                                          : Colors.grey[800],
+                                    ),
                           ),
                           Switch(
                             value: _esRetorno,
@@ -1146,10 +1155,16 @@ class _AssignmentInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bool hasRetorno = data['id_ruta_retorno'] != null;
-    
-    final String rName = esRetorno && hasRetorno ? (data['ruta_retorno_nombre'] ?? 'N/A') : data['ruta_nombre'];
-    final String rOri = esRetorno && hasRetorno ? (data['ruta_retorno_origen'] ?? 'N/A') : data['origen'];
-    final String rDes = esRetorno && hasRetorno ? (data['ruta_retorno_destino'] ?? 'N/A') : data['destino'];
+
+    final String rName = esRetorno && hasRetorno
+        ? (data['ruta_retorno_nombre'] ?? 'N/A')
+        : data['ruta_nombre'];
+    final String rOri = esRetorno && hasRetorno
+        ? (data['ruta_retorno_origen'] ?? 'N/A')
+        : data['origen'];
+    final String rDes = esRetorno && hasRetorno
+        ? (data['ruta_retorno_destino'] ?? 'N/A')
+        : data['destino'];
 
     return Container(
       padding: const EdgeInsets.all(12),
