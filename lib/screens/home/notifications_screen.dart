@@ -86,17 +86,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       String tipo = n.tipo.toLowerCase();
       
       switch (_selectedFilter) {
-        case 'Alertas':
-          matchesFilter = tipo == 'alerta' || tipo == 'urgente';
+        case 'Alertas de Seguridad':
+          matchesFilter = tipo == 'alerta' || tipo == 'urgente' || tipo == 'seguridad';
           break;
-        case 'Promociones':
-          matchesFilter = tipo == 'promocion';
+        case 'Cierre Vial':
+          matchesFilter = tipo == 'cierre' || tipo == 'cierres' || tipo == 'cierre vial';
           break;
-        case 'Cierres':
-          matchesFilter = tipo == 'cierre' || tipo == 'cierres';
+        case 'Trafico Pesado':
+          matchesFilter = tipo == 'trafico' || tipo == 'trafico pesado';
           break;
-        case 'General':
-          matchesFilter = tipo == 'general' || tipo == 'info' || tipo == 'sistema';
+        case 'Aviso General':
+          matchesFilter = tipo == 'general' || tipo == 'info' || tipo == 'sistema' || tipo == 'aviso' || tipo == 'aviso general';
           break;
         case 'Todas':
         default:
@@ -203,6 +203,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             ),
                           ),
                           child: TextField(
+                            textAlignVertical: TextAlignVertical.center,
                             onChanged: (value) => setState(() => _searchQuery = value),
                             style: TextStyle(
                               color: isDark ? Colors.white : Colors.black87,
@@ -217,7 +218,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 color: isDark ? Colors.grey[500] : Colors.grey[400],
                               ),
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                              contentPadding: EdgeInsets.zero,
                             ),
                           ),
                         ),
@@ -234,13 +235,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       _buildFilterChip('Todas', isDark, filterValue: 'Todas'),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Alertas', isDark, filterValue: 'Alertas'),
+                      _buildFilterChip('Alertas de Seguridad', isDark, filterValue: 'Alertas de Seguridad'),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Promociones', isDark, filterValue: 'Promociones'),
+                      _buildFilterChip('Cierre Vial', isDark, filterValue: 'Cierre Vial'),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Cierres', isDark, filterValue: 'Cierres'),
+                      _buildFilterChip('Tráfico Pesado', isDark, filterValue: 'Trafico Pesado'),
                       const SizedBox(width: 8),
-                      _buildFilterChip('General', isDark, filterValue: 'General'),
+                      _buildFilterChip('Aviso General', isDark, filterValue: 'Aviso General'),
                     ],
                   ),
                 ),
@@ -276,7 +277,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     group,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 15,
+                                      fontSize: 14,
                                       color: isDark ? Colors.grey[400] : Colors.grey[700],
                                     ),
                                   ),
@@ -383,7 +384,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             Text(
                               _formatDateTime(notif.fechaCreacion),
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
                                 color: isDark ? Colors.grey[500] : Colors.grey[400],
                                 fontWeight: FontWeight.w500,
                               ),
@@ -408,7 +409,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   child: Text(
                                     notif.titulo,
                                     style: TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 14,
                                       fontWeight: isUnread ? FontWeight.bold : FontWeight.w600,
                                       color: isDark ? Colors.white : Colors.black87,
                                     ),
@@ -421,7 +422,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             Text(
                               notif.mensaje,
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 13,
                                 color: isDark ? Colors.grey[400] : Colors.grey[600],
                                 height: 1.4,
                               ),
@@ -474,15 +475,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     switch (tipo.toLowerCase()) {
       case 'alerta':
       case 'urgente':
+      case 'seguridad':
         return Icons.warning_rounded; // Solid warning
       case 'cierre':
       case 'cierres':
+      case 'cierre vial':
         return Icons.block_outlined; // Or Icons.do_not_disturb_alt
-      case 'promocion':
-        return Icons.local_offer; // Solid tag
+      case 'trafico':
+      case 'trafico pesado':
+        return Icons.directions_car_rounded;
       case 'general':
       case 'info':
       case 'sistema':
+      case 'aviso':
+      case 'aviso general':
       default:
         return Icons.notifications_none_rounded; // Default bell icon
     }
@@ -492,15 +498,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     switch (tipo.toLowerCase()) {
       case 'alerta':
       case 'urgente':
+      case 'seguridad':
         return isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626);
       case 'cierre':
       case 'cierres':
+      case 'cierre vial':
         return isDark ? const Color(0xFF818CF8) : const Color(0xFF4F46E5);
-      case 'promocion':
+      case 'trafico':
+      case 'trafico pesado':
         return isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C);
       case 'general':
       case 'info':
       case 'sistema':
+      case 'aviso':
+      case 'aviso general':
       default:
         return isDark ? const Color(0xFFD1D5DB) : const Color(0xFF374151);
     }
@@ -510,15 +521,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     switch (tipo.toLowerCase()) {
       case 'alerta':
       case 'urgente':
+      case 'seguridad':
         return isDark ? const Color(0xFFDC2626).withOpacity(0.2) : const Color(0xFFFEE2E2);
       case 'cierre':
       case 'cierres':
+      case 'cierre vial':
         return isDark ? const Color(0xFF4F46E5).withOpacity(0.2) : const Color(0xFFE0E7FF);
-      case 'promocion':
-        return isDark ? const Color(0xFFEA580C).withOpacity(0.2) : const Color(0xFFFFEDD5);
+      case 'trafico':
+      case 'trafico pesado':
+        return isDark ? const Color(0xFFEA580C).withOpacity(0.2) : const Color(0xFFFFF7ED);
       case 'general':
       case 'info':
       case 'sistema':
+      case 'aviso':
+      case 'aviso general':
       default:
         return isDark ? const Color(0xFF374151).withOpacity(0.5) : const Color(0xFFF3F4F6);
     }

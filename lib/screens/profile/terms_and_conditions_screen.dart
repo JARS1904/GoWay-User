@@ -73,7 +73,7 @@ class TermsAndConditionsScreen extends StatelessWidget {
           Row(
             children: [
               Image.asset(
-                'lib/assets/images/logo_sin_nombre.png',
+                'lib/assets/images/logo.png',
                 height: 40,
                 width: 40,
               ),

@@ -597,6 +597,7 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
   String? _assignmentError;
 
   bool _submitting = false;
+  bool _esRetorno = false;
 
   static const _tiposIncidente = [
     'Averia',
@@ -749,6 +750,7 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
         'fecha_hora': _dateTimeCtrl.text.trim(),
         'descripcion': _descriptionCtrl.text.trim(),
         'gravedad': _selectedGravedad,
+        'es_retorno': _esRetorno,
       });
 
       final response = await http
@@ -968,7 +970,31 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                   ],
                   if (_assignmentData != null) ...[
                     const SizedBox(height: 10),
-                    _AssignmentInfoCard(data: _assignmentData!),
+                    _AssignmentInfoCard(data: _assignmentData!, esRetorno: _esRetorno),
+                    if (_assignmentData!['id_ruta_retorno'] != null) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Es trayecto de regreso',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.grey[300] : Colors.grey[800],
+                                ),
+                          ),
+                          Switch(
+                            value: _esRetorno,
+                            activeColor: Colors.blueAccent[700],
+                            onChanged: (val) {
+                              setState(() {
+                                _esRetorno = val;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
 
                   const SizedBox(height: 16),
@@ -1109,12 +1135,22 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
 
 class _AssignmentInfoCard extends StatelessWidget {
   final Map<String, dynamic> data;
+  final bool esRetorno;
 
-  const _AssignmentInfoCard({required this.data});
+  const _AssignmentInfoCard({
+    required this.data,
+    this.esRetorno = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool hasRetorno = data['id_ruta_retorno'] != null;
+    
+    final String rName = esRetorno && hasRetorno ? (data['ruta_retorno_nombre'] ?? 'N/A') : data['ruta_nombre'];
+    final String rOri = esRetorno && hasRetorno ? (data['ruta_retorno_origen'] ?? 'N/A') : data['origen'];
+    final String rDes = esRetorno && hasRetorno ? (data['ruta_retorno_destino'] ?? 'N/A') : data['destino'];
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -1154,8 +1190,7 @@ class _AssignmentInfoCard extends StatelessWidget {
           const SizedBox(height: 4),
           _InfoLine(
             icon: Icons.route,
-            text:
-                '${data['ruta_nombre']} (${data['origen']} -> ${data['destino']})',
+            text: '$rName ($rOri -> $rDes)',
           ),
         ],
       ),

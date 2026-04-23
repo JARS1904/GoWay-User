@@ -475,7 +475,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              'lib/assets/images/logo_sin_nombre.png',
+              'lib/assets/images/logo.png',
               width: 32,
               height: 32,
             ),
@@ -1910,7 +1910,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon,
-            size: 15,
+            size: 16,
             color: iconColor ?? (isDark ? Colors.grey[400] : Colors.grey[600])),
         const SizedBox(width: 8),
         Expanded(
@@ -2048,7 +2048,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                         child: Text(
                           horario['tipo_dia'],
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color:
                                 isDark ? Colors.green[300] : Colors.green[800],
