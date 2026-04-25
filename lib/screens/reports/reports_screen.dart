@@ -261,9 +261,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   void _showCreateReportDialog() {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      barrierDismissible: false,
+      isScrollControlled: true,
+      isDismissible: false,
+      backgroundColor: Colors.transparent,
       builder: (context) => _CreateReportDialog(
         onReportCreated: (_) => _loadReportsFromServer(),
       ),
@@ -605,15 +607,14 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
   bool _esRetorno = false;
 
   static const _tiposIncidente = [
-    'Averia',
     'Accidente',
-    'Congestion de Trafico',
-    'Retraso',
-    'Falla Mecanica',
+    'Avería Mecánica',
+    'Retraso Significativo',
+    'Incidente con Cliente',
     'Otro',
   ];
 
-  static const _gravedades = ['baja', 'media', 'alta', 'critica'];
+  static const _gravedades = ['baja', 'media', 'alta', 'crítica'];
 
   @override
   void dispose() {
@@ -854,97 +855,292 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Dialog(
-      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 36,
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(28),
+        topRight: Radius.circular(28),
+      ),
+      child: Container(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.9,
+            maxWidth: MediaQuery.of(context).size.width,
+          ),
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 20,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            ),
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ── Handle bar superior ────────────────────────────
+                    Center(
+                      child: Container(
+                        width: 48,
+                        height: 4,
                         decoration: BoxDecoration(
-                          color: Colors.blueAccent.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(10),
+                          color: isDark ? Colors.grey[600] : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
                         ),
-                        child: Icon(Icons.assignment_late_outlined,
-                            color: Colors.blueAccent[700], size: 20),
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Nuevo reporte',
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: Colors.blueAccent.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(Icons.assignment_late_outlined,
+                              color: Colors.blueAccent[700], size: 20),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Nuevo reporte',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(context),
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                        ),
+                      ],
+                    ),
+                    Divider(
+                        height: 24,
+                        color: isDark ? Colors.white12 : Colors.grey[200]),
+
+                    // Placa del vehiculo
+                    /*
+                    Text('Vehiculo',
                         style: Theme.of(context)
                             .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.close_rounded),
-                        onPressed: () => Navigator.pop(context),
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
+                            .labelMedium
+                            ?.copyWith(fontWeight: FontWeight.w600)),
+                    */
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _placaCtrl,
+                            textCapitalization: TextCapitalization.characters,
+                            decoration: InputDecoration(
+                              labelText: 'Placa del vehículo',
+                              hintText: 'Ej: ABC1234',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              isDense: true,
+                            ),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty)
+                                return 'Requerido';
+                              return null;
+                            },
+                            onChanged: (_) {
+                              if (_assignmentData != null ||
+                                  _assignmentError != null) {
+                                setState(() {
+                                  _assignmentData = null;
+                                  _assignmentError = null;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _fetchingAssignment
+                                ? null
+                                : _fetchAssignmentData,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent[700],
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: _fetchingAssignment
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white, strokeWidth: 2),
+                                  )
+                                : const Text('Buscar'),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    if (_assignmentError != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        _assignmentError!,
+                        style: const TextStyle(
+                            color: Colors.redAccent, fontSize: 12),
                       ),
                     ],
-                  ),
-                  Divider(
-                      height: 24,
-                      color: isDark ? Colors.white12 : Colors.grey[200]),
-
-                  // Placa del vehiculo
-                  Text('Vehiculo',
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelMedium
-                          ?.copyWith(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _placaCtrl,
-                          textCapitalization: TextCapitalization.characters,
-                          decoration: InputDecoration(
-                            labelText: 'Placa del vehiculo',
-                            hintText: 'Ej: ABC1234',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                    if (_assignmentData != null) ...[
+                      const SizedBox(height: 10),
+                      _AssignmentInfoCard(
+                          data: _assignmentData!, esRetorno: _esRetorno),
+                      if (_assignmentData!['id_ruta_retorno'] != null) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Es trayecto de regreso',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark
+                                        ? Colors.grey[300]
+                                        : Colors.grey[800],
+                                  ),
                             ),
-                            isDense: true,
-                          ),
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty)
-                              return 'Requerido';
-                            return null;
-                          },
-                          onChanged: (_) {
-                            if (_assignmentData != null ||
-                                _assignmentError != null) {
-                              setState(() {
-                                _assignmentData = null;
-                                _assignmentError = null;
-                              });
-                            }
-                          },
+                            Switch(
+                              value: _esRetorno,
+                              activeColor: Colors.blueAccent[700],
+                              onChanged: (val) {
+                                setState(() {
+                                  _esRetorno = val;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+
+                    const SizedBox(height: 16),
+
+                    // Tipo de incidente
+                    DropdownButtonFormField<String>(
+                      value: _selectedTipoIncidente,
+                      borderRadius: BorderRadius.circular(12),
+                      dropdownColor:
+                          isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                      decoration: InputDecoration(
+                        labelText: 'Tipo de incidente',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        isDense: true,
+                      ),
+                      items: _tiposIncidente
+                          .map(
+                              (t) => DropdownMenuItem(value: t, child: Text(t)))
+                          .toList(),
+                      onChanged: (v) =>
+                          setState(() => _selectedTipoIncidente = v),
+                      validator: (v) =>
+                          v == null ? 'Selecciona el tipo de incidente' : null,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Gravedad
+                    DropdownButtonFormField<String>(
+                      value: _selectedGravedad,
+                      borderRadius: BorderRadius.circular(12),
+                      dropdownColor:
+                          isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                      decoration: InputDecoration(
+                        labelText: 'Gravedad',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        isDense: true,
+                      ),
+                      items: _gravedades
+                          .map((g) => DropdownMenuItem(
+                                value: g,
+                                child:
+                                    Text(g[0].toUpperCase() + g.substring(1)),
+                              ))
+                          .toList(),
+                      onChanged: (v) => setState(() => _selectedGravedad = v),
+                      validator: (v) =>
+                          v == null ? 'Selecciona la gravedad' : null,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Fecha y hora
+                    TextFormField(
+                      controller: _dateTimeCtrl,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'Fecha y hora del incidente',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        isDense: true,
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.calendar_today, size: 20),
+                          onPressed: _pickDateTime,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        height: 48,
-                        child: ElevatedButton(
+                      onTap: _pickDateTime,
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Selecciona la fecha y hora'
+                          : null,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Descripcion
+                    TextFormField(
+                      controller: _descriptionCtrl,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        labelText: 'Descripción del incidente',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        alignLabelWithHint: true,
+                      ),
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'La descripción es requerida'
+                          : null,
+                    ),
+                    const SizedBox(height: 24),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
                           onPressed:
-                              _fetchingAssignment ? null : _fetchAssignmentData,
+                              _submitting ? null : () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            foregroundColor:
+                                isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                          child: const Text('Cancelar'),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: _submitting ? null : _submitReport,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent[700],
                             foregroundColor: Colors.white,
@@ -952,183 +1148,19 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: _fetchingAssignment
+                          child: _submitting
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
                                       color: Colors.white, strokeWidth: 2),
                                 )
-                              : const Text('Buscar'),
+                              : const Text('Enviar reporte'),
                         ),
-                      ),
-                    ],
-                  ),
-
-                  if (_assignmentError != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      _assignmentError!,
-                      style: const TextStyle(
-                          color: Colors.redAccent, fontSize: 12),
+                      ],
                     ),
                   ],
-                  if (_assignmentData != null) ...[
-                    const SizedBox(height: 10),
-                    _AssignmentInfoCard(
-                        data: _assignmentData!, esRetorno: _esRetorno),
-                    if (_assignmentData!['id_ruta_retorno'] != null) ...[
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Es trayecto de regreso',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: isDark
-                                          ? Colors.grey[300]
-                                          : Colors.grey[800],
-                                    ),
-                          ),
-                          Switch(
-                            value: _esRetorno,
-                            activeColor: Colors.blueAccent[700],
-                            onChanged: (val) {
-                              setState(() {
-                                _esRetorno = val;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-
-                  const SizedBox(height: 16),
-
-                  // Tipo de incidente
-                  DropdownButtonFormField<String>(
-                    value: _selectedTipoIncidente,
-                    borderRadius: BorderRadius.circular(12),
-                    dropdownColor:
-                        isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                    decoration: InputDecoration(
-                      labelText: 'Tipo de incidente',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      isDense: true,
-                    ),
-                    items: _tiposIncidente
-                        .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                        .toList(),
-                    onChanged: (v) =>
-                        setState(() => _selectedTipoIncidente = v),
-                    validator: (v) =>
-                        v == null ? 'Selecciona el tipo de incidente' : null,
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Gravedad
-                  DropdownButtonFormField<String>(
-                    value: _selectedGravedad,
-                    borderRadius: BorderRadius.circular(12),
-                    dropdownColor:
-                        isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                    decoration: InputDecoration(
-                      labelText: 'Gravedad',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      isDense: true,
-                    ),
-                    items: _gravedades
-                        .map((g) => DropdownMenuItem(
-                              value: g,
-                              child: Text(g[0].toUpperCase() + g.substring(1)),
-                            ))
-                        .toList(),
-                    onChanged: (v) => setState(() => _selectedGravedad = v),
-                    validator: (v) =>
-                        v == null ? 'Selecciona la gravedad' : null,
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Fecha y hora
-                  TextFormField(
-                    controller: _dateTimeCtrl,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'Fecha y hora del incidente',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      isDense: true,
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.calendar_today, size: 20),
-                        onPressed: _pickDateTime,
-                      ),
-                    ),
-                    onTap: _pickDateTime,
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Selecciona la fecha y hora'
-                        : null,
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Descripcion
-                  TextFormField(
-                    controller: _descriptionCtrl,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      labelText: 'Descripcion del incidente',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      alignLabelWithHint: true,
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'La descripcion es requerida'
-                        : null,
-                  ),
-                  const SizedBox(height: 24),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed:
-                            _submitting ? null : () => Navigator.pop(context),
-                        style: TextButton.styleFrom(
-                          foregroundColor:
-                              isDark ? Colors.grey[400] : Colors.grey[600],
-                        ),
-                        child: const Text('Cancelar'),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: _submitting ? null : _submitReport,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent[700],
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: _submitting
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                    color: Colors.white, strokeWidth: 2),
-                              )
-                            : const Text('Enviar reporte'),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),
