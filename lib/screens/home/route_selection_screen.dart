@@ -513,7 +513,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               '¿A dónde quieres ir?',
               style: TextStyle(
                 fontSize: 14,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                color: isDark ? Colors.grey[500] : Colors.grey[600],
               ),
             ),
             const SizedBox(height: 20),
@@ -726,7 +726,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     '¿A dónde quieres ir?',
                     style: TextStyle(
                       fontSize: 14,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -1002,7 +1002,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                       .bodySmall
                                       ?.copyWith(
                                         color: isDark
-                                            ? Colors.grey[400]
+                                            ? Colors.grey[500]
                                             : Colors.grey[600],
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -1016,7 +1016,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                   size: 12,
                                   color: isDark
                                       ? Colors.grey[500]
-                                      : Colors.grey[400]),
+                                      : Colors.grey[600]),
                               const SizedBox(width: 4),
                               Icon(Icons.location_on_rounded,
                                   size: 13, color: Colors.red),
@@ -1029,7 +1029,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                       .bodySmall
                                       ?.copyWith(
                                         color: isDark
-                                            ? Colors.grey[400]
+                                            ? Colors.grey[500]
                                             : Colors.grey[600],
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -1113,7 +1113,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: isDark
-                                        ? Colors.grey[400]
+                                        ? Colors.grey[500]
                                         : Colors.grey[600],
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
@@ -1315,7 +1315,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   child: Icon(
                     Icons.arrow_forward_rounded,
                     size: 22,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    color: isDark ? Colors.grey[500] : Colors.grey[600],
                   ),
                 ),
                 Text(
@@ -1349,7 +1349,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   child: Icon(
                     Icons.arrow_forward_rounded,
                     size: 22,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    color: isDark ? Colors.grey[500] : Colors.grey[600],
                   ),
                 ),
                 Text(
@@ -1386,7 +1386,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   'Ruta completa: ',
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    color: isDark ? Colors.grey[500] : Colors.grey[600],
                   ),
                 ),
                 Flexible(
@@ -1394,7 +1394,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     route['origen'],
                     style: TextStyle(
                       fontSize: 13,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1412,7 +1412,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     route['destino'],
                     style: TextStyle(
                       fontSize: 13,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1438,7 +1438,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   child: Icon(
                     Icons.arrow_forward_rounded,
                     size: 18,
-                    color: isDark ? Colors.grey[500] : Colors.grey[400],
+                    color: isDark ? Colors.grey[500] : Colors.grey[600],
                   ),
                 ),
                 Flexible(
@@ -1539,7 +1539,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.grey[400] : Colors.grey,
+                    color: isDark ? Colors.grey[500] : Colors.grey[600],
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -1653,7 +1653,7 @@ class RouteDetailsScreen extends StatelessWidget {
                         child: Icon(
                           Icons.arrow_forward_rounded,
                           size: 22,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          color: isDark ? Colors.grey[500] : Colors.grey[600],
                         ),
                       ),
                       Text(
@@ -1686,7 +1686,7 @@ class RouteDetailsScreen extends StatelessWidget {
                         child: Icon(
                           Icons.arrow_forward_rounded,
                           size: 22,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          color: isDark ? Colors.grey[500] : Colors.grey[600],
                         ),
                       ),
                       Text(
@@ -1724,7 +1724,7 @@ class RouteDetailsScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          color: isDark ? Colors.grey[500] : Colors.grey[600],
                         ),
                       ),
                       Flexible(
@@ -1733,7 +1733,7 @@ class RouteDetailsScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            color: isDark ? Colors.grey[500] : Colors.grey[600],
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1752,7 +1752,7 @@ class RouteDetailsScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            color: isDark ? Colors.grey[500] : Colors.grey[600],
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1778,7 +1778,7 @@ class RouteDetailsScreen extends StatelessWidget {
                         child: Icon(
                           Icons.arrow_forward_rounded,
                           size: 18,
-                          color: isDark ? Colors.grey[500] : Colors.grey[400],
+                          color: isDark ? Colors.grey[500] : Colors.grey[600],
                         ),
                       ),
                       Flexible(
@@ -1886,7 +1886,7 @@ class RouteDetailsScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.grey[400] : Colors.grey,
+                    color: isDark ? Colors.grey[500] : Colors.grey[600],
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -1936,7 +1936,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
       children: [
         Icon(icon,
             size: 20,
-            color: iconColor ?? (isDark ? Colors.grey[400] : Colors.grey[600])),
+            color: iconColor ?? (isDark ? Colors.grey[500] : Colors.grey[600])),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -2024,7 +2024,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                     .bodySmall
                                     ?.copyWith(
                                       color: isDark
-                                          ? Colors.grey[400]
+                                          ? Colors.grey[500]
                                           : Colors.grey[600],
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -2037,7 +2037,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                 size: 11,
                                 color: isDark
                                     ? Colors.grey[500]
-                                    : Colors.grey[400]),
+                                    : Colors.grey[600]),
                             const SizedBox(width: 4),
                             const Icon(Icons.location_on_rounded,
                                 size: 12, color: Colors.red),
@@ -2050,7 +2050,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                     .bodySmall
                                     ?.copyWith(
                                       color: isDark
-                                          ? Colors.grey[400]
+                                          ? Colors.grey[500]
                                           : Colors.grey[600],
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -2092,7 +2092,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                             ? Icons.keyboard_arrow_up_rounded
                             : Icons.keyboard_arrow_down_rounded,
                         size: 20,
-                        color: isDark ? Colors.grey[400] : Colors.grey[500],
+                        color: isDark ? Colors.grey[500] : Colors.grey[600],
                       ),
                     ],
                   ),

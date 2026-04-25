@@ -325,7 +325,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                     .bodySmall
                                     ?.copyWith(
                                       color: isDark
-                                          ? Colors.grey[400]
+                                          ? Colors.grey[500]
                                           : Colors.grey[600],
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -339,7 +339,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                 size: 12,
                                 color: isDark
                                     ? Colors.grey[500]
-                                    : Colors.grey[400]),
+                                    : Colors.grey[600]),
                             const SizedBox(width: 4),
                             Icon(Icons.location_on_rounded,
                                 size: 13, color: Colors.red),
@@ -352,7 +352,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                     .bodySmall
                                     ?.copyWith(
                                       color: isDark
-                                          ? Colors.grey[400]
+                                          ? Colors.grey[500]
                                           : Colors.grey[600],
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -388,7 +388,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         'Horarios disponibles',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color:
-                                  isDark ? Colors.grey[400] : Colors.grey[600],
+                                  isDark ? Colors.grey[500] : Colors.grey[600],
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),
