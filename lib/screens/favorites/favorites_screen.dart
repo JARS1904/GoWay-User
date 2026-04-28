@@ -543,14 +543,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              // Navigator.pushNamed(context, '/rutas');
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('Explorar Rutas'),
-          ),
         ],
       ),
     );

@@ -1972,6 +1972,173 @@ class _ScheduleCardState extends State<_ScheduleCard> {
     );
   }
 
+  Widget _badgeInfoRow(BuildContext context, IconData icon, String label,
+      dynamic disponibles, dynamic capacidad, bool isDark,
+      {Color? iconColor}) {
+    int disp = int.tryParse(disponibles?.toString() ?? '') ?? -1;
+    int cap = int.tryParse(capacidad?.toString() ?? '') ?? 0;
+
+    if (cap <= 0 || disp < 0) {
+      return Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon,
+                size: 20,
+                color:
+                    iconColor ?? (isDark ? Colors.grey[500] : Colors.grey[600])),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isDark ? Colors.grey[500] : Colors.grey[600],
+                        fontSize: 13),
+                  ),
+                  Text(
+                    '${cap > 0 ? cap : 'N/A'} pasajeros (Capacidad total)',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: isDark ? Colors.white : Colors.black,
+                          fontSize: 14,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    double ratio = disp / cap;
+    Color progressColor;
+    Color pillBgColor;
+    Color pillTextColor;
+    String statusText;
+
+    if (ratio > 0.5) {
+      progressColor = const Color(0xFF689F38);
+      pillBgColor = const Color(0xFFE8F5E9);
+      pillTextColor = const Color(0xFF2E7D32);
+      statusText = 'Disponible';
+    } else if (ratio > 0.15) {
+      progressColor = const Color(0xFFFBC02D);
+      pillBgColor = const Color(0xFFFFF9C4);
+      pillTextColor = const Color(0xFFF57F17);
+      statusText = 'Pocos lugares';
+    } else if (ratio > 0) {
+      progressColor = const Color(0xFFE64A19);
+      pillBgColor = const Color(0xFFFBE9E7);
+      pillTextColor = const Color(0xFFD84315);
+      statusText = 'Casi agotado';
+    } else {
+      progressColor = Colors.grey[400]!;
+      pillBgColor = Colors.grey[300]!;
+      pillTextColor = Colors.grey[700]!;
+      statusText = 'Agotado';
+    }
+
+    if (isDark) {
+      if (ratio > 0.5) {
+        pillBgColor = const Color(0xFFE8F5E9).withOpacity(0.15);
+        pillTextColor = const Color(0xFFA5D6A7);
+      } else if (ratio > 0.15) {
+        pillBgColor = const Color(0xFFFFF9C4).withOpacity(0.15);
+        pillTextColor = const Color(0xFFFFF59D);
+      } else if (ratio > 0) {
+        pillBgColor = const Color(0xFFFBE9E7).withOpacity(0.15);
+        pillTextColor = const Color(0xFFFFAB91);
+      } else {
+        pillBgColor = Colors.grey[800]!;
+        pillTextColor = Colors.grey[400]!;
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon,
+              size: 20,
+              color:
+                  iconColor ?? (isDark ? Colors.grey[500] : Colors.grey[600])),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                      fontSize: 13),
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Container(
+                    height: 8,
+                    width: double.infinity,
+                    color: isDark ? Colors.grey[800] : Colors.grey[300],
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: ratio.clamp(0.0, 1.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: progressColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[300] : Colors.grey[800],
+                    ),
+                    children: [
+                      TextSpan(
+                        text: '$disp',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: ' de $cap lugares disponibles',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: pillBgColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    statusText,
+                    style: TextStyle(
+                      color: pillTextColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final route = widget.route;
@@ -2214,11 +2381,12 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                             iconColor: Colors.orange[800],
                           ),
                           const SizedBox(height: 6),
-                          _infoRow(
+                          _badgeInfoRow(
                             context,
                             Icons.event_seat_rounded,
-                            'Capacidad',
-                            '${horario['vehiculo_capacidad']?.toString() ?? 'N/A'} pasajeros',
+                            'Disponibilidad de asientos',
+                            horario['asientos_disponibles'],
+                            horario['vehiculo_capacidad'],
                             isDark,
                             iconColor: const Color.fromARGB(255, 246, 186, 66),
                           ),
