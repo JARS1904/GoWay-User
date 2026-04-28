@@ -20,7 +20,7 @@ import 'package:goway_user/screens/home/route_selection_screen.dart';
 import 'package:goway_user/screens/profile/profile_screen.dart';
 import 'package:goway_user/screens/auth/get_started_screen.dart';
 import 'package:goway_user/screens/favorites/favorites_screen.dart';
-import 'package:goway_user/screens/map/map_screen.dart';
+//import 'package:goway_user/screens/map/map_screen.dart';
 import 'package:goway_user/screens/reports/reports_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
