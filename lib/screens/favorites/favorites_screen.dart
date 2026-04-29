@@ -251,17 +251,21 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final routeId =
         route['id_ruta']?.toString() ?? route['id']?.toString() ?? '';
 
-    return Card(
-      color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-      elevation: 1,
-      shadowColor: isDark ? Colors.black54 : Colors.grey[300],
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
-          width: 2,
-        ),
+        border: isDark
+            ? null
+            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),

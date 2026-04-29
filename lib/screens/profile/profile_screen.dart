@@ -178,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         constraints: const BoxConstraints(maxWidth: 1000),
         child: Card(
           elevation: 8,
-          color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -334,7 +334,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       margin: EdgeInsets.symmetric(vertical: tabletMode ? 8 : 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        border: isDark
+            ? null
+            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -390,7 +400,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -595,6 +605,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: Colors.red.withValues(alpha: 0.1),
+        border: isDark
+            ? null
+            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -646,7 +666,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
             child: Padding(

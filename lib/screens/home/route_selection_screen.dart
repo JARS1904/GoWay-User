@@ -920,17 +920,21 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         .toList();
 
     return _PressScale(
-      child: Card(
-        color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-        elevation: 1,
-        shadowColor: isDark ? Colors.black54 : Colors.grey[300],
+      child: Container(
         margin: const EdgeInsets.only(bottom: 16),
-        shape: RoundedRectangleBorder(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
-            width: 2,
-          ),
+          border: isDark
+              ? null
+              : Border.all(color: Colors.grey[200]!, width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
@@ -1462,40 +1466,49 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
 
           // Información de la empresa
           Container(
-            padding: const EdgeInsets.all(16),
+            margin: EdgeInsets.zero,
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
-                width: 2,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Información de la empresa:',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black,
-                  ),
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: isDark
+                  ? null
+                  : Border.all(color: Colors.grey[200]!, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
-                const SizedBox(height: 12),
-                _buildInfoRow(
-                    Icons.business_rounded, 'Nombre:', route['empresa_nombre'],
-                    isDark: isDark),
-                _buildInfoRow(
-                    Icons.phone_rounded, 'Teléfono:', route['empresa_telefono'],
-                    isDark: isDark),
-                _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
-                    route['empresa_direccion'] ?? 'No especificada',
-                    isDark: isDark),
-                _buildInfoRow(Icons.email_rounded, 'Email:',
-                    route['empresa_email'] ?? 'No especificado',
-                    isDark: isDark),
               ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Información de la empresa:',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInfoRow(Icons.business_rounded, 'Nombre:',
+                      route['empresa_nombre'],
+                      isDark: isDark),
+                  _buildInfoRow(Icons.phone_rounded, 'Teléfono:',
+                      route['empresa_telefono'],
+                      isDark: isDark),
+                  _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
+                      route['empresa_direccion'] ?? 'No especificada',
+                      isDark: isDark),
+                  _buildInfoRow(Icons.email_rounded, 'Email:',
+                      route['empresa_email'] ?? 'No especificado',
+                      isDark: isDark),
+                ],
+              ),
             ),
           ),
 
@@ -1805,41 +1818,49 @@ class RouteDetailsScreen extends StatelessWidget {
 
                 // Información de la empresa
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  margin: EdgeInsets.zero,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color:
-                          isDark ? const Color(0xFF3C3C3C) : Colors.grey[300]!,
-                      width: 2,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Información de la empresa:',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: isDark
+                        ? null
+                        : Border.all(color: Colors.grey[200]!, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
                       ),
-                      const SizedBox(height: 12),
-                      _buildInfoRow(Icons.business_rounded, 'Nombre:',
-                          route['empresa_nombre'],
-                          isDark: isDark),
-                      _buildInfoRow(Icons.phone_rounded, 'Teléfono:',
-                          route['empresa_telefono'],
-                          isDark: isDark),
-                      _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
-                          route['empresa_direccion'] ?? 'No especificada',
-                          isDark: isDark),
-                      _buildInfoRow(Icons.email_rounded, 'Email:',
-                          route['empresa_email'] ?? 'No especificado',
-                          isDark: isDark),
                     ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Información de la empresa:',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildInfoRow(Icons.business_rounded, 'Nombre:',
+                            route['empresa_nombre'],
+                            isDark: isDark),
+                        _buildInfoRow(Icons.phone_rounded, 'Teléfono:',
+                            route['empresa_telefono'],
+                            isDark: isDark),
+                        _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
+                            route['empresa_direccion'] ?? 'No especificada',
+                            isDark: isDark),
+                        _buildInfoRow(Icons.email_rounded, 'Email:',
+                            route['empresa_email'] ?? 'No especificado',
+                            isDark: isDark),
+                      ],
+                    ),
                   ),
                 ),
 
@@ -1986,8 +2007,8 @@ class _ScheduleCardState extends State<_ScheduleCard> {
           children: [
             Icon(icon,
                 size: 20,
-                color:
-                    iconColor ?? (isDark ? Colors.grey[500] : Colors.grey[600])),
+                color: iconColor ??
+                    (isDark ? Colors.grey[500] : Colors.grey[600])),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
@@ -2117,7 +2138,8 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                 ),
                 const SizedBox(height: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: pillBgColor,
                     borderRadius: BorderRadius.circular(12),
@@ -2145,11 +2167,22 @@ class _ScheduleCardState extends State<_ScheduleCard> {
     final horario = widget.horario;
     final isDark = widget.isDark;
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-      elevation: isDark ? 0 : 1,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: isDark
+            ? null
+            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: InkWell(
         onTap: () => setState(() => _expanded = !_expanded),
         borderRadius: BorderRadius.circular(16),

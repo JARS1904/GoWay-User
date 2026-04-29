@@ -143,7 +143,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             margin: const EdgeInsets.symmetric(vertical: 6),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              border: isDark
+                  ? null
+                  : Border.all(color: Colors.grey[200]!, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Material(
               color: Colors.transparent,
@@ -196,7 +206,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             margin: const EdgeInsets.symmetric(vertical: 6),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              border: isDark
+                  ? null
+                  : Border.all(color: Colors.grey[200]!, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Material(
               color: Colors.transparent,
@@ -280,7 +300,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 margin: const EdgeInsets.symmetric(vertical: 6),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  border: isDark
+                      ? null
+                      : Border.all(color: Colors.grey[200]!, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
                 child: Material(
                   color: Colors.transparent,
@@ -333,7 +363,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 margin: const EdgeInsets.symmetric(vertical: 6),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  border: isDark
+                      ? null
+                      : Border.all(color: Colors.grey[200]!, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
                 child: Material(
                   color: Colors.transparent,
@@ -396,7 +436,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        border: isDark
+            ? null
+            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -447,7 +497,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
             child: Padding(

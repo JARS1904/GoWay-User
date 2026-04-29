@@ -3,8 +3,8 @@
 /// Todos los endpoints centralizados en un solo lugar
 /// Para cambiar la IP: solo modifica [baseUrl]
 class ApiService {
-  static const String baseUrl = "http://148.236.158.76/GoWay/api";
-  static const String baseGoWayUrl = "http://148.236.158.76/GoWay";
+  static const String baseUrl = "http://192.168.30.101/GoWay/api";
+  static const String baseGoWayUrl = "http://192.168.30.101/GoWay";
 
   /// Construye la URL completa de una foto de perfil a partir de su ruta relativa.
   static String? buildPhotoUrl(String? relativeUrl) {

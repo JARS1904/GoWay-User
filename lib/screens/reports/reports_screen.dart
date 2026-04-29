@@ -120,13 +120,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
         elevation: 0,
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
         foregroundColor: isDark ? Colors.white : Colors.black,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline),
-            onPressed: _showCreateReportDialog,
-            tooltip: 'Crear reporte',
-          ),
-        ],
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 90.0),
+        child: FloatingActionButton(
+          onPressed: _showCreateReportDialog,
+          backgroundColor: Colors.blueAccent[700],
+          foregroundColor: Colors.white,
+          elevation: 4,
+          child: const Icon(Icons.add),
+        ),
       ),
       body: _loadingReports
           ? const Center(child: CircularProgressIndicator())
@@ -135,7 +138,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               child: _userReports.isEmpty
                   ? _buildEmptyState(isDark)
                   : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
                       itemCount: _userReports.length,
                       itemBuilder: (context, index) =>
                           _buildReportCard(_userReports[index], isDark),
@@ -153,26 +156,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
         elevation: 0,
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
         foregroundColor: isDark ? Colors.white : Colors.black,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Center(
-              child: ElevatedButton(
-                onPressed: _showCreateReportDialog,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent[700],
-                  foregroundColor: Colors.white,
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: const Text('+ Crear reporte',
-                    style: TextStyle(fontSize: 15)),
-              ),
-            ),
-          ),
-        ],
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 90.0),
+        child: FloatingActionButton(
+          onPressed: _showCreateReportDialog,
+          backgroundColor: Colors.blueAccent[700],
+          foregroundColor: Colors.white,
+          elevation: 4,
+          child: const Icon(Icons.add),
+        ),
       ),
       body: _loadingReports
           ? const Center(child: CircularProgressIndicator())
@@ -184,7 +177,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: Container(
                         constraints: const BoxConstraints(maxWidth: 1000),
                         child: ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 80),
+                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
                           itemCount: _userReports.length,
                           itemBuilder: (context, index) =>
                               _buildReportCard(_userReports[index], isDark),
@@ -312,11 +305,22 @@ class _ReportCardState extends State<_ReportCard> {
     final severityColor =
         _colorForSeverity(report['gravedad'] as String? ?? '');
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-      elevation: isDark ? 0 : 1,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: isDark
+            ? null
+            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: InkWell(
         onTap: () => setState(() => _expanded = !_expanded),
         borderRadius: BorderRadius.circular(16),
