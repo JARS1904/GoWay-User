@@ -293,9 +293,8 @@ class _ReportCardState extends State<_ReportCard> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: isDark
-            ? null
-            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        border:
+            isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
