@@ -230,23 +230,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 28),
-            ElevatedButton(
-              onPressed: _showCreateReportDialog,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent[700],
-                foregroundColor: Colors.white,
-                elevation: 3,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                textStyle:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: const Text('+ Crear reporte'),
-            ),
           ],
         ),
       ),
