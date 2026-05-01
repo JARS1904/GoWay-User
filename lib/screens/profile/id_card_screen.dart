@@ -329,23 +329,11 @@ class _IdCardScreenState extends State<IdCardScreen>
         ),
         const SizedBox(height: 14),
 
-        // Teléfono
-        _buildInfoLabel('TELÉFONO'),
-        const SizedBox(height: 3),
-        Text(
-          widget.userPhone ?? 'No disponible',
-          style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9),
-              fontSize: 12,
-              fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 14),
-
         // Tipo de usuario
         _buildInfoLabel('TIPO DE USUARIO'),
         const SizedBox(height: 3),
         Text(
-          widget.userType ?? 'Estudiante',
+          widget.userType ?? 'Pasajero',
           style: TextStyle(
               color: Colors.white.withValues(alpha: 0.9),
               fontSize: 12,
