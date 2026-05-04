@@ -418,6 +418,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ],
                             ),
                             const SizedBox(height: 4),
+                            // Source badge
+                            _buildSourceBadge(notif, isDark),
+                            const SizedBox(height: 6),
                             // Message body
                             Text(
                               notif.mensaje,
@@ -469,6 +472,75 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         );
       }
     );
+  }
+
+  Widget _buildSourceBadge(NotificationModel notif, bool isDark) {
+    if (notif.isGlobal) {
+      // Super Admin → badge morado "GoWay Global"
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: isDark
+              ? const Color(0xFF7C3AED).withOpacity(0.2)
+              : const Color(0xFFEDE9FE),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.admin_panel_settings_rounded,
+              size: 11,
+              color: isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'GoWay Global',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (notif.isFromCompany) {
+      // Empresa → badge naranja con RFC
+      final label = notif.rfcEmpresa!.length > 12
+          ? '${notif.rfcEmpresa!.substring(0, 12)}…'
+          : notif.rfcEmpresa!;
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: isDark
+              ? const Color(0xFFEA580C).withOpacity(0.2)
+              : const Color(0xFFFFF7ED),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.business_rounded,
+              size: 11,
+              color: isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    // Notificación directa al usuario → sin badge
+    return const SizedBox.shrink();
   }
 
   IconData _getIconData(String tipo) {

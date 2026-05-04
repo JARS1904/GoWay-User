@@ -634,10 +634,16 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
         if (mounted) {
           setState(() {
             _tiposIncidente = (decoded['tipos_incidencia'] as List)
-                .map((e) => {'id': e['id'].toString(), 'nombre': e['nombre'].toString()})
+                .map((e) => {
+                      'id': e['id'].toString(),
+                      'nombre': e['nombre'].toString()
+                    })
                 .toList();
             _gravedades = (decoded['niveles_gravedad'] as List)
-                .map((e) => {'id': e['id'].toString(), 'nombre': e['nombre'].toString()})
+                .map((e) => {
+                      'id': e['id'].toString(),
+                      'nombre': e['nombre'].toString()
+                    })
                 .toList();
             _loadingOptions = false;
           });
@@ -1092,7 +1098,9 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                         child: Center(
                           child: Column(
                             children: [
-                              Text(_optionsError!, style: const TextStyle(color: Colors.redAccent)),
+                              Text(_optionsError!,
+                                  style:
+                                      const TextStyle(color: Colors.redAccent)),
                               TextButton(
                                 onPressed: () {
                                   setState(() {
@@ -1127,8 +1135,9 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                             .toList(),
                         onChanged: (v) =>
                             setState(() => _selectedTipoIncidente = v),
-                        validator: (v) =>
-                            v == null ? 'Selecciona el tipo de incidente' : null,
+                        validator: (v) => v == null
+                            ? 'Selecciona el tipo de incidente'
+                            : null,
                       ),
                       const SizedBox(height: 12),
 

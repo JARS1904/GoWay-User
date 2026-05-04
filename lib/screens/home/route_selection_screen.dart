@@ -790,12 +790,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                           route: {...route, 'horarios': uniqueSchedules})));
             }
           },
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Header con padding ──────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
@@ -905,148 +906,164 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Divider(
-                    height: 1,
-                    color: isDark ? Colors.white12 : Colors.grey[200]),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+              // ── Divider borde a borde ───────────────────────────
+              const SizedBox(height: 12),
+              Container(
+                height: 1,
+                color: isDark ? Colors.white12 : Colors.grey[200],
+              ),
+              const SizedBox(height: 10),
+              // ── Horarios y acciones con padding ────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
                   children: [
-                    Row(children: [
-                      Icon(Icons.calendar_month_rounded,
-                          size: 20,
-                          color: isDark
-                              ? Colors.blueAccent[100]
-                              : Colors.blueAccent[700]),
-                      const SizedBox(width: 8),
-                      Text('Horarios disponibles',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  color: isDark
-                                      ? Colors.grey[500]
-                                      : Colors.grey[600],
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500))
-                    ]),
-                    Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 3),
-                        decoration: BoxDecoration(
-                            color: Colors.blueAccent.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(20)),
-                        child: Text('${uniqueSchedules.length}',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: isDark
-                                    ? Colors.blueAccent[100]
-                                    : Colors.blueAccent[700]))),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(children: [
+                          Icon(Icons.calendar_month_rounded,
+                              size: 20,
+                              color: isDark
+                                  ? Colors.blueAccent[100]
+                                  : Colors.blueAccent[700]),
+                          const SizedBox(width: 8),
+                          Text('Horarios disponibles',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      color: isDark
+                                          ? Colors.grey[500]
+                                          : Colors.grey[600],
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500))
+                        ]),
+                        Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                                color: Colors.blueAccent.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Text('${uniqueSchedules.length}',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark
+                                        ? Colors.blueAccent[100]
+                                        : Colors.blueAccent[700]))),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            final routeId = route['id_ruta']?.toString() ?? '';
+                            if (routeId.isEmpty) return;
+                            final isFavorite =
+                                _favoriteRouteIds.contains(routeId);
+                            try {
+                              final response = await http.post(
+                                Uri.parse(ApiService.favoritesUrl),
+                                headers: {
+                                  'Content-Type':
+                                      'application/x-www-form-urlencoded'
+                                },
+                                body: {
+                                  'id_usuario': _userId,
+                                  'id_ruta': routeId,
+                                  'action': isFavorite
+                                      ? 'remove_favorite'
+                                      : 'add_favorite'
+                                },
+                              );
+                              if (response.statusCode == 200 && mounted) {
+                                setState(() => isFavorite
+                                    ? _favoriteRouteIds.remove(routeId)
+                                    : _favoriteRouteIds.add(routeId));
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  content: Row(children: [
+                                    Icon(
+                                        isFavorite
+                                            ? Icons.heart_broken_rounded
+                                            : Icons.favorite_rounded,
+                                        color: Colors.white,
+                                        size: 20),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                        isFavorite
+                                            ? 'Removido de favoritos'
+                                            : 'Agregado a favoritos',
+                                        style: const TextStyle(
+                                            color: Colors.white))
+                                  ]),
+                                  backgroundColor: isFavorite
+                                      ? Colors.grey[700]
+                                      : Colors.blueAccent[700],
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16)),
+                                  margin:
+                                      const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                                  duration: const Duration(seconds: 1),
+                                ));
+                              }
+                            } catch (e) {
+                              if (mounted)
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Row(children: [
+                                          const Icon(Icons.error_rounded,
+                                              color: Colors.white, size: 20),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                              child: Text('Error: $e',
+                                                  style: const TextStyle(
+                                                      color: Colors.white)))
+                                        ]),
+                                        backgroundColor: Colors.redAccent[700],
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(16)),
+                                        margin: const EdgeInsets.fromLTRB(
+                                            16, 16, 16, 96),
+                                        duration: const Duration(seconds: 3)));
+                            }
+                          },
+                          child: Icon(
+                              _favoriteRouteIds
+                                      .contains(route['id_ruta']?.toString())
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              color: Colors.redAccent,
+                              size: 26),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 20),
+                              decoration: BoxDecoration(
+                                  color: Colors.blueAccent[700],
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(20))),
+                              child: const Text('Ver detalles',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white))),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () async {
-                        final routeId = route['id_ruta']?.toString() ?? '';
-                        if (routeId.isEmpty) return;
-                        final isFavorite = _favoriteRouteIds.contains(routeId);
-                        try {
-                          final response = await http.post(
-                            Uri.parse(ApiService.favoritesUrl),
-                            headers: {
-                              'Content-Type':
-                                  'application/x-www-form-urlencoded'
-                            },
-                            body: {
-                              'id_usuario': _userId,
-                              'id_ruta': routeId,
-                              'action': isFavorite
-                                  ? 'remove_favorite'
-                                  : 'add_favorite'
-                            },
-                          );
-                          if (response.statusCode == 200 && mounted) {
-                            setState(() => isFavorite
-                                ? _favoriteRouteIds.remove(routeId)
-                                : _favoriteRouteIds.add(routeId));
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Row(children: [
-                                Icon(
-                                    isFavorite
-                                        ? Icons.heart_broken_rounded
-                                        : Icons.favorite_rounded,
-                                    color: Colors.white,
-                                    size: 20),
-                                const SizedBox(width: 10),
-                                Text(
-                                    isFavorite
-                                        ? 'Removido de favoritos'
-                                        : 'Agregado a favoritos',
-                                    style: const TextStyle(color: Colors.white))
-                              ]),
-                              backgroundColor: isFavorite
-                                  ? Colors.grey[700]
-                                  : Colors.blueAccent[700],
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16)),
-                              margin: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                              duration: const Duration(seconds: 1),
-                            ));
-                          }
-                        } catch (e) {
-                          if (mounted)
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Row(children: [
-                                  const Icon(Icons.error_rounded,
-                                      color: Colors.white, size: 20),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                      child: Text('Error: $e',
-                                          style: const TextStyle(
-                                              color: Colors.white)))
-                                ]),
-                                backgroundColor: Colors.redAccent[700],
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16)),
-                                margin:
-                                    const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                                duration: const Duration(seconds: 3)));
-                        }
-                      },
-                      child: Icon(
-                          _favoriteRouteIds
-                                  .contains(route['id_ruta']?.toString())
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          color: Colors.redAccent,
-                          size: 26),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 20),
-                          decoration: BoxDecoration(
-                              color: Colors.blueAccent[700],
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(20))),
-                          child: const Text('Ver detalles',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white))),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1772,12 +1789,13 @@ class _ScheduleCardState extends State<_ScheduleCard> {
       child: InkWell(
         onTap: () => setState(() => _expanded = !_expanded),
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Header con padding ────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
@@ -1874,11 +1892,18 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Divider(
-                  height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
-              const SizedBox(height: 10),
-              Row(
+            ),
+            // ── Divider 1 — borde a borde ────────────────────────
+            const SizedBox(height: 12),
+            Container(
+              height: 1,
+              color: isDark ? Colors.white12 : Colors.grey[200],
+            ),
+            const SizedBox(height: 10),
+            // ── Horas con padding ─────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
                 children: [
                   Expanded(
                       child: _infoRow(
@@ -1905,79 +1930,108 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                           iconColor: Colors.redAccent)),
                 ],
               ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeInOut,
-                child: _expanded
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 10),
-                          _infoRow(context, Icons.refresh_rounded, 'Frecuencia',
-                              horario['frecuencia']?.toString() ?? '-', isDark,
-                              iconColor: Colors.orange[700]),
-                          if (route['es_tramo'] == 1) ...[
-                            const SizedBox(height: 6),
-                            _infoRow(
-                                context,
-                                Icons.schedule_rounded,
-                                'Salida de ruta',
-                                horario['hora_salida'] ?? '-',
-                                isDark,
-                                iconColor: Colors.grey[600]),
-                            const SizedBox(height: 6),
-                            _infoRow(
-                                context,
-                                Icons.schedule_rounded,
-                                'Llegada de ruta',
-                                horario['hora_llegada'] ?? '-',
-                                isDark,
-                                iconColor: Colors.grey[600]),
-                          ],
-                          const SizedBox(height: 10),
-                          Divider(
-                              height: 1,
-                              color:
-                                  isDark ? Colors.white12 : Colors.grey[200]),
-                          const SizedBox(height: 10),
-                          _infoRow(context, Icons.person_rounded, 'Conductor',
-                              horario['conductor_nombre'] ?? 'N/A', isDark,
-                              iconColor: Colors.blue[800]),
-                          const SizedBox(height: 6),
-                          _infoRow(
-                              context,
-                              Icons.directions_bus_rounded,
-                              'Vehículo',
-                              horario['vehiculo_modelo'] ?? 'N/A',
-                              isDark,
-                              iconColor: Colors.blue[700]),
-                          const SizedBox(height: 6),
-                          _infoRow(
-                              context,
-                              Icons.confirmation_number_rounded,
-                              'Placa',
-                              horario['vehiculo_placa'] ?? 'N/A',
-                              isDark,
-                              iconColor: Colors.orange[800]),
-                          const SizedBox(height: 6),
-                          _badgeInfoRow(
-                              context,
-                              Icons.event_seat_rounded,
-                              'Disponibilidad de asientos',
-                              horario['asientos_disponibles'],
-                              horario['vehiculo_capacidad'],
-                              isDark,
-                              iconColor:
-                                  const Color.fromARGB(255, 246, 186, 66)),
-                          if ((route['paradas_ruta'] as List?)?.isNotEmpty ==
-                              true) ...[
-                            const SizedBox(height: 16),
-                            Divider(
-                                height: 1,
-                                color:
-                                    isDark ? Colors.white12 : Colors.grey[200]),
-                            const SizedBox(height: 12),
-                            Padding(
+            ),
+            // ── Contenido expandible ──────────────────────────────
+            AnimatedSize(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
+              child: _expanded
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _infoRow(
+                                  context,
+                                  Icons.refresh_rounded,
+                                  'Frecuencia',
+                                  horario['frecuencia']?.toString() ?? '-',
+                                  isDark,
+                                  iconColor: Colors.orange[700]),
+                              if (route['es_tramo'] == 1) ...[
+                                const SizedBox(height: 6),
+                                _infoRow(
+                                    context,
+                                    Icons.schedule_rounded,
+                                    'Salida de ruta',
+                                    horario['hora_salida'] ?? '-',
+                                    isDark,
+                                    iconColor: Colors.grey[600]),
+                                const SizedBox(height: 6),
+                                _infoRow(
+                                    context,
+                                    Icons.schedule_rounded,
+                                    'Llegada de ruta',
+                                    horario['hora_llegada'] ?? '-',
+                                    isDark,
+                                    iconColor: Colors.grey[600]),
+                              ],
+                            ],
+                          ),
+                        ),
+                        // ── Divider 2 — borde a borde ────────────
+                        const SizedBox(height: 10),
+                        Container(
+                          height: 1,
+                          color: isDark ? Colors.white12 : Colors.grey[200],
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _infoRow(
+                                  context,
+                                  Icons.person_rounded,
+                                  'Conductor',
+                                  horario['conductor_nombre'] ?? 'N/A',
+                                  isDark,
+                                  iconColor: Colors.blue[800]),
+                              const SizedBox(height: 6),
+                              _infoRow(
+                                  context,
+                                  Icons.directions_bus_rounded,
+                                  'Vehículo',
+                                  horario['vehiculo_modelo'] ?? 'N/A',
+                                  isDark,
+                                  iconColor: Colors.blue[700]),
+                              const SizedBox(height: 6),
+                              _infoRow(
+                                  context,
+                                  Icons.confirmation_number_rounded,
+                                  'Placa',
+                                  horario['vehiculo_placa'] ?? 'N/A',
+                                  isDark,
+                                  iconColor: Colors.orange[800]),
+                              const SizedBox(height: 6),
+                              _badgeInfoRow(
+                                  context,
+                                  Icons.event_seat_rounded,
+                                  'Disponibilidad de asientos',
+                                  horario['asientos_disponibles'],
+                                  horario['vehiculo_capacidad'],
+                                  isDark,
+                                  iconColor:
+                                      const Color.fromARGB(255, 246, 186, 66)),
+                            ],
+                          ),
+                        ),
+                        if ((route['paradas_ruta'] as List?)?.isNotEmpty ==
+                            true) ...[
+                          // ── Divider 3 — borde a borde ──────────
+                          const SizedBox(height: 16),
+                          Container(
+                            height: 1,
+                            color: isDark ? Colors.white12 : Colors.grey[200],
+                          ),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -2018,15 +2072,19 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                 ],
                               ),
                             ),
-                          ] else if ((route['paradas'] as List?)?.isNotEmpty ==
-                              true) ...[
-                            const SizedBox(height: 16),
-                            Divider(
-                                height: 1,
-                                color:
-                                    isDark ? Colors.white12 : Colors.grey[200]),
-                            const SizedBox(height: 12),
-                            Padding(
+                          ),
+                        ] else if ((route['paradas'] as List?)?.isNotEmpty ==
+                            true) ...[
+                          // ── Divider 4 — borde a borde ──────────
+                          const SizedBox(height: 16),
+                          Container(
+                            height: 1,
+                            color: isDark ? Colors.white12 : Colors.grey[200],
+                          ),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -2068,14 +2126,14 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                 ],
                               ),
                             ),
-                          ],
-                          const SizedBox(height: 4),
+                          ),
                         ],
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            ],
-          ),
+                        const SizedBox(height: 16),
+                      ],
+                    )
+                  : const SizedBox(height: 16),
+            ),
+          ],
         ),
       ),
     );
