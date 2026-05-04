@@ -6,12 +6,7 @@
 //  ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
 //
 // main.dart - Punto de entrada principal de la aplicación GoWay
-// Versión: 2.0.0 | Última actualización: 29-03-2025
-// Autores: José Armando Rodríguez Segovia
-//          Miguel Ángel Peralta González
-//          Santiago de Jesús Juarez Pérez
-//          Emilio Domíngez Silva
-// Mantenido por: Hydra. Inc
+// Versión: 2.1.0 | Última actualización: 03-05-2026
 
 import 'package:flutter/material.dart';
 import 'package:goway_user/screens/auth/login.dart';
@@ -20,27 +15,14 @@ import 'package:goway_user/screens/home/route_selection_screen.dart';
 import 'package:goway_user/screens/profile/profile_screen.dart';
 import 'package:goway_user/screens/auth/get_started_screen.dart';
 import 'package:goway_user/screens/favorites/favorites_screen.dart';
-//import 'package:goway_user/screens/map/map_screen.dart';
 import 'package:goway_user/screens/reports/reports_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Punto de entrada principal de la aplicación Flutter.
-///
-/// Inicializa los bindings necesarios y lanza la aplicación MyApp.
 void main() async {
-  // Inicialización de bindings de Flutter
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Lanzamiento de la aplicación principal
   runApp(const MyApp());
 }
 
-/// Widget principal de la aplicación que configura el MaterialApp.
-///
-/// Responsabilidades:
-/// - Configuración del tema claro/oscuro
-/// - Definición de rutas nombradas
-/// - Configuración global de comportamientos de UI
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -57,7 +39,6 @@ class _MyAppState extends State<MyApp> {
     _loadThemePreference();
   }
 
-  /// Carga la preferencia de tema guardada en SharedPreferences
   Future<void> _loadThemePreference() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -65,7 +46,6 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  /// Verifica si el usuario está autenticado (tiene un token válido)
   Future<bool> _checkAuthentication() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('authToken');
@@ -73,7 +53,6 @@ class _MyAppState extends State<MyApp> {
     return token != null && token.isNotEmpty;
   }
 
-  /// Verifica si el usuario ya ha visto el onboarding
   Future<bool> _hasSeenOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     final hasSeen = prefs.getBool('hasSeenOnboarding') ?? false;
@@ -81,7 +60,6 @@ class _MyAppState extends State<MyApp> {
     return hasSeen;
   }
 
-  /// Determina cuál pantalla mostrar (GetStarted, Login o Home)
   Future<String> _getInitialRoute() async {
     final hasSeenOnboarding = await _hasSeenOnboarding();
     if (!hasSeenOnboarding) {
@@ -96,7 +74,6 @@ class _MyAppState extends State<MyApp> {
     return '/login';
   }
 
-  /// Callback para actualizar el tema desde SettingsScreen
   void _updateTheme(bool isDarkMode) {
     setState(() {
       _isDarkMode = isDarkMode;
@@ -107,8 +84,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'GoWay - Transporte Público',
-      theme: _buildLightTheme(), // Tema claro
-      darkTheme: _buildDarkTheme(), // Tema oscuro
+      theme: _buildLightTheme(),
+      darkTheme: _buildDarkTheme(),
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: FutureBuilder<String>(
         future: _getInitialRoute(),
@@ -119,14 +96,12 @@ class _MyAppState extends State<MyApp> {
             );
           }
 
-          // Navegar a la ruta apropiada
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (snapshot.data != null && snapshot.data != '/main') {
               Navigator.of(context).pushReplacementNamed(snapshot.data!);
             }
           });
 
-          // Retornar la pantalla por defecto según la ruta
           switch (snapshot.data) {
             case '/getstarted':
               return const GetStartedScreen();
@@ -138,9 +113,7 @@ class _MyAppState extends State<MyApp> {
           }
         },
       ),
-      debugShowCheckedModeBanner: false, // Oculta banner de debug
-
-      // Rutas nombradas de la aplicación
+      debugShowCheckedModeBanner: false,
       routes: {
         '/getstarted': (context) => const GetStartedScreen(),
         '/login': (context) => const LoginScreen(),
@@ -149,17 +122,15 @@ class _MyAppState extends State<MyApp> {
         '/main': (context) =>
             MainNavigationWrapper(onThemeChange: _updateTheme),
       },
-
-      // Configuración global de UI
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(1.0), // Evita escalado de texto
+            textScaler: TextScaler.linear(1.0),
           ),
           child: ScrollConfiguration(
             behavior: const ScrollBehavior().copyWith(
-              overscroll: false, // Desactiva overscroll
-              physics: const BouncingScrollPhysics(), // Física de scroll
+              overscroll: false,
+              physics: const BouncingScrollPhysics(),
             ),
             child: child!,
           ),
@@ -168,7 +139,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  /// Construye el ThemeData para el tema claro.
   ThemeData _buildLightTheme() {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
@@ -237,7 +207,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  /// Construye el ThemeData para el tema oscuro.
   ThemeData _buildDarkTheme() {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
@@ -307,12 +276,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-/// Contenedor principal de navegación adaptable (mobile/tablet).
-///
-/// Gestiona:
-/// - Navegación entre pantallas principales
-/// - Adaptación automática al tipo de dispositivo
-/// - Estado de las pantallas con IndexedStack
+/// Contenedor principal de navegación adaptable (mobile/tablet)
 class MainNavigationWrapper extends StatefulWidget {
   final Function(bool)? onThemeChange;
 
@@ -322,75 +286,58 @@ class MainNavigationWrapper extends StatefulWidget {
   State<MainNavigationWrapper> createState() => _MainNavigationWrapperState();
 }
 
-/// Estado del contenedor principal de navegación.
-///
-/// Maneja:
-/// - Índice de pantalla actual
-/// - Estado de expansión del NavigationRail (tablet)
-/// - Carga de datos de usuario
 class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
-  int _currentIndex = 0; // Índice de pantalla actual (0 = Inicio, 1 = Perfil)
-  late List<Widget> _screens; // Lista de pantallas disponibles
+  int _currentIndex = 0;
+  List<Widget> _screens = []; // ✅ Inicializado vacío (ya no es late)
   final GlobalKey _routeSelectionKey = GlobalKey();
   final GlobalKey _favoritesKey = GlobalKey();
   final GlobalKey _reportsKey = GlobalKey();
 
+  // Variables para datos del usuario
+  String _userName = 'Usuario';
+  String _userEmail = 'email@ejemplo.com';
+  String? _userPhotoUrl;
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    // Inicialización de pantallas
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _userName = prefs.getString('userName') ?? 'Usuario';
+        _userEmail = prefs.getString('userEmail') ?? 'email@ejemplo.com';
+        _userPhotoUrl = prefs.getString('userPhotoUrl');
+        _isLoading = false;
+      });
+      _initializeScreens();
+    }
+  }
+
+  void _initializeScreens() {
     _screens = [
       RouteSelectionScreen(
-          key: _routeSelectionKey), // Pantalla de inicio con GlobalKey
-      FavoritesScreen(key: _favoritesKey), // Pantalla de rutas favoritas
-      ReportsScreen(key: _reportsKey), // Pantalla de reportes
-      FutureBuilder<Map<String, dynamic>>(
-        future: _loadUserData(), // Carga datos de usuario
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
-            // Pantalla de perfil con datos de usuario
-            return ProfileScreen(
-              userName: snapshot.data?['name'] as String? ?? 'Usuario',
-              userEmail:
-                  snapshot.data?['email'] as String? ?? 'email@ejemplo.com',
-              userPhotoUrl: snapshot.data?['photoUrl'] as String?,
-              userId: snapshot.data?['userId'] as int?,
-              userPhone: snapshot.data?['phone'] as String?,
-              userRegistrationDate:
-                  snapshot.data?['registrationDate'] as String?,
-              userType: snapshot.data?['userType'] as String?,
-              onThemeChange: widget.onThemeChange,
-            );
-          }
-          return const Center(child: CircularProgressIndicator());
-        },
+        key: _routeSelectionKey,
+        userPhotoUrl: _userPhotoUrl,
+        userName: _userName,
+      ),
+      FavoritesScreen(key: _favoritesKey),
+      ReportsScreen(key: _reportsKey),
+      ProfileScreen(
+        userName: _userName,
+        userEmail: _userEmail,
+        userPhotoUrl: _userPhotoUrl,
+        onThemeChange: widget.onThemeChange,
       ),
     ];
+    // Forzar reconstrucción después de inicializar las screens
+    if (mounted) setState(() {});
   }
 
-  /// Carga los datos del usuario desde SharedPreferences.
-  ///
-  /// Retorna un Map con todos los campos del perfil del usuario.
-  Future<Map<String, dynamic>> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userIdStr = prefs.getString('userId');
-    return {
-      'name': prefs.getString('userName') ?? 'Usuario',
-      'email': prefs.getString('userEmail') ?? 'email@ejemplo.com',
-      'photoUrl': prefs.getString('userPhotoUrl'),
-      'userId': userIdStr != null ? int.tryParse(userIdStr) : null,
-      'phone': prefs.getString('userPhone'),
-      'registrationDate': prefs.getString('userRegistrationDate'),
-      'userType': prefs.getString('userType'),
-    };
-  }
-
-  /// Determina si el dispositivo es una tablet basado en el ancho de pantalla.
-  ///
-  /// Considera tablet cualquier dispositivo con ancho >= 600px
   bool get _isTablet {
     final mediaQuery = MediaQuery.of(context);
     return mediaQuery.size.width >= 600;
@@ -398,16 +345,15 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    // Selecciona el layout según el tipo de dispositivo
+    // ✅ Mostrar loading mientras se cargan los datos o las screens
+    if (_isLoading || _screens.isEmpty) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return _isTablet ? _buildTabletLayout() : _buildMobileLayout();
   }
 
-  /// Construye el layout para dispositivos móviles.
-  ///
-  /// Características:
-  /// - BottomNavigationBar con 2 opciones
-  /// - Íconos en cápsula con efecto de selección
-  /// - Labels que cambian de color al seleccionarse
   Widget _buildMobileLayout() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final selectedColor = isDark ? Colors.blueAccent : Colors.blueAccent[700]!;
@@ -416,11 +362,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     return Scaffold(
       body: Stack(
         children: [
-          // Contenido principal: ocupa toda la pantalla, la barra flota encima
           Positioned.fill(
             child: MediaQuery(
-              // Inyecta 96px de padding inferior para que los ListView/Scroll
-              // dejen espacio al final y no queden tapados por la barra flotante
               data: MediaQuery.of(context).copyWith(
                 padding: MediaQuery.of(context).padding.copyWith(
                       bottom: MediaQuery.of(context).padding.bottom + 96,
@@ -441,7 +384,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               ),
             ),
           ),
-          // Barra de navegación flotante
           Positioned(
             left: 16,
             right: 16,
@@ -476,8 +418,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                             ?.refreshFavorites();
                       }
                       setState(() => _currentIndex = 0);
-                      (_routeSelectionKey.currentState as dynamic)
-                          ?.refreshFavorites();
                     },
                   ),
                   _buildFloatingNavItem(
@@ -529,7 +469,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     );
   }
 
-  /// Construye un ítem de la barra de navegación flotante con animaciones.
   Widget _buildFloatingNavItem({
     String? iconAsset,
     IconData? icon,
@@ -573,12 +512,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     );
   }
 
-  /// Construye el layout para dispositivos tablet.
-  ///
-  /// Características:
-  /// - NavigationRail lateral con labels debajo de los iconos
-  /// - Divisor vertical
-  /// - Área de contenido principal
   Widget _buildTabletLayout() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final selectedColor = isDark ? Colors.blueAccent : Colors.blueAccent[700];
@@ -587,7 +520,6 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     return Scaffold(
       body: Row(
         children: [
-          // Barra de navegación lateral
           NavigationRail(
             selectedIndex: _currentIndex,
             onDestinationSelected: (index) {
@@ -601,90 +533,68 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   (_reportsKey.currentState as dynamic)?.refresh();
               }
               setState(() => _currentIndex = index);
-              // Recargar favoritos cuando se vuelve a la pantalla de inicio
               if (index == 0) {
                 (_routeSelectionKey.currentState as dynamic)
                     ?.refreshFavorites();
               }
             },
-            labelType: NavigationRailLabelType.all, // Labels siempre visibles
+            labelType: NavigationRailLabelType.all,
             backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
-            groupAlignment: 0.0, // Centra los iconos verticalmente
-            // Destinos de navegación
+            groupAlignment: 0.0,
             destinations: [
               NavigationRailDestination(
-                icon: Icon(
-                  Icons.home_outlined,
-                  color: _currentIndex == 0 ? selectedColor : unselectedColor,
-                ),
-                selectedIcon: Icon(
-                  Icons.home_rounded,
-                  color: selectedColor,
-                ),
-                label: Text(
-                  'Inicio',
-                  style: TextStyle(
-                    color: _currentIndex == 0 ? selectedColor : unselectedColor,
-                  ),
-                ),
+                icon: Icon(Icons.home_outlined,
+                    color:
+                        _currentIndex == 0 ? selectedColor : unselectedColor),
+                selectedIcon: Icon(Icons.home_rounded, color: selectedColor),
+                label: Text('Inicio',
+                    style: TextStyle(
+                        color: _currentIndex == 0
+                            ? selectedColor
+                            : unselectedColor)),
               ),
               NavigationRailDestination(
-                icon: Icon(
-                  Icons.favorite_border_rounded,
-                  color: _currentIndex == 1 ? selectedColor : unselectedColor,
-                ),
-                selectedIcon: Icon(
-                  Icons.favorite_rounded,
-                  color: selectedColor,
-                ),
-                label: Text(
-                  'Favoritos',
-                  style: TextStyle(
-                    color: _currentIndex == 1 ? selectedColor : unselectedColor,
-                  ),
-                ),
+                icon: Icon(Icons.favorite_border_rounded,
+                    color:
+                        _currentIndex == 1 ? selectedColor : unselectedColor),
+                selectedIcon:
+                    Icon(Icons.favorite_rounded, color: selectedColor),
+                label: Text('Favoritos',
+                    style: TextStyle(
+                        color: _currentIndex == 1
+                            ? selectedColor
+                            : unselectedColor)),
               ),
               NavigationRailDestination(
-                icon: Icon(
-                  Icons.description_outlined,
-                  color: _currentIndex == 2 ? selectedColor : unselectedColor,
-                ),
-                selectedIcon: Icon(
-                  Icons.description_rounded,
-                  color: selectedColor,
-                ),
-                label: Text(
-                  'Reportes',
-                  style: TextStyle(
-                    color: _currentIndex == 2 ? selectedColor : unselectedColor,
-                  ),
-                ),
+                icon: Icon(Icons.description_outlined,
+                    color:
+                        _currentIndex == 2 ? selectedColor : unselectedColor),
+                selectedIcon:
+                    Icon(Icons.description_rounded, color: selectedColor),
+                label: Text('Reportes',
+                    style: TextStyle(
+                        color: _currentIndex == 2
+                            ? selectedColor
+                            : unselectedColor)),
               ),
               NavigationRailDestination(
-                icon: Icon(
-                  Icons.person_outline_rounded,
-                  color: _currentIndex == 3 ? selectedColor : unselectedColor,
-                ),
-                selectedIcon: Icon(
-                  Icons.person_rounded,
-                  color: selectedColor,
-                ),
-                label: Text(
-                  'Perfil',
-                  style: TextStyle(
-                    color: _currentIndex == 3 ? selectedColor : unselectedColor,
-                  ),
-                ),
+                icon: Icon(Icons.person_outline_rounded,
+                    color:
+                        _currentIndex == 3 ? selectedColor : unselectedColor),
+                selectedIcon: Icon(Icons.person_rounded, color: selectedColor),
+                label: Text('Perfil',
+                    style: TextStyle(
+                        color: _currentIndex == 3
+                            ? selectedColor
+                            : unselectedColor)),
               ),
             ],
           ),
-          // Divisor vertical
           const VerticalDivider(thickness: 1, width: 1),
-          // Contenido principal
           Expanded(
             child: IndexedStack(
-              index: _currentIndex, // Pantalla actual
-              children: _screens, // Lista de pantallas
+              index: _currentIndex,
+              children: _screens,
             ),
           ),
         ],

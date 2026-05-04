@@ -601,15 +601,64 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
   bool _submitting = false;
   bool _esRetorno = false;
 
-  static const _tiposIncidente = [
-    'Accidente',
-    'Avería Mecánica',
-    'Retraso Significativo',
-    'Incidente con Cliente',
-    'Otro',
-  ];
+  List<Map<String, String>> _tiposIncidente = [];
+  List<Map<String, String>> _gravedades = [];
+  bool _loadingOptions = true;
+  String? _optionsError;
 
-  static const _gravedades = ['baja', 'media', 'alta', 'crítica'];
+  @override
+  void initState() {
+    super.initState();
+    _fetchOptions();
+  }
+
+  Future<void> _fetchOptions() async {
+    try {
+      final uri = Uri.parse(ApiService.reportsUrl).replace(
+        queryParameters: {'action': 'get_options'},
+      );
+      final response = await http.get(uri).timeout(const Duration(seconds: 15));
+
+      if (!response.body.trimLeft().startsWith('{')) {
+        if (mounted) {
+          setState(() {
+            _optionsError = 'Respuesta no válida del servidor';
+            _loadingOptions = false;
+          });
+        }
+        return;
+      }
+
+      final decoded = json.decode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200 && decoded['success'] == true) {
+        if (mounted) {
+          setState(() {
+            _tiposIncidente = (decoded['tipos_incidencia'] as List)
+                .map((e) => {'id': e['id'].toString(), 'nombre': e['nombre'].toString()})
+                .toList();
+            _gravedades = (decoded['niveles_gravedad'] as List)
+                .map((e) => {'id': e['id'].toString(), 'nombre': e['nombre'].toString()})
+                .toList();
+            _loadingOptions = false;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _optionsError = 'Error al cargar opciones';
+            _loadingOptions = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _optionsError = 'Error de conexión';
+          _loadingOptions = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -1032,55 +1081,82 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
 
                     const SizedBox(height: 16),
 
-                    // Tipo de incidente
-                    DropdownButtonFormField<String>(
-                      value: _selectedTipoIncidente,
-                      borderRadius: BorderRadius.circular(12),
-                      dropdownColor:
-                          isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                      decoration: InputDecoration(
-                        labelText: 'Tipo de incidente',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    if (_loadingOptions)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    else if (_optionsError != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Text(_optionsError!, style: const TextStyle(color: Colors.redAccent)),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _loadingOptions = true;
+                                    _optionsError = null;
+                                  });
+                                  _fetchOptions();
+                                },
+                                child: const Text('Reintentar'),
+                              )
+                            ],
+                          ),
                         ),
-                        isDense: true,
+                      )
+                    else ...[
+                      // Tipo de incidente
+                      DropdownButtonFormField<String>(
+                        value: _selectedTipoIncidente,
+                        borderRadius: BorderRadius.circular(12),
+                        dropdownColor:
+                            isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                        decoration: InputDecoration(
+                          labelText: 'Tipo de incidente',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          isDense: true,
+                        ),
+                        items: _tiposIncidente
+                            .map((t) => DropdownMenuItem(
+                                value: t['id'], child: Text(t['nombre']!)))
+                            .toList(),
+                        onChanged: (v) =>
+                            setState(() => _selectedTipoIncidente = v),
+                        validator: (v) =>
+                            v == null ? 'Selecciona el tipo de incidente' : null,
                       ),
-                      items: _tiposIncidente
-                          .map(
-                              (t) => DropdownMenuItem(value: t, child: Text(t)))
-                          .toList(),
-                      onChanged: (v) =>
-                          setState(() => _selectedTipoIncidente = v),
-                      validator: (v) =>
-                          v == null ? 'Selecciona el tipo de incidente' : null,
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
-                    // Gravedad
-                    DropdownButtonFormField<String>(
-                      value: _selectedGravedad,
-                      borderRadius: BorderRadius.circular(12),
-                      dropdownColor:
-                          isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                      decoration: InputDecoration(
-                        labelText: 'Gravedad',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                      // Gravedad
+                      DropdownButtonFormField<String>(
+                        value: _selectedGravedad,
+                        borderRadius: BorderRadius.circular(12),
+                        dropdownColor:
+                            isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                        decoration: InputDecoration(
+                          labelText: 'Gravedad',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          isDense: true,
                         ),
-                        isDense: true,
+                        items: _gravedades
+                            .map((g) => DropdownMenuItem(
+                                  value: g['id'],
+                                  child: Text(g['nombre']!),
+                                ))
+                            .toList(),
+                        onChanged: (v) => setState(() => _selectedGravedad = v),
+                        validator: (v) =>
+                            v == null ? 'Selecciona la gravedad' : null,
                       ),
-                      items: _gravedades
-                          .map((g) => DropdownMenuItem(
-                                value: g,
-                                child:
-                                    Text(g[0].toUpperCase() + g.substring(1)),
-                              ))
-                          .toList(),
-                      onChanged: (v) => setState(() => _selectedGravedad = v),
-                      validator: (v) =>
-                          v == null ? 'Selecciona la gravedad' : null,
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 12),
+                    ],
 
                     // Fecha y hora
                     TextFormField(
