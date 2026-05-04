@@ -135,6 +135,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _loadReportsFromServer,
+              color: isDark ? Colors.white : Colors.blueAccent[700],
+              backgroundColor:
+                  isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
               child: _userReports.isEmpty
                   ? _buildEmptyState(isDark)
                   : ListView.builder(
@@ -171,6 +174,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _loadReportsFromServer,
+              color: isDark ? Colors.white : Colors.blueAccent[700],
+              backgroundColor:
+                  isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
               child: _userReports.isEmpty
                   ? _buildEmptyState(isDark)
                   : Center(

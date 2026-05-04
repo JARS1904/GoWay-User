@@ -28,12 +28,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     _initializeUserId();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadFavoriteRoutes();
-  }
-
   Future<void> _initializeUserId() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId') ?? '1';
@@ -171,24 +165,23 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         elevation: 0,
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
         foregroundColor: isDark ? Colors.white : Colors.black,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadFavoriteRoutes,
-            tooltip: 'Recargar',
-          ),
-        ],
+        // Eliminado el IconButton de refresh
       ),
-      body: _favoriteRoutes.isEmpty
-          ? _buildEmptyState(isDark)
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _favoriteRoutes.length,
-              itemBuilder: (context, index) {
-                final route = _favoriteRoutes[index];
-                return _buildFavoriteCard(route, isDark, index);
-              },
-            ),
+      body: RefreshIndicator(
+        onRefresh: _loadFavoriteRoutes,
+        color: isDark ? Colors.white : Colors.blueAccent[700],
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
+        child: _favoriteRoutes.isEmpty
+            ? _buildEmptyState(isDark)
+            : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _favoriteRoutes.length,
+                itemBuilder: (context, index) {
+                  final route = _favoriteRoutes[index];
+                  return _buildFavoriteCard(route, isDark, index);
+                },
+              ),
+      ),
     );
   }
 
@@ -204,29 +197,28 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         elevation: 0,
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
         foregroundColor: isDark ? Colors.white : Colors.black,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadFavoriteRoutes,
-            tooltip: 'Recargar',
-          ),
-        ],
+        // Eliminado el IconButton de refresh
       ),
-      body: _favoriteRoutes.isEmpty
-          ? _buildEmptyState(isDark)
-          : Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 900),
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(24),
-                  itemCount: _favoriteRoutes.length,
-                  itemBuilder: (context, index) {
-                    final route = _favoriteRoutes[index];
-                    return _buildFavoriteCard(route, isDark, index);
-                  },
+      body: RefreshIndicator(
+        onRefresh: _loadFavoriteRoutes,
+        color: isDark ? Colors.white : Colors.blueAccent[700],
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
+        child: _favoriteRoutes.isEmpty
+            ? _buildEmptyState(isDark)
+            : Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 900),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(24),
+                    itemCount: _favoriteRoutes.length,
+                    itemBuilder: (context, index) {
+                      final route = _favoriteRoutes[index];
+                      return _buildFavoriteCard(route, isDark, index);
+                    },
+                  ),
                 ),
               ),
-            ),
+      ),
     );
   }
 
@@ -256,9 +248,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: isDark
-            ? null
-            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        border:
+            isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),

@@ -10,7 +10,7 @@
 // Autores: José Armando Rodríguez Segovia
 //          Miguel Ángel Peralta González
 //          Santiago de Jesús Juarez Pérez
-//          Emilio Domíngez Silva
+//          Emilio Domínguez Silva
 // Mantenido por: Hydra. Inc
 
 import 'dart:async';
@@ -23,6 +23,160 @@ import 'package:goway_user/screens/profile/profile_screen.dart';
 import 'package:goway_user/screens/home/notifications_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+// =============================================================================
+// WIDGET: Línea de tiempo de paradas con puntos circulares
+// =============================================================================
+
+/// Widget que muestra una lista de paradas como una línea vertical con puntos circulares
+class StopsTimeline extends StatelessWidget {
+  final List<dynamic> stops;
+  final Color lineColor;
+  final bool isDark;
+  final String? highlightStart;
+  final String? highlightEnd;
+
+  const StopsTimeline({
+    super.key,
+    required this.stops,
+    required this.lineColor,
+    required this.isDark,
+    this.highlightStart,
+    this.highlightEnd,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (stops.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Determinar el rango a mostrar si hay highlight
+    List<dynamic> displayStops = List.from(stops);
+    int startIndex = 0;
+    int endIndex = stops.length - 1;
+
+    if (highlightStart != null && highlightEnd != null) {
+      startIndex = stops.indexWhere((stop) {
+        final nombre = stop['nombre']?.toString() ?? stop.toString();
+        return nombre == highlightStart;
+      });
+      endIndex = stops.indexWhere((stop) {
+        final nombre = stop['nombre']?.toString() ?? stop.toString();
+        return nombre == highlightEnd;
+      });
+
+      if (startIndex != -1 && endIndex != -1 && startIndex <= endIndex) {
+        displayStops = stops.sublist(startIndex, endIndex + 1);
+      } else {
+        startIndex = 0;
+        endIndex = stops.length - 1;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ...displayStops.asMap().entries.map((entry) {
+          final idx = entry.key;
+          final stop = entry.value;
+          final isFirst = idx == 0;
+          final isLast = idx == displayStops.length - 1;
+          final stopName = stop['nombre']?.toString() ?? stop.toString();
+          final minutes = stop['minutos_desde_origen'];
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Columna del indicador circular y línea
+              SizedBox(
+                width: 32,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Línea superior - SIEMPRE visible excepto en condiciones específicas
+                    // En tramos parciales, el primero muestra línea superior
+                    if (!isFirst ||
+                        (highlightStart != null && highlightEnd != null))
+                      Container(
+                        width: 5,
+                        height: 22,
+                        color: lineColor.withOpacity(0.4),
+                      )
+                    else
+                      const SizedBox(height: 14),
+
+                    // Círculo indicador
+                    Container(
+                      width: 11,
+                      height: 11,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isFirst || isLast
+                            ? lineColor
+                            : (isDark ? const Color(0xFFFFFFFF) : Colors.white),
+                        border: Border.all(
+                          color: lineColor,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+
+                    // Línea inferior - SIEMPRE visible excepto en condiciones específicas
+                    // En tramos parciales, el último muestra línea inferior
+                    if (!isLast ||
+                        (highlightStart != null && highlightEnd != null))
+                      Container(
+                        width: 5,
+                        height: 22,
+                        color: lineColor.withOpacity(0.4),
+                      )
+                    else
+                      const SizedBox(height: 14),
+                  ],
+                ),
+              ),
+
+              // Columna del nombre de la parada
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8, bottom: 8, top: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        stopName,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      if (minutes != null && minutes > 0)
+                        Text(
+                          '+$minutes min',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.grey[500] : Colors.grey[600],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// CLASE PRINCIPAL
+// =============================================================================
 
 class MainNavigationWrapper extends StatefulWidget {
   final Function(bool)? onThemeChange;
@@ -174,14 +328,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _lastLifecycleState = state;
     if (state == AppLifecycleState.resumed) {
-      // Recargar favoritos cuando la app vuelve al foreground
       _loadFavorites();
       _fetchUnreadNotificationsCount();
     }
   }
 
-  /// Método público para recargar favoritos desde el exterior
-  /// Se llama cuando se vuelve a la pantalla de inicio desde otra pantalla
   void refreshFavorites() {
     _loadFavorites();
     _fetchUnreadNotificationsCount();
@@ -223,7 +374,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     }
   }
 
-  /// Carga los favoritos actuales del usuario
   Future<void> _loadFavorites() async {
     try {
       final url =
@@ -498,7 +648,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Saludo al usuario
             Text(
               'Hola, $_userName 👋',
               style: TextStyle(
@@ -517,8 +666,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               ),
             ),
             const SizedBox(height: 20),
-
-            // Selector de origen
             DropdownButtonFormField<String>(
               isExpanded: true,
               borderRadius: BorderRadius.circular(16),
@@ -555,8 +702,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               },
             ),
             const SizedBox(height: 16),
-
-            // Selector de destino
             DropdownButtonFormField<String>(
               isExpanded: true,
               borderRadius: BorderRadius.circular(16),
@@ -593,8 +738,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               },
             ),
             const SizedBox(height: 24),
-
-            // Botón de búsqueda
             _PressScale(
               child: SizedBox(
                 width: double.infinity,
@@ -624,10 +767,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                 ),
               ),
             ),
-
             const SizedBox(height: 24),
-
-            // Separador
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -636,10 +776,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                 thickness: 2,
               ),
             ),
-
             const SizedBox(height: 24),
-
-            // Mostrar carga o resultados
             if (_loading)
               const Center(child: CircularProgressIndicator())
             else if (_routes.isNotEmpty)
@@ -703,7 +840,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
       ),
       body: Row(
         children: [
-          // Panel izquierdo para búsqueda
           Expanded(
             flex: 2,
             child: Padding(
@@ -711,7 +847,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Saludo al usuario
                   Text(
                     'Hola, $_userName 👋',
                     style: TextStyle(
@@ -730,8 +865,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Selector de origen
                   DropdownButtonFormField<String>(
                     isExpanded: true,
                     borderRadius: BorderRadius.circular(16),
@@ -769,8 +902,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     },
                   ),
                   const SizedBox(height: 16),
-
-                  // Selector de destino
                   DropdownButtonFormField<String>(
                     isExpanded: true,
                     borderRadius: BorderRadius.circular(16),
@@ -808,8 +939,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     },
                   ),
                   const SizedBox(height: 24),
-
-                  // Botón de búsqueda
                   _PressScale(
                     child: SizedBox(
                       width: double.infinity,
@@ -840,10 +969,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
-                  // Separador
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -852,10 +978,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                       thickness: 2,
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
-                  // Lista de rutas
                   if (_loading)
                     const Center(child: CircularProgressIndicator())
                   else if (_routes.isNotEmpty)
@@ -878,8 +1001,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               ),
             ),
           ),
-
-          // Panel derecho para detalles
           Expanded(
             flex: 3,
             child: _selectedRoute != null
@@ -925,9 +1046,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: isDark
-              ? null
-              : Border.all(color: Colors.grey[200]!, width: 1.5),
+          border:
+              isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
@@ -964,7 +1084,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Header ──────────────────────────────────────────
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1022,7 +1141,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                       ? Colors.grey[500]
                                       : Colors.grey[600]),
                               const SizedBox(width: 4),
-                              Icon(Icons.location_on_rounded,
+                              const Icon(Icons.location_on_rounded,
                                   size: 13, color: Colors.red),
                               const SizedBox(width: 2),
                               Flexible(
@@ -1044,7 +1163,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                               ),
                             ],
                           ),
-                          // Badge y paradas de tramo
                           if (route['es_tramo'] == 1) ...[
                             const SizedBox(height: 6),
                             Row(
@@ -1129,7 +1247,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.blueAccent.withValues(alpha: 0.12),
+                        color: Colors.blueAccent.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -1302,7 +1420,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (route['es_tramo'] != 1) ...[
-            // Nombre de ruta completa con icono
             Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
@@ -1335,8 +1452,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             const SizedBox(height: 8),
           ],
           if (route['es_tramo'] == 1) ...[
-            // Tramo: nombre en grande + badge + ruta completa
-            // Tramo title con icono
             Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
@@ -1383,7 +1498,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               ),
             ),
             const SizedBox(height: 6),
-            // Ruta completa subtitle con icono
             Row(
               children: [
                 Text(
@@ -1424,7 +1538,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               ],
             ),
           ] else ...[
-            // Ruta completa
             Row(
               children: [
                 Flexible(
@@ -1463,8 +1576,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             color: isDark ? Colors.grey[600] : Colors.grey[300],
           ),
           const SizedBox(height: 16),
-
-          // Información de la empresa
           Container(
             margin: EdgeInsets.zero,
             decoration: BoxDecoration(
@@ -1511,12 +1622,9 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               ),
             ),
           ),
-
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 16),
-
-          // Horarios disponibles
           const Text(
             'Horarios disponibles:',
             style: TextStyle(
@@ -1526,8 +1634,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
           ),
           const SizedBox(height: 20),
           ...uniqueSchedules
-              .map<Widget>((horario) =>
-                  _ScheduleCard(route: route, horario: horario, isDark: isDark))
+              .map<Widget>((horario) => _ScheduleCard(
+                    route: route,
+                    horario: horario,
+                    isDark: isDark,
+                  ))
               .toList(),
         ],
       ),
@@ -1575,7 +1686,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   }
 }
 
-/// Widget con animación de presión estilo iOS: se hunde al presionar y regresa al soltar.
 class _PressScale extends StatefulWidget {
   final Widget child;
   const _PressScale({required this.child});
@@ -1685,7 +1795,6 @@ class RouteDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                 ],
                 if (route['es_tramo'] == 1) ...[
-                  // Tramo: nombre en grande con icono + badge + ruta completa
                   Wrap(
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
@@ -1776,7 +1885,6 @@ class RouteDetailsScreen extends StatelessWidget {
                     ],
                   ),
                 ] else ...[
-                  // Ruta completa con icono
                   Row(
                     children: [
                       Flexible(
@@ -1815,8 +1923,6 @@ class RouteDetailsScreen extends StatelessWidget {
                   color: isDark ? Colors.grey[600] : Colors.grey[300],
                 ),
                 const SizedBox(height: 16),
-
-                // Información de la empresa
                 Container(
                   margin: EdgeInsets.zero,
                   decoration: BoxDecoration(
@@ -1863,14 +1969,11 @@ class RouteDetailsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
                 Divider(
                   color: isDark ? Colors.grey[600] : Colors.grey[300],
                 ),
                 const SizedBox(height: 16),
-
-                // Horarios disponibles
                 Text(
                   'Horarios disponibles:',
                   style: TextStyle(
@@ -1882,7 +1985,10 @@ class RouteDetailsScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 ...uniqueSchedules
                     .map<Widget>((horario) => _ScheduleCard(
-                        route: route, horario: horario, isDark: isDark))
+                          route: route,
+                          horario: horario,
+                          isDark: isDark,
+                        ))
                     .toList(),
               ],
             ),
@@ -1932,10 +2038,6 @@ class RouteDetailsScreen extends StatelessWidget {
     );
   }
 }
-
-// =============================================================================
-// Tarjeta de horario expandible
-// =============================================================================
 
 class _ScheduleCard extends StatefulWidget {
   final Map<String, dynamic> route;
@@ -2172,9 +2274,8 @@ class _ScheduleCardState extends State<_ScheduleCard> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: isDark
-            ? null
-            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        border:
+            isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
@@ -2191,7 +2292,6 @@ class _ScheduleCardState extends State<_ScheduleCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Header (siempre visible) ──────────────────────────
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -2199,7 +2299,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.12),
+                      color: Colors.green.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(Icons.calendar_month_rounded,
@@ -2220,7 +2320,6 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-                        // Origen → Destino compacto
                         Row(
                           children: [
                             const Icon(Icons.location_on_rounded,
@@ -2277,7 +2376,6 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      // Pill día de semana
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
@@ -2312,7 +2410,6 @@ class _ScheduleCardState extends State<_ScheduleCard> {
               Divider(
                   height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
               const SizedBox(height: 10),
-              // Horas de salida y llegada (o abordaje/bajada si es tramo)
               Row(
                 children: [
                   Expanded(
@@ -2343,7 +2440,6 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                   ),
                 ],
               ),
-              // ── Contenido expandible ──────────────────────────────
               AnimatedSize(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeInOut,
@@ -2360,7 +2456,6 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                             isDark,
                             iconColor: Colors.orange[700],
                           ),
-                          // Para tramos: mostrar horario real de la ruta completa
                           if (route['es_tramo'] == 1) ...[
                             const SizedBox(height: 6),
                             _infoRow(
@@ -2423,184 +2518,117 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                             isDark,
                             iconColor: const Color.fromARGB(255, 246, 186, 66),
                           ),
-                          if ((route['paradas'] as List).isNotEmpty ||
-                              (route['paradas_ruta'] as List?)?.isNotEmpty ==
-                                  true) ...[
-                            const SizedBox(height: 10),
+                          // SECCIÓN DE PARADAS CON LÍNEA DE TIEMPO (AMARILLO) CON LABEL
+                          if ((route['paradas_ruta'] as List?)?.isNotEmpty ==
+                              true) ...[
+                            const SizedBox(height: 16),
                             Divider(
                                 height: 1,
                                 color:
                                     isDark ? Colors.white12 : Colors.grey[200]),
-                            const SizedBox(height: 10),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(Icons.traffic_rounded,
-                                    size: 20, color: Colors.amber[700]),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Paradas',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelSmall
-                                            ?.copyWith(
+                            const SizedBox(height: 12),
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.route_rounded,
+                                    size: 20,
+                                    color: Colors.amber.shade700,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Paradas',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall
+                                              ?.copyWith(
                                                 color: isDark
                                                     ? Colors.grey[500]
                                                     : Colors.grey[600],
                                                 fontSize: 13,
-                                                fontWeight: FontWeight.w500),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      // Paradas estructuradas (paradas_ruta tiene prioridad)
-                                      if ((route['paradas_ruta'] as List?)
-                                              ?.isNotEmpty ==
-                                          true) ...[
-                                        ...(() {
-                                          final paradasRuta =
-                                              route['paradas_ruta'] as List;
-                                          // Si es tramo parcial, filtrar solo las paradas entre embarque y bajada (inclusive)
-                                          if (route['es_tramo'] == 1 &&
-                                              route['parada_embarque'] !=
-                                                  null &&
-                                              route['parada_bajada'] != null) {
-                                            final idxEmbarque =
-                                                paradasRuta.indexWhere((p) =>
-                                                    p['nombre'] ==
-                                                    route['parada_embarque']);
-                                            final idxBajada =
-                                                paradasRuta.indexWhere((p) =>
-                                                    p['nombre'] ==
-                                                    route['parada_bajada']);
-                                            if (idxEmbarque != -1 &&
-                                                idxBajada != -1 &&
-                                                idxEmbarque < idxBajada) {
-                                              final tramo = paradasRuta.sublist(
-                                                  idxEmbarque, idxBajada + 1);
-                                              return tramo.map<Widget>((p) {
-                                                final nombre =
-                                                    p['nombre']?.toString() ??
-                                                        '';
-                                                final mins =
-                                                    p['minutos_desde_origen'];
-                                                return Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          bottom: 4),
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(Icons.circle,
-                                                          size: 6,
-                                                          color: isDark
-                                                              ? Colors
-                                                                  .amber[400]
-                                                              : Colors
-                                                                  .amber[700]),
-                                                      const SizedBox(width: 6),
-                                                      Expanded(
-                                                        child: Text(
-                                                          nombre,
-                                                          style:
-                                                              Theme.of(context)
-                                                                  .textTheme
-                                                                  .bodySmall
-                                                                  ?.copyWith(
-                                                                    color: isDark
-                                                                        ? Colors
-                                                                            .white
-                                                                        : Colors
-                                                                            .black,
-                                                                    fontSize:
-                                                                        14,
-                                                                  ),
-                                                        ),
-                                                      ),
-                                                      if (mins != null)
-                                                        Text(
-                                                          '+${mins} min',
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            color: isDark
-                                                                ? Colors
-                                                                    .grey[500]
-                                                                : Colors
-                                                                    .grey[600],
-                                                          ),
-                                                        ),
-                                                    ],
-                                                  ),
-                                                );
-                                              }).toList();
-                                            }
-                                          }
-                                          // Si no es tramo parcial, mostrar todas las paradas
-                                          return paradasRuta.map<Widget>((p) {
-                                            final nombre =
-                                                p['nombre']?.toString() ?? '';
-                                            final mins =
-                                                p['minutos_desde_origen'];
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                  bottom: 4),
-                                              child: Row(
-                                                children: [
-                                                  Icon(Icons.circle,
-                                                      size: 6,
-                                                      color: isDark
-                                                          ? Colors.amber[400]
-                                                          : Colors.amber[700]),
-                                                  const SizedBox(width: 6),
-                                                  Expanded(
-                                                    child: Text(
-                                                      nombre,
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodySmall
-                                                          ?.copyWith(
-                                                            color: isDark
-                                                                ? Colors.white
-                                                                : Colors.black,
-                                                            fontSize: 14,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                  if (mins != null)
-                                                    Text(
-                                                      '+${mins} min',
-                                                      style: TextStyle(
-                                                        fontSize: 13,
-                                                        color: isDark
-                                                            ? Colors.grey[500]
-                                                            : Colors.grey[600],
-                                                      ),
-                                                    ),
-                                                ],
                                               ),
-                                            );
-                                          }).toList();
-                                        })()
-                                      ] else
-                                        ...(route['paradas'] as List)
-                                            .map<Widget>((parada) => Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          bottom: 2),
-                                                  child: Text(
-                                                    '• $parada',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodySmall,
-                                                  ),
-                                                ))
-                                            .toList(),
-                                    ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        StopsTimeline(
+                                          stops:
+                                              (route['paradas_ruta'] as List),
+                                          lineColor: Colors.amber.shade700,
+                                          isDark: isDark,
+                                          highlightStart: route['es_tramo'] == 1
+                                              ? route['parada_embarque']
+                                              : null,
+                                          highlightEnd: route['es_tramo'] == 1
+                                              ? route['parada_bajada']
+                                              : null,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+                            ),
+                          ] else if ((route['paradas'] as List?)?.isNotEmpty ==
+                              true) ...[
+                            const SizedBox(height: 16),
+                            Divider(
+                                height: 1,
+                                color:
+                                    isDark ? Colors.white12 : Colors.grey[200]),
+                            const SizedBox(height: 12),
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.route_rounded,
+                                    size: 20,
+                                    color: Colors.amber.shade700,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Paradas',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall
+                                              ?.copyWith(
+                                                color: isDark
+                                                    ? Colors.grey[500]
+                                                    : Colors.grey[600],
+                                                fontSize: 13,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        StopsTimeline(
+                                          stops: (route['paradas'] as List)
+                                              .map((p) => {'nombre': p})
+                                              .toList(),
+                                          lineColor: Colors.amber.shade700,
+                                          isDark: isDark,
+                                          highlightStart: route['es_tramo'] == 1
+                                              ? route['parada_embarque']
+                                              : null,
+                                          highlightEnd: route['es_tramo'] == 1
+                                              ? route['parada_bajada']
+                                              : null,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                           const SizedBox(height: 4),
