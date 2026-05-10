@@ -368,7 +368,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
       setState(() => _selectedRoute = route);
   bool get _isTablet => MediaQuery.of(context).size.width >= 600;
 
-  /// ✅ Avatar de usuario estilo Checador (con borde)
+  /// Avatar de usuario (con borde)
   Widget _buildAppBarAvatar() {
     final hasPhoto = widget.userPhotoUrl != null &&
         widget.userPhotoUrl!.isNotEmpty &&
@@ -488,16 +488,43 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     fontSize: 14,
                     color: isDark ? Colors.grey[500] : Colors.grey[600])),
             const SizedBox(height: 20),
+            // Selector de punto de origen
             DropdownButtonFormField<String>(
               isExpanded: true,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
               decoration: InputDecoration(
-                  labelText: 'Seleccione el origen',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 14)),
+                labelText: 'Seleccione el origen',
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Image.asset(
+                    'lib/assets/icons/icons8-marcador.png',
+                    width: 20,
+                    height: 20,
+                    color: isDark
+                        ? Colors.grey[400]
+                        : Colors.grey[600], // Para tintar la imagen
+                  ),
+                ),
+                border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  borderSide: BorderSide(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.4),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  borderSide:
+                      BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+              ),
               value: _origin,
               items: _locations
                   .map((location) => DropdownMenuItem(
@@ -514,16 +541,43 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               }),
             ),
             const SizedBox(height: 16),
+            // Selector de punto de destino
             DropdownButtonFormField<String>(
               isExpanded: true,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
               decoration: InputDecoration(
-                  labelText: 'Seleccione el destino',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 14)),
+                labelText: 'Seleccione el destino',
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Image.asset(
+                    'lib/assets/icons/icons8-marcador.png',
+                    width: 20,
+                    height: 20,
+                    color: isDark
+                        ? Colors.grey[400]
+                        : Colors.grey[600], // Para tintar la imagen
+                  ),
+                ),
+                border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  borderSide: BorderSide(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.4),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  borderSide:
+                      BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+              ),
               value: _destination,
               items: _locations
                   .map((location) => DropdownMenuItem(
