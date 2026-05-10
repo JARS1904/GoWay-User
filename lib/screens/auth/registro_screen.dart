@@ -11,8 +11,8 @@ class RegistroScreen extends StatefulWidget {
   State<RegistroScreen> createState() => _RegistroScreenState();
 }
 
-class _RegistroScreenState extends State<RegistroScreen> {
-  // Controladores para los campos del formulario
+class _RegistroScreenState extends State<RegistroScreen>
+    with TickerProviderStateMixin {
   final _nombreController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -23,12 +23,108 @@ class _RegistroScreenState extends State<RegistroScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
+  late final AnimationController _entryController;
+
+  late final Animation<double> _logoFade;
+  late final Animation<Offset> _logoSlide;
+  late final Animation<double> _titleFade;
+  late final Animation<Offset> _titleSlide;
+  late final Animation<double> _fieldsFade;
+  late final Animation<Offset> _fieldsSlide;
+  late final Animation<double> _buttonFade;
+  late final Animation<Offset> _buttonSlide;
+  late final Animation<double> _footerFade;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _entryController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1100),
+    );
+
+    _logoFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+      ),
+    );
+    _logoSlide = Tween<Offset>(
+      begin: const Offset(0, -0.3),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+      ),
+    );
+
+    _titleFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.2, 0.55, curve: Curves.easeOut),
+      ),
+    );
+    _titleSlide = Tween<Offset>(
+      begin: const Offset(0, 0.2),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.2, 0.55, curve: Curves.easeOut),
+      ),
+    );
+
+    _fieldsFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.4, 0.75, curve: Curves.easeOut),
+      ),
+    );
+    _fieldsSlide = Tween<Offset>(
+      begin: const Offset(0, 0.2),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.4, 0.75, curve: Curves.easeOut),
+      ),
+    );
+
+    _buttonFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.6, 0.85, curve: Curves.easeOut),
+      ),
+    );
+    _buttonSlide = Tween<Offset>(
+      begin: const Offset(0, 0.2),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.6, 0.85, curve: Curves.easeOut),
+      ),
+    );
+
+    _footerFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _entryController,
+        curve: const Interval(0.8, 1.0, curve: Curves.easeOut),
+      ),
+    );
+
+    _entryController.forward();
+  }
+
   @override
   void dispose() {
     _nombreController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _entryController.dispose();
     super.dispose();
   }
 
@@ -73,30 +169,64 @@ class _RegistroScreenState extends State<RegistroScreen> {
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
-                SizedBox(width: 10),
-                Text('¡Registro exitoso!',
-                    style: TextStyle(color: Colors.white)),
-              ],
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.check_circle_rounded,
+                      color: Colors.white, size: 20),
+                  SizedBox(width: 10),
+                  Text('¡Registro exitoso!',
+                      style: TextStyle(color: Colors.white)),
+                ],
+              ),
+              backgroundColor: Colors.green[700],
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              duration: const Duration(seconds: 2),
             ),
-            backgroundColor: Colors.green[700],
-            behavior: SnackBarBehavior.floating,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
+          );
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, animation, __) => const LoginScreen(),
+              transitionsBuilder: (_, animation, __, child) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              transitionDuration: const Duration(milliseconds: 350),
+            ),
+          );
+        }
       } else {
-        String errorMsg = responseData['error'] ?? 'Error en el registro';
+        if (mounted) {
+          String errorMsg = responseData['error'] ?? 'Error en el registro';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error_rounded,
+                      color: Colors.white, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                      child: Text(errorMsg,
+                          style: const TextStyle(color: Colors.white))),
+                ],
+              ),
+              backgroundColor: Colors.redAccent[700],
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -104,7 +234,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 const Icon(Icons.error_rounded, color: Colors.white, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
-                    child: Text(errorMsg,
+                    child: Text('Error de conexión: ${e.toString()}',
                         style: const TextStyle(color: Colors.white))),
               ],
             ),
@@ -117,78 +247,134 @@ class _RegistroScreenState extends State<RegistroScreen> {
           ),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_rounded, color: Colors.white, size: 20),
-              const SizedBox(width: 10),
-              Expanded(
-                  child: Text('Error de conexión: ${e.toString()}',
-                      style: const TextStyle(color: Colors.white))),
-            ],
-          ),
-          backgroundColor: Colors.redAccent[700],
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          duration: const Duration(seconds: 3),
-        ),
-      );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final bool isTablet = MediaQuery.of(context).size.width >= 768;
-
     return Scaffold(
       body: isTablet ? _buildTabletLayout() : _buildMobileLayout(),
     );
   }
 
-  // ----------------------------
-  // MÓVIL (DISEÑO ORIGINAL)
-  // ----------------------------
+  // ─────────────────────────────────────────
+  // MÓVIL
+  // ─────────────────────────────────────────
   Widget _buildMobileLayout() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 28),
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 80),
-              Image.asset(
-                'lib/assets/images/logo.png',
-                height: 100,
-                width: 100,
-              ),
-              const SizedBox(height: 40),
-              const Text(
-                'Crear Cuenta',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(height: 52),
+
+              // Logo
+              FadeTransition(
+                opacity: _logoFade,
+                child: SlideTransition(
+                  position: _logoSlide,
+                  child: Center(
+                    child: Image.asset(
+                      'lib/assets/images/logo.png',
+                      height: 72,
+                      width: 72,
+                    ),
+                  ),
                 ),
               ),
+
+              const SizedBox(height: 36),
+
+              // Título
+              FadeTransition(
+                opacity: _titleFade,
+                child: SlideTransition(
+                  position: _titleSlide,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Crear cuenta',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Ingresa tu información personal',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.5),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'para crear tu cuenta',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 40),
-              _buildNombreField(),
-              const SizedBox(height: 25),
-              _buildEmailField(),
-              const SizedBox(height: 25),
-              _buildPasswordField(),
-              const SizedBox(height: 25),
-              _buildConfirmPasswordField(),
-              const SizedBox(height: 35),
-              _buildRegisterButton(),
-              const SizedBox(height: 20),
-              _buildLoginLink(),
+
+              // Campos
+              FadeTransition(
+                opacity: _fieldsFade,
+                child: SlideTransition(
+                  position: _fieldsSlide,
+                  child: Column(
+                    children: [
+                      _buildNombreField(),
+                      const SizedBox(height: 16),
+                      _buildEmailField(),
+                      const SizedBox(height: 16),
+                      _buildPasswordField(),
+                      const SizedBox(height: 16),
+                      _buildConfirmPasswordField(),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              // Botón
+              FadeTransition(
+                opacity: _buttonFade,
+                child: SlideTransition(
+                  position: _buttonSlide,
+                  child: _buildRegisterButton(),
+                ),
+              ),
+
+              const SizedBox(height: 48),
+
+              // Footer
+              FadeTransition(
+                opacity: _footerFade,
+                child: _buildLoginLink(),
+              ),
+
+              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -196,35 +382,69 @@ class _RegistroScreenState extends State<RegistroScreen> {
     );
   }
 
-  // ----------------------------
-  // TABLET (DISEÑO MEJORADO)
-  // ----------------------------
+  // ─────────────────────────────────────────
+  // TABLET
+  // ─────────────────────────────────────────
   Widget _buildTabletLayout() {
     return Row(
       children: [
-        // Panel izquierdo con imagen (igual que en login)
+        // Panel izquierdo
         Expanded(
           flex: 5,
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [
-                  Colors.blueAccent[700]!.withOpacity(0.6),
-                  Colors.blueAccent[700]!.withOpacity(1.0),
+                  Colors.blueAccent[400]!,
+                  Colors.blueAccent[700]!,
                 ],
               ),
             ),
             child: Stack(
               children: [
-                Opacity(
-                  opacity: 1.0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('lib/assets/images/login.png'),
-                        scale: 1.0,
+                Positioned.fill(
+                  child: Opacity(
+                    opacity: 0.12,
+                    child: Image.asset(
+                      'lib/assets/images/login.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                Center(
+                  child: FadeTransition(
+                    opacity: _logoFade,
+                    child: SlideTransition(
+                      position: _logoSlide,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'lib/assets/images/logo.png',
+                            height: 90,
+                            width: 90,
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'GoWay',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Tu plataforma de movilidad',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.white.withValues(alpha: 0.75),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -234,69 +454,83 @@ class _RegistroScreenState extends State<RegistroScreen> {
           ),
         ),
 
-        // Panel derecho con formulario (sin espacio gris)
+        // Panel derecho
         Expanded(
           flex: 5,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 40),
-                    // Logo y título alineados
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2.0),
-                          child: Image.asset(
-                            'lib/assets/images/logo.png',
-                            height: 60,
-                          ),
-                        ),
-                        SizedBox(width: 20),
-                        Expanded(
+          child: Container(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: Center(
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 64, vertical: 48),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FadeTransition(
+                        opacity: _titleFade,
+                        child: SlideTransition(
+                          position: _titleSlide,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Crear Cuenta',
+                              const Text(
+                                'Crear cuenta',
                                 style: TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 28,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.grey[800],
+                                  letterSpacing: -0.5,
                                 ),
                               ),
-                              SizedBox(height: 5),
+                              const SizedBox(height: 6),
                               Text(
-                                'Completa el formulario para registrarte',
+                                'Ingresa tu información personal para crear tu cuenta',
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
+                                  fontSize: 15,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.5),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                    SizedBox(height: 40),
-                    _buildNombreField(),
-                    SizedBox(height: 25),
-                    _buildEmailField(),
-                    SizedBox(height: 25),
-                    _buildPasswordField(),
-                    SizedBox(height: 25),
-                    _buildConfirmPasswordField(),
-                    SizedBox(height: 35),
-                    _buildRegisterButton(),
-                    SizedBox(height: 25),
-                    _buildLoginLink(),
-                  ],
+                      ),
+                      const SizedBox(height: 40),
+                      FadeTransition(
+                        opacity: _fieldsFade,
+                        child: SlideTransition(
+                          position: _fieldsSlide,
+                          child: Column(
+                            children: [
+                              _buildNombreField(),
+                              const SizedBox(height: 16),
+                              _buildEmailField(),
+                              const SizedBox(height: 16),
+                              _buildPasswordField(),
+                              const SizedBox(height: 16),
+                              _buildConfirmPasswordField(),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      FadeTransition(
+                        opacity: _buttonFade,
+                        child: SlideTransition(
+                          position: _buttonSlide,
+                          child: _buildRegisterButton(),
+                        ),
+                      ),
+                      const SizedBox(height: 48),
+                      FadeTransition(
+                        opacity: _footerFade,
+                        child: _buildLoginLink(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -306,18 +540,42 @@ class _RegistroScreenState extends State<RegistroScreen> {
     );
   }
 
-  // ----------------------------
-  // COMPONENTES COMPARTIDOS
-  // ----------------------------
+  // ─────────────────────────────────────────
+  // WIDGETS COMPARTIDOS
+  // ─────────────────────────────────────────
+
+  static const _fieldRadius = BorderRadius.all(Radius.circular(20));
+
   Widget _buildNombreField() {
     return TextFormField(
       controller: _nombreController,
-      decoration: const InputDecoration(
-        labelText: 'Nombre Completo',
-        prefixIcon: Icon(Icons.person_outline),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+      decoration: InputDecoration(
+        labelText: 'Nombre completo',
+        prefixIcon: const Icon(Icons.person_outline_rounded, size: 20),
+        border: OutlineInputBorder(borderRadius: _fieldRadius),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+          ),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: BorderSide(
+            color: Colors.blueAccent[700]!,
+            width: 1.8,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: const BorderSide(color: Colors.redAccent, width: 1.8),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -335,12 +593,33 @@ class _RegistroScreenState extends State<RegistroScreen> {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      decoration: const InputDecoration(
-        labelText: 'Correo Electrónico',
-        prefixIcon: Icon(Icons.email_outlined),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+      decoration: InputDecoration(
+        labelText: 'Correo electrónico',
+        prefixIcon: const Icon(Icons.mail_outline_rounded, size: 20),
+        border: OutlineInputBorder(borderRadius: _fieldRadius),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+          ),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: BorderSide(
+            color: Colors.blueAccent[700]!,
+            width: 1.8,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: const BorderSide(color: Colors.redAccent, width: 1.8),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -360,20 +639,40 @@ class _RegistroScreenState extends State<RegistroScreen> {
       obscureText: _obscurePassword,
       decoration: InputDecoration(
         labelText: 'Contraseña',
-        prefixIcon: const Icon(Icons.lock_outline_rounded),
+        prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
         suffixIcon: IconButton(
           icon: Icon(
-            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+            _obscurePassword
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+            size: 20,
           ),
-          onPressed: () {
-            setState(() {
-              _obscurePassword = !_obscurePassword;
-            });
-          },
+          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
         ),
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+        border: OutlineInputBorder(borderRadius: _fieldRadius),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+          ),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: BorderSide(
+            color: Colors.blueAccent[700]!,
+            width: 1.8,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: const BorderSide(color: Colors.redAccent, width: 1.8),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -392,21 +691,42 @@ class _RegistroScreenState extends State<RegistroScreen> {
       controller: _confirmPasswordController,
       obscureText: _obscureConfirmPassword,
       decoration: InputDecoration(
-        labelText: 'Confirmar Contraseña',
-        prefixIcon: const Icon(Icons.lock_outline_rounded),
+        labelText: 'Confirmar contraseña',
+        prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
         suffixIcon: IconButton(
           icon: Icon(
-            _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+            _obscureConfirmPassword
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+            size: 20,
           ),
-          onPressed: () {
-            setState(() {
-              _obscureConfirmPassword = !_obscureConfirmPassword;
-            });
-          },
+          onPressed: () => setState(
+              () => _obscureConfirmPassword = !_obscureConfirmPassword),
         ),
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+        border: OutlineInputBorder(borderRadius: _fieldRadius),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+          ),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: BorderSide(
+            color: Colors.blueAccent[700]!,
+            width: 1.8,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: _fieldRadius,
+          borderSide: const BorderSide(color: Colors.redAccent, width: 1.8),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -423,22 +743,41 @@ class _RegistroScreenState extends State<RegistroScreen> {
   Widget _buildRegisterButton() {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 52,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _registrarUsuario,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blueAccent[700],
           foregroundColor: Colors.white,
+          disabledBackgroundColor:
+              Colors.blueAccent[700]!.withValues(alpha: 0.5),
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
         ),
-        child: _isLoading
-            ? const CircularProgressIndicator(color: Colors.white)
-            : const Text(
-                'REGISTRARSE',
-                style: TextStyle(fontSize: 16),
-              ),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: _isLoading
+              ? const SizedBox(
+                  key: ValueKey('loading'),
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
+                  ),
+                )
+              : const Text(
+                  key: ValueKey('text'),
+                  'Crear cuenta',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+        ),
       ),
     );
   }
@@ -447,23 +786,33 @@ class _RegistroScreenState extends State<RegistroScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text('¿Ya tienes cuenta? '),
-        TextButton(
-          onPressed: () {
+        Text(
+          '¿Ya tienes cuenta? ',
+          style: TextStyle(
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            fontSize: 14,
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              PageRouteBuilder(
+                pageBuilder: (_, animation, __) => const LoginScreen(),
+                transitionsBuilder: (_, animation, __, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                transitionDuration: const Duration(milliseconds: 350),
+              ),
             );
           },
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-          ),
           child: Text(
-            'Inicia Sesión',
+            'Inicia sesión',
             style: TextStyle(
-              color: Colors.blueAccent[700],
+              color: Colors.blueAccent,
               fontWeight: FontWeight.bold,
+              fontSize: 14,
             ),
           ),
         ),
