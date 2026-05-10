@@ -200,6 +200,35 @@ class _RegistroScreenState extends State<RegistroScreen>
             ),
           );
         }
+      } else if (response.statusCode == 422) {
+        // El servidor rechazó la contraseña por no cumplir los requisitos de seguridad
+        if (mounted) {
+          final errorMsg = responseData['error'] ??
+              'La contraseña no cumple los requisitos de seguridad.';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.shield_outlined,
+                      color: Colors.white, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      errorMsg,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.orange[800],
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
       } else {
         if (mounted) {
           String errorMsg = responseData['error'] ?? 'Error en el registro';
@@ -678,8 +707,11 @@ class _RegistroScreenState extends State<RegistroScreen>
         if (value == null || value.isEmpty) {
           return 'Por favor ingrese su contraseña';
         }
-        if (value.length < 6) {
-          return 'La contraseña debe tener al menos 6 caracteres';
+        final regex = RegExp(
+          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$',
+        );
+        if (!regex.hasMatch(value)) {
+          return 'Mín. 8 caracteres, mayúscula, minúscula, número y símbolo.';
         }
         return null;
       },
