@@ -905,6 +905,38 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    const fieldRadius = BorderRadius.all(Radius.circular(20));
+
+    InputDecoration _fieldDecoration(String label,
+        {IconData? icon, Widget? suffix}) {
+      return InputDecoration(
+        labelText: label,
+        prefixIcon: icon != null ? Icon(icon, size: 20) : null,
+        suffixIcon: suffix,
+        border: const OutlineInputBorder(borderRadius: fieldRadius),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: fieldRadius,
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: fieldRadius,
+          borderSide: BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+        ),
+        errorBorder: const OutlineInputBorder(
+          borderRadius: fieldRadius,
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.2),
+        ),
+        focusedErrorBorder: const OutlineInputBorder(
+          borderRadius: fieldRadius,
+          borderSide: BorderSide(color: Colors.redAccent, width: 1.8),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      );
+    }
+
     return ClipRRect(
       borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(28),
@@ -914,7 +946,7 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.9,
+            maxHeight: MediaQuery.of(context).size.height * 1,
             maxWidth: MediaQuery.of(context).size.width,
           ),
           child: Padding(
@@ -931,7 +963,7 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Handle bar superior ────────────────────────────
+                    // ── Handle bar ──────────────────────────────────
                     Center(
                       child: Container(
                         width: 48,
@@ -943,13 +975,15 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                       ),
                     ),
                     const SizedBox(height: 16),
+
+                    // ── Header ──────────────────────────────────────
                     Row(
                       children: [
                         Container(
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: Colors.blueAccent.withOpacity(0.12),
+                            color: Colors.blueAccent.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(Icons.assignment_late_outlined,
@@ -976,34 +1010,21 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                         height: 24,
                         color: isDark ? Colors.white12 : Colors.grey[200]),
 
-                    // Placa del vehiculo
-                    /*
-                    Text('Vehiculo',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(fontWeight: FontWeight.w600)),
-                    */
-                    const SizedBox(height: 6),
+                    // ── Placa + botón buscar ─────────────────────────
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: TextFormField(
                             controller: _placaCtrl,
                             textCapitalization: TextCapitalization.characters,
-                            decoration: InputDecoration(
-                              labelText: 'Placa del vehículo',
-                              hintText: 'Ej: ABC1234',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              isDense: true,
-                            ),
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty)
-                                return 'Requerido';
-                              return null;
-                            },
+                            decoration: _fieldDecoration(
+                              'Placa del vehículo',
+                              icon: Icons.directions_car_outlined,
+                            ).copyWith(hintText: 'Ej: ABC1234'),
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Requerido'
+                                : null,
                             onChanged: (_) {
                               if (_assignmentData != null ||
                                   _assignmentError != null) {
@@ -1015,9 +1036,9 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                             },
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 10),
                         SizedBox(
-                          height: 48,
+                          height: 52,
                           child: ElevatedButton(
                             onPressed: _fetchingAssignment
                                 ? null
@@ -1025,8 +1046,11 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blueAccent[700],
                               foregroundColor: Colors.white,
+                              disabledBackgroundColor: Colors.blueAccent[700]!
+                                  .withValues(alpha: 0.5),
+                              elevation: 0,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(20),
                               ),
                             ),
                             child: _fetchingAssignment
@@ -1036,7 +1060,9 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                                     child: CircularProgressIndicator(
                                         color: Colors.white, strokeWidth: 2),
                                   )
-                                : const Text('Buscar'),
+                                : const Text('Buscar',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w600)),
                           ),
                         ),
                       ],
@@ -1050,6 +1076,7 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                             color: Colors.redAccent, fontSize: 12),
                       ),
                     ],
+
                     if (_assignmentData != null) ...[
                       const SizedBox(height: 10),
                       _AssignmentInfoCard(
@@ -1074,11 +1101,8 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                             Switch(
                               value: _esRetorno,
                               activeColor: Colors.blueAccent[700],
-                              onChanged: (val) {
-                                setState(() {
-                                  _esRetorno = val;
-                                });
-                              },
+                              onChanged: (val) =>
+                                  setState(() => _esRetorno = val),
                             ),
                           ],
                         ),
@@ -1087,6 +1111,7 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
 
                     const SizedBox(height: 16),
 
+                    // ── Opciones dinámicas ───────────────────────────
                     if (_loadingOptions)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 24),
@@ -1110,7 +1135,7 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                                   _fetchOptions();
                                 },
                                 child: const Text('Reintentar'),
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -1119,15 +1144,12 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                       // Tipo de incidente
                       DropdownButtonFormField<String>(
                         value: _selectedTipoIncidente,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(20),
                         dropdownColor:
                             isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                        decoration: InputDecoration(
-                          labelText: 'Tipo de incidente',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          isDense: true,
+                        decoration: _fieldDecoration(
+                          'Tipo de incidente',
+                          icon: Icons.warning_amber_rounded,
                         ),
                         items: _tiposIncidente
                             .map((t) => DropdownMenuItem(
@@ -1139,66 +1161,60 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                             ? 'Selecciona el tipo de incidente'
                             : null,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
 
                       // Gravedad
                       DropdownButtonFormField<String>(
                         value: _selectedGravedad,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(20),
                         dropdownColor:
                             isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                        decoration: InputDecoration(
-                          labelText: 'Gravedad',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          isDense: true,
+                        decoration: _fieldDecoration(
+                          'Gravedad',
+                          icon: Icons.bar_chart_rounded,
                         ),
                         items: _gravedades
                             .map((g) => DropdownMenuItem(
-                                  value: g['id'],
-                                  child: Text(g['nombre']!),
-                                ))
+                                value: g['id'], child: Text(g['nombre']!)))
                             .toList(),
                         onChanged: (v) => setState(() => _selectedGravedad = v),
                         validator: (v) =>
                             v == null ? 'Selecciona la gravedad' : null,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
                     ],
 
-                    // Fecha y hora
+                    // ── Fecha y hora ─────────────────────────────────
                     TextFormField(
                       controller: _dateTimeCtrl,
                       readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: 'Fecha y hora del incidente',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        isDense: true,
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.calendar_today, size: 20),
+                      onTap: _pickDateTime,
+                      decoration: _fieldDecoration(
+                        'Fecha y hora del incidente',
+                        icon: Icons.calendar_today_outlined,
+                        suffix: IconButton(
+                          icon: const Icon(Icons.edit_calendar_outlined,
+                              size: 20),
                           onPressed: _pickDateTime,
                         ),
                       ),
-                      onTap: _pickDateTime,
                       validator: (v) => (v == null || v.trim().isEmpty)
                           ? 'Selecciona la fecha y hora'
                           : null,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
 
-                    // Descripcion
+                    // ── Descripción ──────────────────────────────────
                     TextFormField(
                       controller: _descriptionCtrl,
                       maxLines: 3,
-                      decoration: InputDecoration(
-                        labelText: 'Descripción del incidente',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      decoration: _fieldDecoration(
+                        'Descripción del incidente',
+                        icon: Icons.notes_rounded,
+                      ).copyWith(
                         alignLabelWithHint: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
                       ),
                       validator: (v) => (v == null || v.trim().isEmpty)
                           ? 'La descripción es requerida'
@@ -1206,6 +1222,7 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                     ),
                     const SizedBox(height: 24),
 
+                    // ── Botones ──────────────────────────────────────
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -1219,23 +1236,33 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                           child: const Text('Cancelar'),
                         ),
                         const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: _submitting ? null : _submitReport,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent[700],
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        SizedBox(
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _submitting ? null : _submitReport,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent[700],
+                              foregroundColor: Colors.white,
+                              disabledBackgroundColor: Colors.blueAccent[700]!
+                                  .withValues(alpha: 0.5),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
                             ),
+                            child: _submitting
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white, strokeWidth: 2),
+                                  )
+                                : const Text(
+                                    'Enviar reporte',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w600),
+                                  ),
                           ),
-                          child: _submitting
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                      color: Colors.white, strokeWidth: 2),
-                                )
-                              : const Text('Enviar reporte'),
                         ),
                       ],
                     ),
