@@ -227,10 +227,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final origen = route['origen'] ?? 'Origen desconocido';
     final destino = route['destino'] ?? 'Destino desconocido';
 
-    final uniqueSchedules = (route['horarios'] as List)
+    final uniqueSchedules = ((route['horarios'] as List?) ?? [])
         .fold<Map<String, dynamic>>({}, (map, schedule) {
-          final key =
-              '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
+          final key = scheduleUniqueKey(
+              Map<String, dynamic>.from(schedule as Map));
           map[key] = schedule;
           return map;
         })

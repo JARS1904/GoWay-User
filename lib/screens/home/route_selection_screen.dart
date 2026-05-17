@@ -3,11 +3,150 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:goway_user/services/api_service.dart';
 import 'package:goway_user/screens/home/notifications_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+// ── Horarios: deduplicación y badge de estado (API routes / favorites) ─────
+
+String scheduleUniqueKey(Map<String, dynamic> schedule) {
+  final id = schedule['id_horario'];
+  if (id != null && id.toString().trim().isNotEmpty) {
+    return id.toString();
+  }
+  final tipoDia = schedule['tipo_dia'] ?? schedule['dia_semana'];
+  return '${tipoDia ?? ''}-${schedule['hora_salida'] ?? ''}-${schedule['hora_llegada'] ?? ''}';
+}
+
+/// Texto amigable para el usuario (la BD puede enviar `en_ruta`, etc.).
+String scheduleEstadoDisplayLabel(Map<String, dynamic> horario) {
+  final raw = horario['estado'];
+  if (raw == null || raw.toString().trim().isEmpty) {
+    return 'Sin asignación';
+  }
+  final t = raw.toString().trim();
+  final k = t
+      .toLowerCase()
+      .replaceAll('-', '_')
+      .replaceAll(RegExp(r'\s+'), '_')
+      .replaceAll(RegExp(r'_+'), '_');
+
+  if (const {'programado', 'programada', 'scheduled'}.contains(k)) {
+    return 'Programado';
+  }
+  if (const {'en_ruta', 'enruta', 'in_route', 'on_route'}.contains(k)) {
+    return 'En Ruta';
+  }
+  if (const {'completado', 'completa', 'completed', 'finalizado', 'finalizada'}
+      .contains(k)) {
+    return 'Completado';
+  }
+  if (const {'cancelado', 'cancelada', 'canceled', 'cancelled'}.contains(k)) {
+    return 'Cancelado';
+  }
+  if (const {'retrasado', 'retrasada', 'delayed', 'delay'}.contains(k)) {
+    return 'Retrasado';
+  }
+
+  return _titleCaseFromSnakeOrPlain(t);
+}
+
+String _titleCaseFromSnakeOrPlain(String t) {
+  if (t.contains('_')) {
+    return t
+        .split('_')
+        .where((w) => w.isNotEmpty)
+        .map((w) => '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+        .join(' ');
+  }
+  if (t.length == 1) {
+    return t.toUpperCase();
+  }
+  return '${t[0].toUpperCase()}${t.substring(1).toLowerCase()}';
+}
+
+/// Colores de la cápsula de estado (fondo / texto).
+({Color background, Color foreground}) scheduleEstadoBadgeColors(
+    String displayLabel,
+    {bool isDark = false}) {
+  switch (displayLabel) {
+    case 'Sin asignación':
+      return (
+        background: Colors.grey.withOpacity(0.12),
+        foreground: isDark ? Colors.grey[300]! : Colors.grey[700]!,
+      );
+    case 'Programado':
+      return (
+        background: Colors.grey.withOpacity(0.12),
+        foreground: isDark ? Colors.grey[300]! : Colors.grey[700]!,
+      );
+    case 'En Ruta':
+      return (
+        background: Colors.blue.withOpacity(0.12),
+        foreground: isDark ? Colors.blue[300]! : Colors.blue[800]!,
+      );
+    case 'Retrasado':
+      return (
+        background: Colors.amber.withOpacity(0.12),
+        foreground: isDark ? Colors.amber[300]! : Colors.amber[800]!,
+      );
+    case 'Cancelado':
+      return (
+        background: Colors.red.withOpacity(0.12),
+        foreground: isDark ? Colors.red[300]! : Colors.red[800]!,
+      );
+    case 'Completado':
+      return (
+        background: Colors.green.withOpacity(0.12),
+        foreground: isDark ? Colors.green[300]! : Colors.green[800]!,
+      );
+    default:
+      return (
+        background: Colors.grey.withOpacity(0.12),
+        foreground: isDark ? Colors.grey[300]! : Colors.grey[700]!,
+      );
+  }
+}
+
+/// Cápsula de estado de asignación (estilo tipo de día).
+class EstadoAsignacionCapsule extends StatelessWidget {
+  final String displayLabel;
+  final bool isDark;
+
+  const EstadoAsignacionCapsule({
+    super.key,
+    required this.displayLabel,
+    this.isDark = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = scheduleEstadoBadgeColors(displayLabel, isDark: isDark);
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: colors.background,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          displayLabel,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: colors.foreground,
+            letterSpacing: 0.3,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 // =============================================================================
 // WIDGET: Línea de tiempo de paradas con puntos circulares
@@ -332,7 +471,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         final combinedSchedules = [...existingSchedules, ...newSchedules]
             .fold<Map<String, dynamic>>({}, (map, schedule) {
               final key =
-                  '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
+                  scheduleUniqueKey(Map<String, dynamic>.from(schedule as Map));
               map[key] = schedule;
               return map;
             })
@@ -805,7 +944,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
-              '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
+              scheduleUniqueKey(Map<String, dynamic>.from(schedule as Map));
           map[key] = schedule;
           return map;
         })
@@ -1129,7 +1268,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
-              '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
+              scheduleUniqueKey(Map<String, dynamic>.from(schedule as Map));
           map[key] = schedule;
           return map;
         })
@@ -1374,7 +1513,7 @@ class RouteDetailsScreen extends StatelessWidget {
     final uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
-              '${schedule['dia_semana']}-${schedule['hora_salida']}-${schedule['hora_llegada']}';
+              scheduleUniqueKey(Map<String, dynamic>.from(schedule as Map));
           map[key] = schedule;
           return map;
         })
@@ -1826,6 +1965,10 @@ class _ScheduleCardState extends State<_ScheduleCard> {
     final horario = widget.horario;
     final isDark = widget.isDark;
 
+    final estadoDisplay = scheduleEstadoDisplayLabel(horario);
+    final tipoDiaStr =
+        (horario['tipo_dia'] ?? horario['dia_semana'] ?? '-').toString();
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -1846,7 +1989,6 @@ class _ScheduleCardState extends State<_ScheduleCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Header con padding ────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Row(
@@ -1914,6 +2056,9 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                     overflow: TextOverflow.ellipsis)),
                           ],
                         ),
+                        const SizedBox(height: 6),
+                        EstadoAsignacionCapsule(
+                            displayLabel: estadoDisplay, isDark: isDark),
                       ],
                     ),
                   ),
@@ -1927,7 +2072,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                           decoration: BoxDecoration(
                               color: Colors.green.withOpacity(0.12),
                               borderRadius: BorderRadius.circular(20)),
-                          child: Text(horario['tipo_dia'],
+                          child: Text(tipoDiaStr,
                               style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
