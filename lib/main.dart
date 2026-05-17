@@ -292,6 +292,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   final GlobalKey _routeSelectionKey = GlobalKey();
   final GlobalKey _favoritesKey = GlobalKey();
   final GlobalKey _reportsKey = GlobalKey();
+  final GlobalKey _profileKey = GlobalKey();
 
   // Variables para datos del usuario
   String _userName = 'Usuario';
@@ -328,6 +329,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       FavoritesScreen(key: _favoritesKey),
       ReportsScreen(key: _reportsKey),
       ProfileScreen(
+        key: _profileKey,
         userName: _userName,
         userEmail: _userEmail,
         userPhotoUrl: _userPhotoUrl,
@@ -415,7 +417,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     onTap: () {
                       if (_currentIndex == 0) {
                         (_routeSelectionKey.currentState as dynamic)
-                            ?.refreshFavorites();
+                            ?.refresh();
                       }
                       setState(() => _currentIndex = 0);
                     },
@@ -458,7 +460,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     isSelected: _currentIndex == 3,
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
-                    onTap: () => setState(() => _currentIndex = 3),
+                    onTap: () {
+                      if (_currentIndex == 3) {
+                        (_profileKey.currentState as dynamic)?.refresh();
+                      }
+                      setState(() => _currentIndex = 3);
+                    },
                   ),
                 ],
               ),
@@ -525,17 +532,17 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             onDestinationSelected: (index) {
               if (index == _currentIndex) {
                 if (index == 0)
-                  (_routeSelectionKey.currentState as dynamic)
-                      ?.refreshFavorites();
+                  (_routeSelectionKey.currentState as dynamic)?.refresh();
                 if (index == 1)
                   (_favoritesKey.currentState as dynamic)?.refresh();
                 if (index == 2)
                   (_reportsKey.currentState as dynamic)?.refresh();
+                if (index == 3)
+                  (_profileKey.currentState as dynamic)?.refresh();
               }
               setState(() => _currentIndex = index);
               if (index == 0) {
-                (_routeSelectionKey.currentState as dynamic)
-                    ?.refreshFavorites();
+                (_routeSelectionKey.currentState as dynamic)?.refresh();
               }
             },
             labelType: NavigationRailLabelType.all,

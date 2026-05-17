@@ -768,29 +768,7 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
 
-        // Olvidé contraseña
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (_, animation, __) => const OlvidePasswordScreen(),
-                transitionsBuilder: (_, animation, __, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                transitionDuration: const Duration(milliseconds: 350),
-              ),
-            );
-          },
-          child: Text(
-            '¿Olvidaste tu contraseña?',
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.blueAccent,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
+        // El enlace de "¿Olvidaste tu contraseña?" ha sido ocultado por solicitud.
       ],
     );
   }

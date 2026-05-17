@@ -325,7 +325,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     }
   }
 
-  void refreshFavorites() {
+  void refresh() {
+    _fetchLocations();
     _loadFavorites();
     _fetchUnreadNotificationsCount();
   }
@@ -1501,16 +1502,131 @@ class _PressScaleState extends State<_PressScale> {
   }
 }
 
-class RouteDetailsScreen extends StatelessWidget {
+class RouteDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> route;
 
   const RouteDetailsScreen({super.key, required this.route});
 
   @override
+  State<RouteDetailsScreen> createState() => _RouteDetailsScreenState();
+}
+
+class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
+  late Map<String, dynamic> _currentRoute;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentRoute = Map<String, dynamic>.from(widget.route);
+  }
+
+  Future<void> _refreshRouteData() async {
+    bool updated = false;
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId') ?? '1';
+
+    try {
+      final origin = _currentRoute['origen_busqueda'] ??
+          _currentRoute['origen'] ??
+          _currentRoute['parada_embarque'] ??
+          '';
+      final destination = _currentRoute['destino_busqueda'] ??
+          _currentRoute['destino'] ??
+          _currentRoute['parada_bajada'] ??
+          '';
+
+      final response = await http
+          .post(
+            Uri.parse(ApiService.routesUrl),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              'action': 'search_routes',
+              'origin': origin,
+              'destination': destination
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true && data['rutas'] != null) {
+          final List rutas = data['rutas'];
+          final idRoute = _currentRoute['id_ruta']?.toString() ??
+              _currentRoute['id']?.toString() ??
+              '';
+
+          final updatedRoute = rutas.firstWhere(
+            (r) =>
+                (r['id_ruta']?.toString() ?? r['id']?.toString() ?? '') ==
+                idRoute,
+            orElse: () => null,
+          );
+
+          if (updatedRoute != null && mounted) {
+            setState(() {
+              _currentRoute = {
+                ..._currentRoute,
+                'horarios':
+                    updatedRoute['horarios'] ?? _currentRoute['horarios']
+              };
+            });
+            updated = true;
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error search_routes: $e');
+    }
+
+    if (!updated) {
+      try {
+        final url =
+            '${ApiService.favoritesUrl}?id_usuario=$userId&action=get_favorites';
+        final response =
+            await http.get(Uri.parse(url)).timeout(const Duration(seconds: 15));
+
+        if (response.statusCode == 200) {
+          final decodedResponse = json.decode(response.body);
+          if (decodedResponse is List) {
+            final idRoute = _currentRoute['id_ruta']?.toString() ??
+                _currentRoute['id']?.toString() ??
+                '';
+            final updatedRoute = decodedResponse.firstWhere(
+              (r) =>
+                  (r['id_ruta']?.toString() ?? r['id']?.toString() ?? '') ==
+                  idRoute,
+              orElse: () => null,
+            );
+
+            if (updatedRoute != null && mounted) {
+              setState(() {
+                _currentRoute = {
+                  ..._currentRoute,
+                  'horarios':
+                      updatedRoute['horarios'] ?? _currentRoute['horarios']
+                };
+              });
+              updated = true;
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('Error get_favorites: $e');
+      }
+    }
+
+    if (!updated) {
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final route = _currentRoute;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isTablet = MediaQuery.of(context).size.width > 600;
-    final uniqueSchedules = (route['horarios'] as List)
+    final uniqueSchedules = (route['horarios'] as List? ?? [])
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
               scheduleUniqueKey(Map<String, dynamic>.from(schedule as Map));
@@ -1521,212 +1637,229 @@ class RouteDetailsScreen extends StatelessWidget {
         .toList();
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
-      appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
-        elevation: 0,
-        foregroundColor: isDark ? Colors.white : Colors.black,
-        title: Text(route['empresa_nombre'],
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black)),
-        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black),
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(isTablet ? 24.0 : 16.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints:
-                BoxConstraints(maxWidth: isTablet ? 800 : double.infinity),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (route['es_tramo'] != 1) ...[
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(route['origen'] ?? '',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : Colors.black)),
-                      Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: Icon(Icons.arrow_forward_rounded,
-                              size: 22,
-                              color: isDark
-                                  ? Colors.grey[500]
-                                  : Colors.grey[600])),
-                      Text(route['destino'] ?? '',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : Colors.black)),
+        appBar: AppBar(
+          backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+          elevation: 0,
+          foregroundColor: isDark ? Colors.white : Colors.black,
+          title: Text(route['empresa_nombre'],
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black)),
+          iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black),
+        ),
+        body: RefreshIndicator(
+          onRefresh: _refreshRouteData,
+          color: isDark ? Colors.white : Colors.blueAccent[700],
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.all(isTablet ? 24.0 : 16.0),
+            child: Center(
+              child: ConstrainedBox(
+                constraints:
+                    BoxConstraints(maxWidth: isTablet ? 800 : double.infinity),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (route['es_tramo'] != 1) ...[
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(route['origen'] ?? '',
+                              style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : Colors.black)),
+                          Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6),
+                              child: Icon(Icons.arrow_forward_rounded,
+                                  size: 22,
+                                  color: isDark
+                                      ? Colors.grey[500]
+                                      : Colors.grey[600])),
+                          Text(route['destino'] ?? '',
+                              style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : Colors.black)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                     ],
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                if (route['es_tramo'] == 1) ...[
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(route['parada_embarque'] ?? '-',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : Colors.black)),
-                      Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: Icon(Icons.arrow_forward_rounded,
-                              size: 22,
-                              color: isDark
-                                  ? Colors.grey[500]
-                                  : Colors.grey[600])),
-                      Text(route['parada_bajada'] ?? '-',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : Colors.black)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: Text('✂  Tramo parcial',
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: isDark
-                                  ? Colors.orange[300]
-                                  : Colors.orange[800]))),
-                  const SizedBox(height: 6),
-                  Row(children: [
-                    Text('Ruta completa: ',
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color:
-                                isDark ? Colors.grey[500] : Colors.grey[600])),
-                    Flexible(
-                        child: Text(route['origen'],
+                    if (route['es_tramo'] == 1) ...[
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(route['parada_embarque'] ?? '-',
+                              style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : Colors.black)),
+                          Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6),
+                              child: Icon(Icons.arrow_forward_rounded,
+                                  size: 22,
+                                  color: isDark
+                                      ? Colors.grey[500]
+                                      : Colors.grey[600])),
+                          Text(route['parada_bajada'] ?? '-',
+                              style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : Colors.black)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(8)),
+                          child: Text('✂  Tramo parcial',
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? Colors.orange[300]
+                                      : Colors.orange[800]))),
+                      const SizedBox(height: 6),
+                      Row(children: [
+                        Text('Ruta completa: ',
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: isDark
                                     ? Colors.grey[500]
-                                    : Colors.grey[600]),
-                            overflow: TextOverflow.ellipsis)),
-                    Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Icon(Icons.arrow_forward_rounded,
-                            size: 14,
-                            color:
-                                isDark ? Colors.grey[500] : Colors.grey[500])),
-                    Flexible(
-                        child: Text(route['destino'],
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                                    : Colors.grey[600])),
+                        Flexible(
+                            child: Text(route['origen'],
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: isDark
+                                        ? Colors.grey[500]
+                                        : Colors.grey[600]),
+                                overflow: TextOverflow.ellipsis)),
+                        Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Icon(Icons.arrow_forward_rounded,
+                                size: 14,
                                 color: isDark
                                     ? Colors.grey[500]
-                                    : Colors.grey[600]),
-                            overflow: TextOverflow.ellipsis))
-                  ]),
-                ] else ...[
-                  Row(children: [
-                    Flexible(
-                        child: Text(route['origen'],
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: isDark
-                                    ? Colors.grey[300]
-                                    : Colors.grey[700]),
-                            overflow: TextOverflow.ellipsis)),
-                    Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                        child: Icon(Icons.arrow_forward_rounded,
-                            size: 18,
-                            color:
-                                isDark ? Colors.grey[500] : Colors.grey[600])),
-                    Flexible(
-                        child: Text(route['destino'],
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: isDark
-                                    ? Colors.grey[300]
-                                    : Colors.grey[700]),
-                            overflow: TextOverflow.ellipsis))
-                  ]),
-                ],
-                const SizedBox(height: 16),
-                Divider(color: isDark ? Colors.grey[600] : Colors.grey[300]),
-                const SizedBox(height: 16),
-                Container(
-                  margin: EdgeInsets.zero,
-                  decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: isDark
-                          ? null
-                          : Border.all(color: Colors.grey[200]!, width: 1.5),
-                      boxShadow: [
-                        BoxShadow(
-                            color:
-                                Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8))
+                                    : Colors.grey[500])),
+                        Flexible(
+                            child: Text(route['destino'],
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: isDark
+                                        ? Colors.grey[500]
+                                        : Colors.grey[600]),
+                                overflow: TextOverflow.ellipsis))
                       ]),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Información de la empresa:',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.black)),
-                        const SizedBox(height: 12),
-                        _buildInfoRow(Icons.business_rounded, 'Nombre:',
-                            route['empresa_nombre'],
-                            isDark: isDark),
-                        _buildInfoRow(Icons.phone_rounded, 'Teléfono:',
-                            route['empresa_telefono'],
-                            isDark: isDark),
-                        _buildInfoRow(Icons.location_on_rounded, 'Dirección:',
-                            route['empresa_direccion'] ?? 'No especificada',
-                            isDark: isDark),
-                        _buildInfoRow(Icons.email_rounded, 'Email:',
-                            route['empresa_email'] ?? 'No especificado',
-                            isDark: isDark),
-                      ],
+                    ] else ...[
+                      Row(children: [
+                        Flexible(
+                            child: Text(route['origen'],
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: isDark
+                                        ? Colors.grey[300]
+                                        : Colors.grey[700]),
+                                overflow: TextOverflow.ellipsis)),
+                        Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: Icon(Icons.arrow_forward_rounded,
+                                size: 18,
+                                color: isDark
+                                    ? Colors.grey[500]
+                                    : Colors.grey[600])),
+                        Flexible(
+                            child: Text(route['destino'],
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: isDark
+                                        ? Colors.grey[300]
+                                        : Colors.grey[700]),
+                                overflow: TextOverflow.ellipsis))
+                      ]),
+                    ],
+                    const SizedBox(height: 16),
+                    Divider(
+                        color: isDark ? Colors.grey[600] : Colors.grey[300]),
+                    const SizedBox(height: 16),
+                    Container(
+                      margin: EdgeInsets.zero,
+                      decoration: BoxDecoration(
+                          color:
+                              isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: isDark
+                              ? null
+                              : Border.all(
+                                  color: Colors.grey[200]!, width: 1.5),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black
+                                    .withOpacity(isDark ? 0.3 : 0.05),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8))
+                          ]),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Información de la empresa:',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        isDark ? Colors.white : Colors.black)),
+                            const SizedBox(height: 12),
+                            _buildInfoRow(Icons.business_rounded, 'Nombre:',
+                                route['empresa_nombre'],
+                                isDark: isDark),
+                            _buildInfoRow(Icons.phone_rounded, 'Teléfono:',
+                                route['empresa_telefono'],
+                                isDark: isDark),
+                            _buildInfoRow(
+                                Icons.location_on_rounded,
+                                'Dirección:',
+                                route['empresa_direccion'] ?? 'No especificada',
+                                isDark: isDark),
+                            _buildInfoRow(Icons.email_rounded, 'Email:',
+                                route['empresa_email'] ?? 'No especificado',
+                                isDark: isDark),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    Divider(
+                        color: isDark ? Colors.grey[600] : Colors.grey[300]),
+                    const SizedBox(height: 16),
+                    Text('Horarios disponibles:',
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black)),
+                    const SizedBox(height: 20),
+                    ...uniqueSchedules
+                        .map((horario) => _ScheduleCard(
+                            route: route, horario: horario, isDark: isDark))
+                        .toList(),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Divider(color: isDark ? Colors.grey[600] : Colors.grey[300]),
-                const SizedBox(height: 16),
-                Text('Horarios disponibles:',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black)),
-                const SizedBox(height: 20),
-                ...uniqueSchedules
-                    .map((horario) => _ScheduleCard(
-                        route: route, horario: horario, isDark: isDark))
-                    .toList(),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _buildInfoRow(IconData icon, String label, String? value,
@@ -1821,29 +1954,26 @@ class _ScheduleCardState extends State<_ScheduleCard> {
     if (cap <= 0 || disp < 0) {
       return Padding(
         padding: const EdgeInsets.all(4.0),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon,
-                size: 20,
-                color: iconColor ??
-                    (isDark ? Colors.grey[500] : Colors.grey[600])),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: isDark ? Colors.grey[500] : Colors.grey[600],
-                          fontSize: 13)),
-                  Text('${cap > 0 ? cap : 'N/A'} pasajeros (Capacidad total)',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: isDark ? Colors.white : Colors.black,
-                          fontSize: 14)),
-                ],
-              ),
+            Row(
+              children: [
+                Icon(icon,
+                    size: 20,
+                    color: iconColor ??
+                        (isDark ? Colors.grey[500] : Colors.grey[600])),
+                const SizedBox(width: 8),
+                Text(label,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isDark ? Colors.grey[500] : Colors.grey[600],
+                        fontSize: 13)),
+              ],
             ),
+            const SizedBox(height: 8),
+            Text('${cap > 0 ? cap : 'N/A'} pasajeros (Capacidad total)',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: isDark ? Colors.white : Colors.black, fontSize: 14)),
           ],
         ),
       );
@@ -1895,64 +2025,101 @@ class _ScheduleCardState extends State<_ScheduleCard> {
 
     return Padding(
       padding: const EdgeInsets.all(4.0),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon,
-              size: 20,
-              color:
-                  iconColor ?? (isDark ? Colors.grey[500] : Colors.grey[600])),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: isDark ? Colors.grey[500] : Colors.grey[600],
-                        fontSize: 13)),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: Container(
-                      height: 8,
-                      width: double.infinity,
-                      color: isDark ? Colors.grey[800] : Colors.grey[300],
-                      child: FractionallySizedBox(
-                          alignment: Alignment.centerLeft,
-                          widthFactor: ratio.clamp(0.0, 1.0),
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  color: progressColor,
-                                  borderRadius: BorderRadius.circular(4))))),
-                ),
-                const SizedBox(height: 8),
-                RichText(
-                    text: TextSpan(
-                        style: TextStyle(
-                            fontSize: 14,
-                            color:
-                                isDark ? Colors.grey[300] : Colors.grey[800]),
+          Row(
+            children: [
+              Icon(icon,
+                  size: 20,
+                  color: iconColor ??
+                      (isDark ? Colors.grey[500] : Colors.grey[600])),
+              const SizedBox(width: 8),
+              Text(label,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                      fontSize: 13)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 54,
+                height: 54,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CircularProgressIndicator(
+                      value: 1.0,
+                      strokeWidth: 5,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          isDark ? Colors.grey[800]! : Colors.grey[300]!),
+                    ),
+                    CircularProgressIndicator(
+                      value: ratio.clamp(0.0, 1.0),
+                      strokeWidth: 5,
+                      valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                      TextSpan(
-                          text: '$disp',
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(text: ' de $cap lugares disponibles')
-                    ])),
-                const SizedBox(height: 6),
-                Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                        color: pillBgColor,
-                        borderRadius: BorderRadius.circular(12)),
-                    child: Text(statusText,
-                        style: TextStyle(
-                            color: pillTextColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600))),
-              ],
-            ),
+                          Text('$disp',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : Colors.black,
+                                  height: 1.0)),
+                          Text('de $cap',
+                              style: TextStyle(
+                                  fontSize: 9,
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
+                                  height: 1.2)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                        text: TextSpan(
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: isDark
+                                    ? Colors.grey[300]
+                                    : Colors.grey[800]),
+                            children: [
+                          TextSpan(
+                              text: '$disp',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(text: ' de $cap lugares disponibles')
+                        ])),
+                    const SizedBox(height: 8),
+                    Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                            color: pillBgColor,
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Text(statusText,
+                            style: TextStyle(
+                                color: pillTextColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600))),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),

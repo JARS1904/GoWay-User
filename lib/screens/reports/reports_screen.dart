@@ -18,7 +18,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   bool get _isTablet => MediaQuery.of(context).size.width >= 600;
 
-  void refresh() => setState(() {});
+  void refresh() => _loadReportsFromServer();
 
   @override
   void initState() {

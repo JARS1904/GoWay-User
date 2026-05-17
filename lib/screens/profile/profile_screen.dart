@@ -53,6 +53,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
   }
 
+  void refresh() => setState(() {});
+
   @override
   Widget build(BuildContext context) {
     final bool isTablet = MediaQuery.of(context).size.width >= 600;
