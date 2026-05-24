@@ -337,7 +337,13 @@ class _ReportCardState extends State<_ReportCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          report['tipo_incidente'] as String? ?? '-',
+                          //report['tipo_incidente'] as String? ?? '-',
+                          (report['tipo_incidente'] as String? ?? '-')
+                              .split(' ')
+                              .map((w) => w.isEmpty
+                                  ? ''
+                                  : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+                              .join(' '),
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
@@ -464,9 +470,12 @@ class _ReportCardState extends State<_ReportCard> {
                             context,
                             Icons.route_outlined,
                             'Ruta',
+                            report['ruta_nombre'] ?? '-',
+                            /*
                             report['ruta_nombre'] != null
                                 ? '${report['ruta_nombre']} (${report['origen']} → ${report['destino']})'
                                 : '-',
+                            */
                             isDark,
                           ),
                           const SizedBox(height: 6),
@@ -1335,7 +1344,7 @@ class _AssignmentInfoCard extends StatelessWidget {
           _InfoLine(
             icon: Icons.directions_car,
             text:
-                '${data['vehiculo_placa']} — ${data['vehiculo_modelo'] ?? ''}',
+                '${data['vehiculo_placa']} - ${data['vehiculo_modelo'] ?? ''}',
           ),
           const SizedBox(height: 4),
           _InfoLine(
@@ -1344,7 +1353,8 @@ class _AssignmentInfoCard extends StatelessWidget {
           const SizedBox(height: 4),
           _InfoLine(
             icon: Icons.route,
-            text: '$rName ($rOri -> $rDes)',
+            text: rName,
+            //text: '$rName ($rOri -> $rDes)',
           ),
         ],
       ),
