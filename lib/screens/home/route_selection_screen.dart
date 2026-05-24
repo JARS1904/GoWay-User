@@ -1549,29 +1549,29 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success'] == true && data['rutas'] != null) {
-          final List rutas = data['rutas'];
-          final idRoute = _currentRoute['id_ruta']?.toString() ??
-              _currentRoute['id']?.toString() ??
-              '';
+        // La API devuelve un array plano de rutas
+        final List rutas = data is List ? data : (data['rutas'] as List? ?? []);
+        final idRoute = _currentRoute['id_ruta']?.toString() ??
+            _currentRoute['id']?.toString() ??
+            '';
 
-          final updatedRoute = rutas.firstWhere(
-            (r) =>
-                (r['id_ruta']?.toString() ?? r['id']?.toString() ?? '') ==
-                idRoute,
-            orElse: () => null,
-          );
+        final updatedRoute = rutas.cast<Map<String, dynamic>>().firstWhere(
+              (r) =>
+                  (r['id_ruta']?.toString() ?? r['id']?.toString() ?? '') ==
+                  idRoute,
+              orElse: () => <String, dynamic>{},
+            );
 
-          if (updatedRoute != null && mounted) {
-            setState(() {
-              _currentRoute = {
-                ..._currentRoute,
-                'horarios':
-                    updatedRoute['horarios'] ?? _currentRoute['horarios']
-              };
-            });
-            updated = true;
-          }
+        if (updatedRoute.isNotEmpty && mounted) {
+          setState(() {
+            _currentRoute = {
+              ..._currentRoute,
+              'horarios': updatedRoute['horarios'] ?? _currentRoute['horarios'],
+              'paradas_ruta':
+                  updatedRoute['paradas_ruta'] ?? _currentRoute['paradas_ruta'],
+            };
+          });
+          updated = true;
         }
       }
     } catch (e) {
