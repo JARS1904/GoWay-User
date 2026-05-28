@@ -5,6 +5,7 @@ class NotificationModel {
   final String titulo;
   final String mensaje;
   final String tipo;
+  final String destinatarioTipo;
   final int leido;
   final String fechaCreacion;
 
@@ -15,6 +16,7 @@ class NotificationModel {
     required this.titulo,
     required this.mensaje,
     required this.tipo,
+    required this.destinatarioTipo,
     required this.leido,
     required this.fechaCreacion,
   });
@@ -33,6 +35,7 @@ class NotificationModel {
       titulo: json['titulo'] ?? '',
       mensaje: json['mensaje'] ?? '',
       tipo: json['tipo'] ?? 'general',
+      destinatarioTipo: json['destinatario_tipo'] ?? 'usuarios',
       leido: json['leido'] is int
           ? json['leido']
           : int.tryParse(json['leido'].toString()) ?? 0,
