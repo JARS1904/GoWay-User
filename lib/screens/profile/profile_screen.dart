@@ -599,7 +599,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
   void _showTermsAndConditions() {
     Navigator.push(
       context,

@@ -294,6 +294,20 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   int _unreadNotifications = 0;
   Timer? _notificationTimer;
   bool _photoLoadError = false;
+  int _currentSchedulePage = 0;
+  final int _schedulesPerPage = 5;
+  final GlobalKey _schedulesTitleKey = GlobalKey();
+
+  void _scrollToSchedules() {
+    if (_schedulesTitleKey.currentContext != null) {
+      Scrollable.ensureVisible(
+        _schedulesTitleKey.currentContext!,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        alignment: 0.05,
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -426,6 +440,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
       _loading = true;
       _routes = [];
       _selectedRoute = null;
+      _currentSchedulePage = 0;
     });
 
     try {
@@ -504,8 +519,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     );
   }
 
-  void _selectRoute(Map<String, dynamic> route) =>
-      setState(() => _selectedRoute = route);
+  void _selectRoute(Map<String, dynamic> route) {
+    setState(() {
+      _selectedRoute = route;
+      _currentSchedulePage = 0;
+    });
+  }
+
   bool get _isTablet => MediaQuery.of(context).size.width >= 600;
 
   /// Avatar de usuario (con borde)
@@ -678,6 +698,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                 _origin = newValue;
                 _routes = [];
                 _selectedRoute = null;
+                _currentSchedulePage = 0;
               }),
             ),
             const SizedBox(height: 16),
@@ -731,6 +752,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                 _destination = newValue;
                 _routes = [];
                 _selectedRoute = null;
+                _currentSchedulePage = 0;
               }),
             ),
             const SizedBox(height: 24),
@@ -833,6 +855,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                             _origin = v;
                             _routes = [];
                             _selectedRoute = null;
+                            _currentSchedulePage = 0;
                           }),
                       isDark),
                   const SizedBox(height: 16),
@@ -843,6 +866,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                             _destination = v;
                             _routes = [];
                             _selectedRoute = null;
+                            _currentSchedulePage = 0;
                           }),
                       isDark),
                   const SizedBox(height: 24),
@@ -1429,13 +1453,151 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 16),
-          const Text('Horarios disponibles:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Row(
+            key: _schedulesTitleKey,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Horarios disponibles:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  '${uniqueSchedules.length}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isDark
+                        ? Colors.blueAccent[100]
+                        : Colors.blueAccent[700],
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
-          ...uniqueSchedules
-              .map((horario) =>
-                  _ScheduleCard(route: route, horario: horario, isDark: isDark))
-              .toList(),
+          // ── Horarios paginados ─────────────────────────────
+          Builder(
+            builder: (context) {
+              final totalPages =
+                  (uniqueSchedules.length / _schedulesPerPage).ceil();
+              final startIndex = _currentSchedulePage * _schedulesPerPage;
+              final endIndex = (startIndex + _schedulesPerPage)
+                  .clamp(0, uniqueSchedules.length);
+              final paginatedSchedules =
+                  uniqueSchedules.sublist(startIndex, endIndex);
+
+              return Column(
+                children: [
+                  Column(
+                    children: paginatedSchedules
+                        .asMap()
+                        .entries
+                        .map((entry) => _StaggeredItem(
+                              key: ValueKey(
+                                  '${_currentSchedulePage}_${entry.key}'),
+                              index: entry.key,
+                              pageKey: _currentSchedulePage,
+                              child: _ScheduleCard(
+                                  route: route,
+                                  horario: entry.value,
+                                  isDark: isDark),
+                            ))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 24),
+                  // ── Controles de paginación modernos ────────────
+                  if (totalPages > 1)
+                    Container(
+                      decoration: BoxDecoration(
+                        color:
+                            isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(30),
+                        border: isDark
+                            ? null
+                            : Border.all(color: Colors.grey[300]!, width: 1),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          InkWell(
+                            onTap: _currentSchedulePage > 0
+                                ? () {
+                                    setState(() => _currentSchedulePage--);
+                                    _scrollToSchedules();
+                                  }
+                                : null,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: _currentSchedulePage > 0
+                                    ? Colors.blueAccent[700]
+                                    : Colors.transparent,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.arrow_back_ios_rounded,
+                                size: 16,
+                                color: _currentSchedulePage > 0
+                                    ? Colors.white
+                                    : (isDark
+                                        ? Colors.grey[600]
+                                        : Colors.grey[400]),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Text(
+                            'Página ${_currentSchedulePage + 1} de $totalPages',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color:
+                                  isDark ? Colors.grey[300] : Colors.grey[800],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          InkWell(
+                            onTap: _currentSchedulePage < totalPages - 1
+                                ? () {
+                                    setState(() => _currentSchedulePage++);
+                                    _scrollToSchedules();
+                                  }
+                                : null,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: _currentSchedulePage < totalPages - 1
+                                    ? Colors.blueAccent[700]
+                                    : Colors.transparent,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 16,
+                                color: _currentSchedulePage < totalPages - 1
+                                    ? Colors.white
+                                    : (isDark
+                                        ? Colors.grey[600]
+                                        : Colors.grey[400]),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
         ],
       ),
     );
@@ -1513,11 +1675,26 @@ class RouteDetailsScreen extends StatefulWidget {
 
 class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
   late Map<String, dynamic> _currentRoute;
+  int _currentSchedulePage = 0;
+  final int _schedulesPerPage = 5;
+  final GlobalKey _schedulesTitleKey = GlobalKey();
+
+  void _scrollToSchedules() {
+    if (_schedulesTitleKey.currentContext != null) {
+      Scrollable.ensureVisible(
+        _schedulesTitleKey.currentContext!,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        alignment: 0.05,
+      );
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _currentRoute = Map<String, dynamic>.from(widget.route);
+    _currentSchedulePage = 0;
   }
 
   Future<void> _refreshRouteData() async {
@@ -1845,15 +2022,137 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                         color: isDark ? Colors.grey[600] : Colors.grey[300]),
                     const SizedBox(height: 16),
                     Text('Horarios disponibles:',
+                        key: _schedulesTitleKey,
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: isDark ? Colors.white : Colors.black)),
                     const SizedBox(height: 20),
-                    ...uniqueSchedules
-                        .map((horario) => _ScheduleCard(
-                            route: route, horario: horario, isDark: isDark))
-                        .toList(),
+                    Builder(
+                      builder: (context) {
+                        final totalPages =
+                            (uniqueSchedules.length / _schedulesPerPage).ceil();
+                        final startIndex =
+                            _currentSchedulePage * _schedulesPerPage;
+                        final endIndex = (startIndex + _schedulesPerPage)
+                            .clamp(0, uniqueSchedules.length);
+                        final paginatedSchedules =
+                            uniqueSchedules.sublist(startIndex, endIndex);
+
+                        return Column(
+                          children: [
+                            Column(
+                              children: paginatedSchedules
+                                  .asMap()
+                                  .entries
+                                  .map((entry) => _StaggeredItem(
+                                        key: ValueKey(
+                                            '${_currentSchedulePage}_${entry.key}'),
+                                        index: entry.key,
+                                        pageKey: _currentSchedulePage,
+                                        child: _ScheduleCard(
+                                            route: route,
+                                            horario: entry.value,
+                                            isDark: isDark),
+                                      ))
+                                  .toList(),
+                            ),
+                            const SizedBox(height: 24),
+                            if (totalPages > 1)
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(0xFF2A2A2A)
+                                      : Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: isDark
+                                      ? null
+                                      : Border.all(
+                                          color: Colors.grey[300]!, width: 1),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 8),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    InkWell(
+                                      onTap: _currentSchedulePage > 0
+                                          ? () {
+                                              setState(
+                                                  () => _currentSchedulePage--);
+                                              _scrollToSchedules();
+                                            }
+                                          : null,
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: _currentSchedulePage > 0
+                                              ? Colors.blueAccent[700]
+                                              : Colors.transparent,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.arrow_back_ios_rounded,
+                                          size: 16,
+                                          color: _currentSchedulePage > 0
+                                              ? Colors.white
+                                              : (isDark
+                                                  ? Colors.grey[600]
+                                                  : Colors.grey[400]),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 20),
+                                    Text(
+                                      'Página ${_currentSchedulePage + 1} de $totalPages',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: isDark
+                                            ? Colors.grey[300]
+                                            : Colors.grey[800],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 20),
+                                    InkWell(
+                                      onTap: _currentSchedulePage <
+                                              totalPages - 1
+                                          ? () {
+                                              setState(
+                                                  () => _currentSchedulePage++);
+                                              _scrollToSchedules();
+                                            }
+                                          : null,
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: _currentSchedulePage <
+                                                  totalPages - 1
+                                              ? Colors.blueAccent[700]
+                                              : Colors.transparent,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.arrow_forward_ios_rounded,
+                                          size: 16,
+                                          color: _currentSchedulePage <
+                                                  totalPages - 1
+                                              ? Colors.white
+                                              : (isDark
+                                                  ? Colors.grey[600]
+                                                  : Colors.grey[400]),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -2501,6 +2800,66 @@ class _ScheduleCardState extends State<_ScheduleCard> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StaggeredItem extends StatefulWidget {
+  final Widget child;
+  final int index;
+  final int pageKey;
+
+  const _StaggeredItem({
+    super.key,
+    required this.child,
+    required this.index,
+    required this.pageKey,
+  });
+
+  @override
+  State<_StaggeredItem> createState() => _StaggeredItemState();
+}
+
+class _StaggeredItemState extends State<_StaggeredItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0.0, 0.1), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+
+    Future.delayed(Duration(milliseconds: widget.index * 60), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: widget.child,
       ),
     );
   }
