@@ -10,7 +10,7 @@ class OlvidePasswordScreen extends StatefulWidget {
 class _OlvidePasswordScreenState extends State<OlvidePasswordScreen>
     with TickerProviderStateMixin {
   final _emailController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  //final _formKey = GlobalKey<FormState>();
 
   late final AnimationController _entryController;
 

@@ -3,7 +3,7 @@ import 'package:goway_user/screens/auth/registro_screen.dart';
 import 'package:goway_user/services/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:goway_user/screens/auth/olvide_password_screen.dart';
+//import 'package:goway_user/screens/auth/olvide_password_screen.dart';
 import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
