@@ -337,9 +337,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        border: isDark
-            ? null
-            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        border:
+            isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
@@ -597,65 +596,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildLogoutButton(bool isDark, {bool tabletMode = false}) {
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.symmetric(vertical: tabletMode ? 8 : 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.red.withValues(alpha: 0.1),
-        border: isDark
-            ? null
-            : Border.all(color: Colors.grey[200]!, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showLogoutDialog(),
-          borderRadius: BorderRadius.circular(15),
-          child: ListTile(
-            leading: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                Icons.logout,
-                size: tabletMode ? 28 : 24,
-                color: Colors.red[600],
-              ),
-            ),
-            title: Text(
-              'Cerrar Sesión',
-              style: TextStyle(
-                fontSize: tabletMode ? 20 : 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.red[600],
-              ),
-            ),
-            trailing: Icon(
-              Icons.chevron_right,
-              size: tabletMode ? 30 : 24,
-              color: Colors.red[400],
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              vertical: tabletMode ? 12 : 8,
-              horizontal: tabletMode ? 16 : 8,
-            ),
-          ),
-        ),
-      ),
     );
   }
 
