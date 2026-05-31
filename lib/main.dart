@@ -298,6 +298,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   String _userName = 'Usuario';
   String _userEmail = 'email@ejemplo.com';
   String? _userPhotoUrl;
+  int? _userId;
+  String? _userPhone;
+  String? _userRegistrationDate;
+  String? _userType;
   bool _isLoading = true;
 
   @override
@@ -313,6 +317,11 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         _userName = prefs.getString('userName') ?? 'Usuario';
         _userEmail = prefs.getString('userEmail') ?? 'email@ejemplo.com';
         _userPhotoUrl = prefs.getString('userPhotoUrl');
+        final rawId = prefs.getString('userId') ?? prefs.getInt('userId')?.toString();
+        _userId = rawId != null ? int.tryParse(rawId) : null;
+        _userPhone = prefs.getString('userPhone');
+        _userRegistrationDate = prefs.getString('userRegistrationDate');
+        _userType = prefs.getString('userType');
         _isLoading = false;
       });
       _initializeScreens();
@@ -333,6 +342,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         userName: _userName,
         userEmail: _userEmail,
         userPhotoUrl: _userPhotoUrl,
+        userId: _userId,
+        userPhone: _userPhone,
+        userRegistrationDate: _userRegistrationDate,
+        userType: _userType,
         onThemeChange: widget.onThemeChange,
       ),
     ];
