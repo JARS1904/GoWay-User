@@ -1231,7 +1231,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                 ));
                               }
                             } catch (e) {
-                              if (mounted)
+                              if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Row(children: [
@@ -1251,6 +1251,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                         margin: const EdgeInsets.fromLTRB(
                                             16, 16, 16, 96),
                                         duration: const Duration(seconds: 3)));
+                              }
                             }
                           },
                           child: Icon(
@@ -2425,6 +2426,11 @@ class _ScheduleCardState extends State<_ScheduleCard> {
     );
   }
 
+  /// Returns true if the schedule is in a terminal state (no longer available).
+  bool _isDisabledState(String estadoDisplay) {
+    return estadoDisplay == 'Completado' || estadoDisplay == 'Cancelado';
+  }
+
   @override
   Widget build(BuildContext context) {
     final route = widget.route;
@@ -2434,374 +2440,400 @@ class _ScheduleCardState extends State<_ScheduleCard> {
     final estadoDisplay = scheduleEstadoDisplayLabel(horario);
     final tipoDiaStr =
         (horario['tipo_dia'] ?? horario['dia_semana'] ?? '-').toString();
+    final isDisabled = _isDisabledState(estadoDisplay);
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border:
-            isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-              blurRadius: 20,
-              offset: const Offset(0, 8))
-        ],
-      ),
-      child: InkWell(
-        onTap: () => setState(() => _expanded = !_expanded),
-        borderRadius: BorderRadius.circular(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Icon(Icons.calendar_month_rounded,
-                          color: Colors.green[700], size: 22)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    // Disabled appearance: muted background + reduced opacity
+    final cardColor = isDisabled
+        ? (isDark ? const Color(0xFF181818) : Colors.grey[100]!)
+        : (isDark ? const Color(0xFF1E1E1E) : Colors.white);
+
+    return Opacity(
+      opacity: isDisabled ? 0.55 : 1.0,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: isDark
+              ? null
+              : Border.all(
+                  color: isDisabled ? Colors.grey[300]! : Colors.grey[200]!,
+                  width: 1.5),
+          boxShadow: isDisabled
+              ? []
+              : [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8))
+                ],
+        ),
+        child: InkWell(
+          // Disable tap entirely for completed/cancelled schedules
+          onTap:
+              isDisabled ? null : () => setState(() => _expanded = !_expanded),
+          borderRadius: BorderRadius.circular(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Icon(Icons.calendar_month_rounded,
+                            color: Colors.green[700], size: 22)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(route['empresa_nombre'],
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_rounded,
+                                  size: 12, color: Colors.blue),
+                              const SizedBox(width: 2),
+                              Flexible(
+                                  child: Text(route['origen'],
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                              color: isDark
+                                                  ? Colors.grey[500]
+                                                  : Colors.grey[600],
+                                              fontWeight: FontWeight.w500),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis)),
+                              const SizedBox(width: 4),
+                              Icon(Icons.arrow_forward,
+                                  size: 11,
+                                  color: isDark
+                                      ? Colors.grey[500]
+                                      : Colors.grey[600]),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.location_on_rounded,
+                                  size: 12, color: Colors.red),
+                              const SizedBox(width: 2),
+                              Flexible(
+                                  child: Text(route['destino'],
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                              color: isDark
+                                                  ? Colors.grey[500]
+                                                  : Colors.grey[600],
+                                              fontWeight: FontWeight.w500),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          EstadoAsignacionCapsule(
+                              displayLabel: estadoDisplay, isDark: isDark),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(route['empresa_nombre'],
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on_rounded,
-                                size: 12, color: Colors.blue),
-                            const SizedBox(width: 2),
-                            Flexible(
-                                child: Text(route['origen'],
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                            color: isDark
-                                                ? Colors.grey[500]
-                                                : Colors.grey[600],
-                                            fontWeight: FontWeight.w500),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis)),
-                            const SizedBox(width: 4),
-                            Icon(Icons.arrow_forward,
-                                size: 11,
-                                color: isDark
-                                    ? Colors.grey[500]
-                                    : Colors.grey[600]),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.location_on_rounded,
-                                size: 12, color: Colors.red),
-                            const SizedBox(width: 2),
-                            Flexible(
-                                child: Text(route['destino'],
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                            color: isDark
-                                                ? Colors.grey[500]
-                                                : Colors.grey[600],
-                                            fontWeight: FontWeight.w500),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis)),
-                          ],
-                        ),
+                        Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                                color: Colors.green.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Text(tipoDiaStr,
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark
+                                        ? Colors.green[300]
+                                        : Colors.green[800],
+                                    letterSpacing: 0.3))),
                         const SizedBox(height: 6),
-                        EstadoAsignacionCapsule(
-                            displayLabel: estadoDisplay, isDark: isDark),
+                        Icon(
+                            isDisabled
+                                ? Icons.lock_outline_rounded
+                                : (_expanded
+                                    ? Icons.keyboard_arrow_up_rounded
+                                    : Icons.keyboard_arrow_down_rounded),
+                            size: 20,
+                            color: isDisabled
+                                ? (isDark ? Colors.grey[600] : Colors.grey[400])
+                                : (isDark
+                                    ? Colors.grey[500]
+                                    : Colors.grey[600])),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Text(tipoDiaStr,
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: isDark
-                                      ? Colors.green[300]
-                                      : Colors.green[800],
-                                  letterSpacing: 0.3))),
-                      const SizedBox(height: 6),
-                      Icon(
-                          _expanded
-                              ? Icons.keyboard_arrow_up_rounded
-                              : Icons.keyboard_arrow_down_rounded,
-                          size: 20,
-                          color: isDark ? Colors.grey[500] : Colors.grey[600]),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            // ── Divider 1 — borde a borde ────────────────────────
-            const SizedBox(height: 12),
-            Container(
-              height: 1,
-              color: isDark ? Colors.white12 : Colors.grey[200],
-            ),
-            const SizedBox(height: 10),
-            // ── Horas con padding ─────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: _infoRow(
-                          context,
-                          Icons.directions_bus_rounded,
-                          route['es_tramo'] == 1 ? 'Abordaje' : 'Salida',
-                          (route['es_tramo'] == 1 &&
-                                  horario['hora_abordaje'] != null)
-                              ? horario['hora_abordaje']
-                              : (horario['hora_salida'] ?? '-'),
-                          isDark,
-                          iconColor: Colors.blue)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                      child: _infoRow(
-                          context,
-                          Icons.directions_bus_rounded,
-                          route['es_tramo'] == 1 ? 'Bajada' : 'Llegada',
-                          (route['es_tramo'] == 1 &&
-                                  horario['hora_bajada'] != null)
-                              ? horario['hora_bajada']
-                              : (horario['hora_llegada'] ?? '-'),
-                          isDark,
-                          iconColor: Colors.redAccent)),
-                ],
+              // ── Divider 1 — borde a borde ────────────────────────
+              const SizedBox(height: 12),
+              Container(
+                height: 1,
+                color: isDark ? Colors.white12 : Colors.grey[200],
               ),
-            ),
-            // ── Contenido expandible ──────────────────────────────
-            AnimatedSize(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              child: _expanded
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _infoRow(
-                                  context,
-                                  Icons.refresh_rounded,
-                                  'Frecuencia',
-                                  horario['frecuencia']?.toString() ?? '-',
-                                  isDark,
-                                  iconColor: Colors.orange[700]),
-                              if (route['es_tramo'] == 1) ...[
-                                const SizedBox(height: 6),
+              const SizedBox(height: 10),
+              // ── Horas con padding ─────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: _infoRow(
+                            context,
+                            Icons.directions_bus_rounded,
+                            route['es_tramo'] == 1 ? 'Abordaje' : 'Salida',
+                            (route['es_tramo'] == 1 &&
+                                    horario['hora_abordaje'] != null)
+                                ? horario['hora_abordaje']
+                                : (horario['hora_salida'] ?? '-'),
+                            isDark,
+                            iconColor: Colors.blue)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                        child: _infoRow(
+                            context,
+                            Icons.directions_bus_rounded,
+                            route['es_tramo'] == 1 ? 'Bajada' : 'Llegada',
+                            (route['es_tramo'] == 1 &&
+                                    horario['hora_bajada'] != null)
+                                ? horario['hora_bajada']
+                                : (horario['hora_llegada'] ?? '-'),
+                            isDark,
+                            iconColor: Colors.redAccent)),
+                  ],
+                ),
+              ),
+              // ── Contenido expandible ──────────────────────────────
+              AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                child: _expanded
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 _infoRow(
                                     context,
-                                    Icons.schedule_rounded,
-                                    'Salida de ruta',
-                                    horario['hora_salida'] ?? '-',
+                                    Icons.refresh_rounded,
+                                    'Frecuencia',
+                                    horario['frecuencia']?.toString() ?? '-',
                                     isDark,
-                                    iconColor: Colors.grey[600]),
-                                const SizedBox(height: 6),
-                                _infoRow(
-                                    context,
-                                    Icons.schedule_rounded,
-                                    'Llegada de ruta',
-                                    horario['hora_llegada'] ?? '-',
-                                    isDark,
-                                    iconColor: Colors.grey[600]),
+                                    iconColor: Colors.orange[700]),
+                                if (route['es_tramo'] == 1) ...[
+                                  const SizedBox(height: 6),
+                                  _infoRow(
+                                      context,
+                                      Icons.schedule_rounded,
+                                      'Salida de ruta',
+                                      horario['hora_salida'] ?? '-',
+                                      isDark,
+                                      iconColor: Colors.grey[600]),
+                                  const SizedBox(height: 6),
+                                  _infoRow(
+                                      context,
+                                      Icons.schedule_rounded,
+                                      'Llegada de ruta',
+                                      horario['hora_llegada'] ?? '-',
+                                      isDark,
+                                      iconColor: Colors.grey[600]),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
-                        ),
-                        // ── Divider 2 — borde a borde ────────────
-                        const SizedBox(height: 10),
-                        Container(
-                          height: 1,
-                          color: isDark ? Colors.white12 : Colors.grey[200],
-                        ),
-                        const SizedBox(height: 10),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _infoRow(
-                                  context,
-                                  Icons.person_rounded,
-                                  'Conductor',
-                                  horario['conductor_nombre'] ?? 'N/A',
-                                  isDark,
-                                  iconColor: Colors.blue[800]),
-                              const SizedBox(height: 6),
-                              _infoRow(
-                                  context,
-                                  Icons.directions_bus_rounded,
-                                  'Vehículo',
-                                  horario['vehiculo_modelo'] ?? 'N/A',
-                                  isDark,
-                                  iconColor: Colors.blue[700]),
-                              const SizedBox(height: 6),
-                              _infoRow(
-                                  context,
-                                  Icons.confirmation_number_rounded,
-                                  'Placa',
-                                  horario['vehiculo_placa'] ?? 'N/A',
-                                  isDark,
-                                  iconColor: Colors.orange[800]),
-                              const SizedBox(height: 6),
-                              _badgeInfoRow(
-                                  context,
-                                  Icons.event_seat_rounded,
-                                  'Disponibilidad de asientos',
-                                  horario['asientos_disponibles'],
-                                  horario['vehiculo_capacidad'],
-                                  isDark,
-                                  iconColor:
-                                      const Color.fromARGB(255, 246, 186, 66)),
-                            ],
-                          ),
-                        ),
-                        if ((route['paradas_ruta'] as List?)?.isNotEmpty ==
-                            true) ...[
-                          // ── Divider 3 — borde a borde ──────────
-                          const SizedBox(height: 16),
+                          // ── Divider 2 — borde a borde ────────────
+                          const SizedBox(height: 10),
                           Container(
                             height: 1,
                             color: isDark ? Colors.white12 : Colors.grey[200],
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 10),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.route_rounded,
-                                      size: 20, color: Colors.amber.shade700),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Paradas',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .labelSmall
-                                                ?.copyWith(
-                                                    color: isDark
-                                                        ? Colors.grey[500]
-                                                        : Colors.grey[600],
-                                                    fontSize: 13)),
-                                        const SizedBox(height: 8),
-                                        StopsTimeline(
-                                            stops:
-                                                (route['paradas_ruta'] as List),
-                                            lineColor: Colors.amber.shade700,
-                                            isDark: isDark,
-                                            highlightStart:
-                                                route['es_tramo'] == 1
-                                                    ? route['parada_embarque']
-                                                    : null,
-                                            highlightEnd: route['es_tramo'] == 1
-                                                ? route['parada_bajada']
-                                                : null),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _infoRow(
+                                    context,
+                                    Icons.person_rounded,
+                                    'Conductor',
+                                    horario['conductor_nombre'] ?? 'N/A',
+                                    isDark,
+                                    iconColor: Colors.blue[800]),
+                                const SizedBox(height: 6),
+                                _infoRow(
+                                    context,
+                                    Icons.directions_bus_rounded,
+                                    'Vehículo',
+                                    horario['vehiculo_modelo'] ?? 'N/A',
+                                    isDark,
+                                    iconColor: Colors.blue[700]),
+                                const SizedBox(height: 6),
+                                _infoRow(
+                                    context,
+                                    Icons.confirmation_number_rounded,
+                                    'Placa',
+                                    horario['vehiculo_placa'] ?? 'N/A',
+                                    isDark,
+                                    iconColor: Colors.orange[800]),
+                                const SizedBox(height: 6),
+                                _badgeInfoRow(
+                                    context,
+                                    Icons.event_seat_rounded,
+                                    'Disponibilidad de asientos',
+                                    horario['asientos_disponibles'],
+                                    horario['vehiculo_capacidad'],
+                                    isDark,
+                                    iconColor: const Color.fromARGB(
+                                        255, 246, 186, 66)),
+                              ],
                             ),
                           ),
-                        ] else if ((route['paradas'] as List?)?.isNotEmpty ==
-                            true) ...[
-                          // ── Divider 4 — borde a borde ──────────
+                          if ((route['paradas_ruta'] as List?)?.isNotEmpty ==
+                              true) ...[
+                            // ── Divider 3 — borde a borde ──────────
+                            const SizedBox(height: 16),
+                            Container(
+                              height: 1,
+                              color: isDark ? Colors.white12 : Colors.grey[200],
+                            ),
+                            const SizedBox(height: 12),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(Icons.route_rounded,
+                                        size: 20, color: Colors.amber.shade700),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Paradas',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelSmall
+                                                  ?.copyWith(
+                                                      color: isDark
+                                                          ? Colors.grey[500]
+                                                          : Colors.grey[600],
+                                                      fontSize: 13)),
+                                          const SizedBox(height: 8),
+                                          StopsTimeline(
+                                              stops: (route['paradas_ruta']
+                                                  as List),
+                                              lineColor: Colors.amber.shade700,
+                                              isDark: isDark,
+                                              highlightStart:
+                                                  route['es_tramo'] == 1
+                                                      ? route['parada_embarque']
+                                                      : null,
+                                              highlightEnd:
+                                                  route['es_tramo'] == 1
+                                                      ? route['parada_bajada']
+                                                      : null),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ] else if ((route['paradas'] as List?)?.isNotEmpty ==
+                              true) ...[
+                            // ── Divider 4 — borde a borde ──────────
+                            const SizedBox(height: 16),
+                            Container(
+                              height: 1,
+                              color: isDark ? Colors.white12 : Colors.grey[200],
+                            ),
+                            const SizedBox(height: 12),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(Icons.route_rounded,
+                                        size: 20, color: Colors.amber.shade700),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Paradas',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelSmall
+                                                  ?.copyWith(
+                                                      color: isDark
+                                                          ? Colors.grey[500]
+                                                          : Colors.grey[600],
+                                                      fontSize: 13)),
+                                          const SizedBox(height: 8),
+                                          StopsTimeline(
+                                              stops: (route['paradas'] as List)
+                                                  .map((p) => {'nombre': p})
+                                                  .toList(),
+                                              lineColor: Colors.amber.shade700,
+                                              isDark: isDark,
+                                              highlightStart:
+                                                  route['es_tramo'] == 1
+                                                      ? route['parada_embarque']
+                                                      : null,
+                                              highlightEnd:
+                                                  route['es_tramo'] == 1
+                                                      ? route['parada_bajada']
+                                                      : null),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 16),
-                          Container(
-                            height: 1,
-                            color: isDark ? Colors.white12 : Colors.grey[200],
-                          ),
-                          const SizedBox(height: 12),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.route_rounded,
-                                      size: 20, color: Colors.amber.shade700),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Paradas',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .labelSmall
-                                                ?.copyWith(
-                                                    color: isDark
-                                                        ? Colors.grey[500]
-                                                        : Colors.grey[600],
-                                                    fontSize: 13)),
-                                        const SizedBox(height: 8),
-                                        StopsTimeline(
-                                            stops: (route['paradas'] as List)
-                                                .map((p) => {'nombre': p})
-                                                .toList(),
-                                            lineColor: Colors.amber.shade700,
-                                            isDark: isDark,
-                                            highlightStart:
-                                                route['es_tramo'] == 1
-                                                    ? route['parada_embarque']
-                                                    : null,
-                                            highlightEnd: route['es_tramo'] == 1
-                                                ? route['parada_bajada']
-                                                : null),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
                         ],
-                        const SizedBox(height: 16),
-                      ],
-                    )
-                  : const SizedBox(height: 16),
-            ),
-          ],
+                      )
+                    : const SizedBox(height: 16),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      ), // closes Container
+    ); // closes Opacity
   }
 }
 
