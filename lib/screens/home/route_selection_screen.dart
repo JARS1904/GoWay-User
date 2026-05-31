@@ -783,7 +783,9 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Divider(color: Colors.grey[400], thickness: 2)),
+                child: Divider(
+                    color: isDark ? Colors.grey[800] : Colors.grey[300],
+                    thickness: 1.5)),
             const SizedBox(height: 24),
             if (_loading)
               const Center(child: CircularProgressIndicator())
@@ -899,7 +901,9 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Divider(color: Colors.grey[400], thickness: 2)),
+                      child: Divider(
+                          color: isDark ? Colors.grey[800] : Colors.grey[300],
+                          thickness: 1.5)),
                   const SizedBox(height: 24),
                   if (_loading)
                     const Center(child: CircularProgressIndicator())
