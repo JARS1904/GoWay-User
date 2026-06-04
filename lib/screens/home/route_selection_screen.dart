@@ -1095,13 +1095,24 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                     decoration: BoxDecoration(
                                         color: Colors.orange.withOpacity(0.15),
                                         borderRadius: BorderRadius.circular(8)),
-                                    child: Text('Tramo parcial',
-                                        style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w500,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.content_cut_rounded,
+                                            size: 12,
                                             color: isDark
                                                 ? Colors.orange[300]
-                                                : Colors.orange[800]))),
+                                                : Colors.orange[800]),
+                                        const SizedBox(width: 4),
+                                        Text('Tramo parcial',
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w500,
+                                                color: isDark
+                                                    ? Colors.orange[300]
+                                                    : Colors.orange[800])),
+                                      ],
+                                    )),
                                 const SizedBox(width: 6),
                                 Icon(Icons.directions_walk_rounded,
                                     size: 12,
@@ -1360,12 +1371,23 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                 decoration: BoxDecoration(
                     color: Colors.orange.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8)),
-                child: Text('✂  Tramo parcial',
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.content_cut_rounded,
+                        size: 14,
                         color:
-                            isDark ? Colors.orange[300] : Colors.orange[800]))),
+                            isDark ? Colors.orange[300] : Colors.orange[800]),
+                    const SizedBox(width: 4),
+                    Text('Tramo parcial',
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? Colors.orange[300]
+                                : Colors.orange[800])),
+                  ],
+                )),
             const SizedBox(height: 6),
             Row(children: [
               Text('Ruta completa: ',
@@ -1388,26 +1410,6 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                       style: TextStyle(
                           fontSize: 13,
                           color: isDark ? Colors.grey[500] : Colors.grey[600]),
-                      overflow: TextOverflow.ellipsis))
-            ]),
-          ] else ...[
-            Row(children: [
-              Flexible(
-                  child: Text(route['origen'],
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: isDark ? Colors.grey[300] : Colors.grey[700]),
-                      overflow: TextOverflow.ellipsis)),
-              Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: Icon(Icons.arrow_forward_rounded,
-                      size: 18,
-                      color: isDark ? Colors.grey[500] : Colors.grey[600])),
-              Flexible(
-                  child: Text(route['destino'],
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: isDark ? Colors.grey[300] : Colors.grey[700]),
                       overflow: TextOverflow.ellipsis))
             ]),
           ],
@@ -1902,13 +1904,24 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                           decoration: BoxDecoration(
                               color: Colors.orange.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(8)),
-                          child: Text('✂  Tramo parcial',
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.content_cut_rounded,
+                                  size: 14,
                                   color: isDark
                                       ? Colors.orange[300]
-                                      : Colors.orange[800]))),
+                                      : Colors.orange[800]),
+                              const SizedBox(width: 4),
+                              Text('Tramo parcial',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark
+                                          ? Colors.orange[300]
+                                          : Colors.orange[800])),
+                            ],
+                          )),
                       const SizedBox(height: 6),
                       Row(children: [
                         Text('Ruta completa: ',
@@ -1942,32 +1955,6 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                                     color: isDark
                                         ? Colors.grey[500]
                                         : Colors.grey[600]),
-                                overflow: TextOverflow.ellipsis))
-                      ]),
-                    ] else ...[
-                      Row(children: [
-                        Flexible(
-                            child: Text(route['origen'],
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: isDark
-                                        ? Colors.grey[300]
-                                        : Colors.grey[700]),
-                                overflow: TextOverflow.ellipsis)),
-                        Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 6),
-                            child: Icon(Icons.arrow_forward_rounded,
-                                size: 18,
-                                color: isDark
-                                    ? Colors.grey[500]
-                                    : Colors.grey[600])),
-                        Flexible(
-                            child: Text(route['destino'],
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: isDark
-                                        ? Colors.grey[300]
-                                        : Colors.grey[700]),
                                 overflow: TextOverflow.ellipsis))
                       ]),
                     ],
