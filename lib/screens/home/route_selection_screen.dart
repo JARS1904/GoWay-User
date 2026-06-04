@@ -9,6 +9,7 @@ import 'package:goway_user/services/api_service.dart';
 import 'package:goway_user/screens/home/notifications_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:goway_user/services/audio_service.dart';
 
 // ── Horarios: deduplicación y badge de estado (API routes / favorites) ─────
 
@@ -295,6 +296,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   Map<String, dynamic>? _selectedRoute;
   Set<String> _favoriteRouteIds = {};
   int _unreadNotifications = 0;
+  bool _initialFetchDone = false;
   Timer? _notificationTimer;
   bool _photoLoadError = false;
   bool _hideUnassignedSchedules = false;
@@ -388,9 +390,13 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         if (data['success'] == true &&
             data['unread_count'] != null &&
             mounted) {
+          int newCount = int.tryParse(data['unread_count'].toString()) ?? 0;
+          if (_initialFetchDone && newCount > _unreadNotifications) {
+            AudioService.instance.playNotificationSound();
+          }
+          _initialFetchDone = true;
           setState(() {
-            _unreadNotifications =
-                int.tryParse(data['unread_count'].toString()) ?? 0;
+            _unreadNotifications = newCount;
           });
         }
       }
