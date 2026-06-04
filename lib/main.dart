@@ -317,7 +317,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         _userName = prefs.getString('userName') ?? 'Usuario';
         _userEmail = prefs.getString('userEmail') ?? 'email@ejemplo.com';
         _userPhotoUrl = prefs.getString('userPhotoUrl');
-        final rawId = prefs.getString('userId') ?? prefs.getInt('userId')?.toString();
+        final rawId =
+            prefs.getString('userId') ?? prefs.getInt('userId')?.toString();
         _userId = rawId != null ? int.tryParse(rawId) : null;
         _userPhone = prefs.getString('userPhone');
         _userRegistrationDate = prefs.getString('userRegistrationDate');
@@ -429,8 +430,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     unselectedColor: unselectedColor,
                     onTap: () {
                       if (_currentIndex == 0) {
-                        (_routeSelectionKey.currentState as dynamic)
-                            ?.refresh();
+                        (_routeSelectionKey.currentState as dynamic)?.refresh();
                       }
                       setState(() => _currentIndex = 0);
                     },
