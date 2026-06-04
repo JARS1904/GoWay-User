@@ -21,6 +21,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   late String _userId;
+  bool _hideUnassignedSchedules = false;
 
   @override
   void initState() {
@@ -31,15 +32,29 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Future<void> _initializeUserId() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId') ?? '1';
+    final hideUnassigned = prefs.getBool('hideUnassignedSchedules') ?? false;
     setState(() {
       _userId = userId;
+      _hideUnassignedSchedules = hideUnassigned;
     });
     _loadFavoriteRoutes();
   }
 
   /// Carga las rutas favoritas desde la API
   /// Método público para refrescar desde fuera (e.g. nav bar)
-  void refresh() => _loadFavoriteRoutes();
+  void refresh() {
+    _loadPreferences();
+    _loadFavoriteRoutes();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _hideUnassignedSchedules = prefs.getBool('hideUnassignedSchedules') ?? false;
+      });
+    }
+  }
 
   Future<void> _loadFavoriteRoutes() async {
     try {
@@ -167,7 +182,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         foregroundColor: isDark ? Colors.white : Colors.black,
       ),
       body: RefreshIndicator(
-        onRefresh: _loadFavoriteRoutes,
+        onRefresh: () async {
+          await _loadPreferences();
+          await _loadFavoriteRoutes();
+        },
         color: isDark ? Colors.white : Colors.blueAccent[700],
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
         child: _favoriteRoutes.isEmpty
@@ -198,7 +216,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         foregroundColor: isDark ? Colors.white : Colors.black,
       ),
       body: RefreshIndicator(
-        onRefresh: _loadFavoriteRoutes,
+        onRefresh: () async {
+          await _loadPreferences();
+          await _loadFavoriteRoutes();
+        },
         color: isDark ? Colors.white : Colors.blueAccent[700],
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
         child: _favoriteRoutes.isEmpty
@@ -227,7 +248,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final origen = route['origen'] ?? 'Origen desconocido';
     final destino = route['destino'] ?? 'Destino desconocido';
 
-    final uniqueSchedules = ((route['horarios'] as List?) ?? [])
+    var uniqueSchedules = ((route['horarios'] as List?) ?? [])
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
               scheduleUniqueKey(Map<String, dynamic>.from(schedule as Map));
@@ -236,6 +257,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         })
         .values
         .toList();
+
+    if (_hideUnassignedSchedules) {
+      uniqueSchedules = uniqueSchedules.where((s) {
+        return scheduleEstadoDisplayLabel(Map<String, dynamic>.from(s as Map)) != 'Sin asignación';
+      }).toList();
+    }
+
     final horarios = uniqueSchedules.length;
 
     final routeId =

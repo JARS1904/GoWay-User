@@ -41,21 +41,23 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isDarkMode = false;
+  bool _hideUnassignedSchedules = false;
 
   @override
   void initState() {
     super.initState();
-    _loadThemePreference();
+    _loadPreferences();
   }
 
   /// -------------------------------------------------------------------------
-  /// [_loadThemePreference]
+  /// [_loadPreferences]
   /// -------------------------------------------------------------------------
-  /// Carga la preferencia de tema guardada en SharedPreferences.
-  Future<void> _loadThemePreference() async {
+  /// Carga la preferencia de tema y horarios guardada en SharedPreferences.
+  Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      _hideUnassignedSchedules = prefs.getBool('hideUnassignedSchedules') ?? false;
     });
   }
 
@@ -69,6 +71,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   /// -------------------------------------------------------------------------
+  /// [_saveHideUnassignedSchedulesPreference]
+  /// -------------------------------------------------------------------------
+  Future<void> _saveHideUnassignedSchedulesPreference(bool hide) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hideUnassignedSchedules', hide);
+  }
+
+  /// -------------------------------------------------------------------------
   /// [_toggleDarkMode]
   /// -------------------------------------------------------------------------
   /// Alterna entre modo oscuro y modo claro.
@@ -78,6 +88,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
     _saveThemePreference(value);
     widget.onThemeChange?.call(value);
+  }
+
+  /// -------------------------------------------------------------------------
+  /// [_toggleHideUnassignedSchedules]
+  /// -------------------------------------------------------------------------
+  void _toggleHideUnassignedSchedules(bool value) {
+    setState(() {
+      _hideUnassignedSchedules = value;
+    });
+    _saveHideUnassignedSchedulesPreference(value);
   }
 
   @override
@@ -124,6 +144,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: _isDarkMode,
               onChanged: _toggleDarkMode,
+              activeColor: Colors.blueAccent[700],
+              inactiveThumbColor: Colors.grey[400],
+            ),
+            isDark: isDark,
+          ),
+          _buildSettingOption(
+            icon: Icons.event_busy,
+            title: 'Ocultar horarios',
+            subtitle: _hideUnassignedSchedules
+                ? 'Ocultando horarios sin asignación'
+                : 'Mostrando todos los horarios',
+            trailing: Switch(
+              value: _hideUnassignedSchedules,
+              onChanged: _toggleHideUnassignedSchedules,
               activeColor: Colors.blueAccent[700],
               inactiveThumbColor: Colors.grey[400],
             ),
@@ -281,6 +315,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 trailing: Switch(
                   value: _isDarkMode,
                   onChanged: _toggleDarkMode,
+                  activeColor: Colors.blueAccent[700],
+                  inactiveThumbColor: Colors.grey[400],
+                ),
+                isDark: isDark,
+              ),
+              _buildSettingOption(
+                icon: Icons.event_busy,
+                title: 'Ocultar horarios',
+                subtitle: _hideUnassignedSchedules
+                    ? 'Ocultando horarios sin asignación'
+                    : 'Mostrando todos los horarios',
+                trailing: Switch(
+                  value: _hideUnassignedSchedules,
+                  onChanged: _toggleHideUnassignedSchedules,
                   activeColor: Colors.blueAccent[700],
                   inactiveThumbColor: Colors.grey[400],
                 ),

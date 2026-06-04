@@ -50,6 +50,9 @@ String scheduleEstadoDisplayLabel(Map<String, dynamic> horario) {
   if (const {'retrasado', 'retrasada', 'delayed', 'delay'}.contains(k)) {
     return 'Retrasado';
   }
+  if (const {'sin_asignacion', 'sin_asignar', 'unassigned'}.contains(k)) {
+    return 'Sin asignación';
+  }
 
   return _titleCaseFromSnakeOrPlain(t);
 }
@@ -294,6 +297,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   int _unreadNotifications = 0;
   Timer? _notificationTimer;
   bool _photoLoadError = false;
+  bool _hideUnassignedSchedules = false;
   int _currentSchedulePage = 0;
   final int _schedulesPerPage = 5;
   final GlobalKey _schedulesTitleKey = GlobalKey();
@@ -336,6 +340,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     if (state == AppLifecycleState.resumed) {
       _loadFavorites();
       _fetchUnreadNotificationsCount();
+      _loadPreferences();
     }
   }
 
@@ -343,6 +348,17 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     _fetchLocations();
     _loadFavorites();
     _fetchUnreadNotificationsCount();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _hideUnassignedSchedules =
+            prefs.getBool('hideUnassignedSchedules') ?? false;
+      });
+    }
   }
 
   Future<void> _initializeUserId() async {
@@ -359,6 +375,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     _loadFavorites();
     _fetchLocations();
     _fetchUnreadNotificationsCount();
+    _loadPreferences();
   }
 
   Future<void> _fetchUnreadNotificationsCount() async {
@@ -970,7 +987,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
 
   Widget _buildRouteCard(Map<String, dynamic> route, {bool forTablet = false}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final uniqueSchedules = (route['horarios'] as List)
+    var uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
               scheduleUniqueKey(Map<String, dynamic>.from(schedule as Map));
@@ -979,6 +996,14 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         })
         .values
         .toList();
+
+    if (_hideUnassignedSchedules) {
+      uniqueSchedules = uniqueSchedules.where((s) {
+        return scheduleEstadoDisplayLabel(
+                Map<String, dynamic>.from(s as Map)) !=
+            'Sin asignación';
+      }).toList();
+    }
 
     return _PressScale(
       child: Container(
@@ -1140,13 +1165,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   ],
                 ),
               ),
-              // ── Divider borde a borde ───────────────────────────
-              const SizedBox(height: 12),
-              Container(
-                height: 1,
-                color: isDark ? Colors.white12 : Colors.grey[200],
-              ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 24),
               // ── Horarios y acciones con padding ────────────────
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -1306,7 +1325,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
 
   Widget _buildRouteDetails(Map<String, dynamic> route) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final uniqueSchedules = (route['horarios'] as List)
+    var uniqueSchedules = (route['horarios'] as List)
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
               scheduleUniqueKey(Map<String, dynamic>.from(schedule as Map));
@@ -1315,6 +1334,14 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         })
         .values
         .toList();
+
+    if (_hideUnassignedSchedules) {
+      uniqueSchedules = uniqueSchedules.where((s) {
+        return scheduleEstadoDisplayLabel(
+                Map<String, dynamic>.from(s as Map)) !=
+            'Sin asignación';
+      }).toList();
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -1413,9 +1440,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                       overflow: TextOverflow.ellipsis))
             ]),
           ],
-          const SizedBox(height: 16),
-          Divider(color: isDark ? Colors.grey[600] : Colors.grey[300]),
-          const SizedBox(height: 16),
+          const SizedBox(height: 32),
           Container(
             margin: EdgeInsets.zero,
             decoration: BoxDecoration(
@@ -1457,9 +1482,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          const Divider(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 32),
           Row(
             key: _schedulesTitleKey,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1685,6 +1708,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
   int _currentSchedulePage = 0;
   final int _schedulesPerPage = 5;
   final GlobalKey _schedulesTitleKey = GlobalKey();
+  bool _hideUnassignedSchedules = false;
 
   void _scrollToSchedules() {
     if (_schedulesTitleKey.currentContext != null) {
@@ -1702,6 +1726,17 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
     super.initState();
     _currentRoute = Map<String, dynamic>.from(widget.route);
     _currentSchedulePage = 0;
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _hideUnassignedSchedules =
+            prefs.getBool('hideUnassignedSchedules') ?? false;
+      });
+    }
   }
 
   Future<void> _refreshRouteData() async {
@@ -1810,7 +1845,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
     final route = _currentRoute;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isTablet = MediaQuery.of(context).size.width > 600;
-    final uniqueSchedules = (route['horarios'] as List? ?? [])
+    var uniqueSchedules = (route['horarios'] as List? ?? [])
         .fold<Map<String, dynamic>>({}, (map, schedule) {
           final key =
               scheduleUniqueKey(Map<String, dynamic>.from(schedule as Map));
@@ -1819,6 +1854,14 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
         })
         .values
         .toList();
+
+    if (_hideUnassignedSchedules) {
+      uniqueSchedules = uniqueSchedules.where((s) {
+        return scheduleEstadoDisplayLabel(
+                Map<String, dynamic>.from(s as Map)) !=
+            'Sin asignación';
+      }).toList();
+    }
 
     return Scaffold(
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
@@ -1958,10 +2001,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                                 overflow: TextOverflow.ellipsis))
                       ]),
                     ],
-                    const SizedBox(height: 16),
-                    Divider(
-                        color: isDark ? Colors.grey[600] : Colors.grey[300]),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 32),
                     Container(
                       margin: EdgeInsets.zero,
                       decoration: BoxDecoration(
@@ -2009,10 +2049,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Divider(
-                        color: isDark ? Colors.grey[600] : Colors.grey[300]),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 32),
                     Text('Horarios disponibles:',
                         key: _schedulesTitleKey,
                         style: TextStyle(
