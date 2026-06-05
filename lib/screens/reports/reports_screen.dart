@@ -919,10 +919,21 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
     const fieldRadius = BorderRadius.all(Radius.circular(20));
 
     InputDecoration _fieldDecoration(String label,
-        {IconData? icon, Widget? suffix}) {
+        {IconData? icon, Widget? suffix, bool isMultiline = false}) {
       return InputDecoration(
+        isDense: true,
         labelText: label,
-        prefixIcon: icon != null ? Icon(icon, size: 20) : null,
+        prefixIcon: icon != null
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Icon(icon,
+                    size: 20,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600]),
+              )
+            : null,
+        prefixIconConstraints: icon != null
+            ? const BoxConstraints(minWidth: 44, minHeight: 48)
+            : null,
         suffixIcon: suffix,
         border: const OutlineInputBorder(borderRadius: fieldRadius),
         enabledBorder: OutlineInputBorder(
@@ -943,7 +954,8 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
           borderRadius: fieldRadius,
           borderSide: BorderSide(color: Colors.redAccent, width: 1.8),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        contentPadding: EdgeInsets.symmetric(
+            horizontal: 16, vertical: isMultiline ? 14 : 10),
       );
     }
 
@@ -1048,7 +1060,7 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                         ),
                         const SizedBox(width: 10),
                         SizedBox(
-                          height: 52,
+                          height: 48,
                           child: ElevatedButton(
                             onPressed: _fetchingAssignment
                                 ? null
@@ -1152,44 +1164,156 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                       )
                     else ...[
                       // Tipo de incidente
-                      DropdownButtonFormField<String>(
-                        value: _selectedTipoIncidente,
-                        borderRadius: BorderRadius.circular(20),
-                        dropdownColor:
-                            isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                        decoration: _fieldDecoration(
-                          'Tipo de incidente',
-                          icon: Icons.warning_amber_rounded,
-                        ),
-                        items: _tiposIncidente
-                            .map((t) => DropdownMenuItem(
-                                value: t['id'], child: Text(t['nombre']!)))
-                            .toList(),
-                        onChanged: (v) =>
-                            setState(() => _selectedTipoIncidente = v),
-                        validator: (v) => v == null
-                            ? 'Selecciona el tipo de incidente'
-                            : null,
+                      FormField<String>(
+                        initialValue: _selectedTipoIncidente,
+                        validator: (v) => v == null ? 'Selecciona el tipo de incidente' : null,
+                        builder: (state) {
+                          return DropdownMenu<String>(
+                            requestFocusOnTap: false,
+                            enableFilter: false,
+                            expandedInsets: EdgeInsets.zero,
+                            menuHeight: 300,
+                            initialSelection: _selectedTipoIncidente,
+                            label: const Text('Tipo de incidente'),
+                            errorText: state.errorText,
+                            leadingIcon: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Icon(Icons.warning_amber_rounded, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                            ),
+                            inputDecorationTheme: InputDecorationTheme(
+                              isDense: true,
+                              constraints: state.hasError ? null : const BoxConstraints(maxHeight: 48),
+                              border: const OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(20))),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outline
+                                      .withValues(alpha: 0.4),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                borderSide:
+                                    BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                              ),
+                              errorBorder: const OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(color: Colors.redAccent, width: 1.2),
+                              ),
+                              focusedErrorBorder: const OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(color: Colors.redAccent, width: 1.8),
+                              ),
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                            ),
+                            menuStyle: MenuStyle(
+                              backgroundColor: WidgetStatePropertyAll(
+                                  isDark ? const Color(0xFF1E1E1E) : Colors.white),
+                              shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20))),
+                              elevation: const WidgetStatePropertyAll(8),
+                            ),
+                            dropdownMenuEntries: _tiposIncidente
+                                .map((t) => DropdownMenuEntry(
+                                      value: t['id']!,
+                                      label: t['nombre']!,
+                                      style: MenuItemButton.styleFrom(
+                                        foregroundColor:
+                                            isDark ? Colors.white : Colors.black87,
+                                        textStyle: const TextStyle(fontSize: 14),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      ),
+                                    ))
+                                .toList(),
+                            onSelected: (newValue) {
+                              setState(() {
+                                _selectedTipoIncidente = newValue;
+                              });
+                              state.didChange(newValue);
+                            },
+                          );
+                        },
                       ),
                       const SizedBox(height: 14),
 
                       // Gravedad
-                      DropdownButtonFormField<String>(
-                        value: _selectedGravedad,
-                        borderRadius: BorderRadius.circular(20),
-                        dropdownColor:
-                            isDark ? const Color(0xFF2C2C2C) : Colors.white,
-                        decoration: _fieldDecoration(
-                          'Gravedad',
-                          icon: Icons.bar_chart_rounded,
-                        ),
-                        items: _gravedades
-                            .map((g) => DropdownMenuItem(
-                                value: g['id'], child: Text(g['nombre']!)))
-                            .toList(),
-                        onChanged: (v) => setState(() => _selectedGravedad = v),
-                        validator: (v) =>
-                            v == null ? 'Selecciona la gravedad' : null,
+                      FormField<String>(
+                        initialValue: _selectedGravedad,
+                        validator: (v) => v == null ? 'Selecciona la gravedad' : null,
+                        builder: (state) {
+                          return DropdownMenu<String>(
+                            requestFocusOnTap: false,
+                            enableFilter: false,
+                            expandedInsets: EdgeInsets.zero,
+                            menuHeight: 300,
+                            initialSelection: _selectedGravedad,
+                            label: const Text('Gravedad'),
+                            errorText: state.errorText,
+                            leadingIcon: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Icon(Icons.bar_chart_rounded, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                            ),
+                            inputDecorationTheme: InputDecorationTheme(
+                              isDense: true,
+                              constraints: state.hasError ? null : const BoxConstraints(maxHeight: 48),
+                              border: const OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(20))),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outline
+                                      .withValues(alpha: 0.4),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                borderSide:
+                                    BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                              ),
+                              errorBorder: const OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(color: Colors.redAccent, width: 1.2),
+                              ),
+                              focusedErrorBorder: const OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(color: Colors.redAccent, width: 1.8),
+                              ),
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                            ),
+                            menuStyle: MenuStyle(
+                              backgroundColor: WidgetStatePropertyAll(
+                                  isDark ? const Color(0xFF1E1E1E) : Colors.white),
+                              shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20))),
+                              elevation: const WidgetStatePropertyAll(8),
+                            ),
+                            dropdownMenuEntries: _gravedades
+                                .map((g) => DropdownMenuEntry(
+                                      value: g['id']!,
+                                      label: g['nombre']!,
+                                      style: MenuItemButton.styleFrom(
+                                        foregroundColor:
+                                            isDark ? Colors.white : Colors.black87,
+                                        textStyle: const TextStyle(fontSize: 14),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      ),
+                                    ))
+                                .toList(),
+                            onSelected: (newValue) {
+                              setState(() {
+                                _selectedGravedad = newValue;
+                              });
+                              state.didChange(newValue);
+                            },
+                          );
+                        },
                       ),
                       const SizedBox(height: 14),
                     ],
@@ -1220,11 +1344,9 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                       maxLines: 3,
                       decoration: _fieldDecoration(
                         'Descripción del incidente',
-                        icon: Icons.notes_rounded,
+                        isMultiline: true,
                       ).copyWith(
                         alignLabelWithHint: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
                       ),
                       validator: (v) => (v == null || v.trim().isEmpty)
                           ? 'La descripción es requerida'

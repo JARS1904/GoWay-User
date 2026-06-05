@@ -57,7 +57,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkMode = prefs.getBool('isDarkMode') ?? false;
-      _hideUnassignedSchedules = prefs.getBool('hideUnassignedSchedules') ?? false;
+      _hideUnassignedSchedules =
+          prefs.getBool('hideUnassignedSchedules') ?? false;
     });
   }
 
@@ -485,9 +486,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        border: isDark
-            ? null
-            : Border.all(color: Colors.grey[200]!, width: 1.5),
+        border:
+            isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
