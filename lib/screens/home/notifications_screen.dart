@@ -16,7 +16,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   List<NotificationModel> _notifications = [];
   bool _isLoading = true;
   String? _userId;
-  
+
   String _searchQuery = '';
   String _selectedFilter = 'Todas'; // 'Todas', 'Leídas', 'No_leídas'
 
@@ -38,7 +38,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
 
     try {
-      final url = Uri.parse('${ApiService.notificationsUrl}?action=get_notifications&id_usuario=$_userId');
+      final url = Uri.parse(
+          '${ApiService.notificationsUrl}?action=get_notifications&id_usuario=$_userId');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -46,10 +47,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         if (data['success'] == true) {
           final List<dynamic> notifs = data['notificaciones'];
           setState(() {
-            _notifications = notifs.map((n) => NotificationModel.fromJson(n)).toList();
+            _notifications =
+                notifs.map((n) => NotificationModel.fromJson(n)).toList();
             _isLoading = false;
           });
-          
+
           _markAsRead();
         } else {
           setState(() => _isLoading = false);
@@ -80,23 +82,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   List<NotificationModel> get _filteredNotifications {
     return _notifications.where((n) {
-      bool matchesSearch = n.titulo.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                           n.mensaje.toLowerCase().contains(_searchQuery.toLowerCase());
+      bool matchesSearch =
+          n.titulo.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              n.mensaje.toLowerCase().contains(_searchQuery.toLowerCase());
       bool matchesFilter = true;
       String tipo = n.tipo.toLowerCase();
-      
+
       switch (_selectedFilter) {
         case 'Alertas de Seguridad':
-          matchesFilter = tipo == 'alerta' || tipo == 'urgente' || tipo == 'seguridad';
+          matchesFilter =
+              tipo == 'alerta' || tipo == 'urgente' || tipo == 'seguridad';
           break;
         case 'Cierre Vial':
-          matchesFilter = tipo == 'cierre' || tipo == 'cierres' || tipo == 'cierre vial';
+          matchesFilter =
+              tipo == 'cierre' || tipo == 'cierres' || tipo == 'cierre vial';
           break;
         case 'Trafico Pesado':
           matchesFilter = tipo == 'trafico' || tipo == 'trafico pesado';
           break;
         case 'Aviso General':
-          matchesFilter = tipo == 'general' || tipo == 'info' || tipo == 'sistema' || tipo == 'aviso' || tipo == 'aviso general';
+          matchesFilter = tipo == 'general' ||
+              tipo == 'info' ||
+              tipo == 'sistema' ||
+              tipo == 'aviso' ||
+              tipo == 'aviso general';
           break;
         case 'Todas':
         default:
@@ -111,7 +120,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     try {
       final date = DateTime.parse(dateString);
       final now = DateTime.now();
-      final difference = DateTime(now.year, now.month, now.day).difference(DateTime(date.year, date.month, date.day));
+      final difference = DateTime(now.year, now.month, now.day)
+          .difference(DateTime(date.year, date.month, date.day));
 
       if (difference.inDays == 0) {
         return 'Hoy';
@@ -127,16 +137,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-
-
   String _formatDateTime(String dateString) {
     try {
       final date = DateTime.parse(dateString);
       final now = DateTime.now();
-      final difference = DateTime(now.year, now.month, now.day).difference(DateTime(date.year, date.month, date.day));
+      final difference = DateTime(now.year, now.month, now.day)
+          .difference(DateTime(date.year, date.month, date.day));
 
-      final timeString = '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-      
+      final timeString =
+          '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+
       if (difference.inDays == 0) {
         return 'Hoy, $timeString';
       } else if (difference.inDays == 1) {
@@ -153,7 +163,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final filteredNotifs = _filteredNotifications;
-    
+
     // Group notifications
     Map<String, List<NotificationModel>> groupedNotifs = {};
     for (var n in filteredNotifs) {
@@ -163,10 +173,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       }
       groupedNotifs[group]!.add(n);
     }
-    
+
     // Ordered groups
     List<String> groupOrder = ['Hoy', 'Ayer', 'Esta semana', 'Anteriores'];
-    List<String> presentGroups = groupOrder.where((g) => groupedNotifs.containsKey(g)).toList();
+    List<String> presentGroups =
+        groupOrder.where((g) => groupedNotifs.containsKey(g)).toList();
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
@@ -189,33 +200,44 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               children: [
                 // Top Search and Filter Bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
                   child: Row(
                     children: [
                       Expanded(
                         child: Container(
                           height: 48,
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[100], // Slightly darker background in light mode
+                            color: isDark
+                                ? const Color(0xFF1E1E1E)
+                                : Colors.grey[
+                                    100], // Slightly darker background in light mode
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
-                              color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+                              color: isDark
+                                  ? Colors.grey[800]!
+                                  : Colors.grey[300]!,
                             ),
                           ),
                           child: TextField(
                             textAlignVertical: TextAlignVertical.center,
-                            onChanged: (value) => setState(() => _searchQuery = value),
+                            onChanged: (value) =>
+                                setState(() => _searchQuery = value),
                             style: TextStyle(
                               color: isDark ? Colors.white : Colors.black87,
                             ),
                             decoration: InputDecoration(
                               hintText: 'Buscar',
                               hintStyle: TextStyle(
-                                color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                color: isDark
+                                    ? Colors.grey[500]
+                                    : Colors.grey[600],
                               ),
                               prefixIcon: Icon(
                                 Icons.search,
-                                color: isDark ? Colors.grey[500] : Colors.grey[600],
+                                color: isDark
+                                    ? Colors.grey[500]
+                                    : Colors.grey[600],
                               ),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.zero,
@@ -226,22 +248,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Filter Chips
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
                   child: Row(
                     children: [
                       _buildFilterChip('Todas', isDark, filterValue: 'Todas'),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Alertas de Seguridad', isDark, filterValue: 'Alertas de Seguridad'),
+                      _buildFilterChip('Alertas de Seguridad', isDark,
+                          filterValue: 'Alertas de Seguridad'),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Cierre Vial', isDark, filterValue: 'Cierre Vial'),
+                      _buildFilterChip('Cierre Vial', isDark,
+                          filterValue: 'Cierre Vial'),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Tráfico Pesado', isDark, filterValue: 'Trafico Pesado'),
+                      _buildFilterChip('Tráfico Pesado', isDark,
+                          filterValue: 'Trafico Pesado'),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Aviso General', isDark, filterValue: 'Aviso General'),
+                      _buildFilterChip('Aviso General', isDark,
+                          filterValue: 'Aviso General'),
                     ],
                   ),
                 ),
@@ -255,9 +282,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.notifications_off_outlined, size: 60, color: Colors.grey[400]),
+                              Icon(Icons.notifications_off_outlined,
+                                  size: 60, color: Colors.grey[400]),
                               const SizedBox(height: 16),
-                              Text('No tienes notificaciones', style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+                              Text('No tienes notificaciones',
+                                  style: TextStyle(
+                                      color: Colors.grey[600], fontSize: 16)),
                             ],
                           ),
                         )
@@ -266,23 +296,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           itemCount: presentGroups.length,
                           itemBuilder: (context, groupIndex) {
                             String group = presentGroups[groupIndex];
-                            List<NotificationModel> groupItems = groupedNotifs[group]!;
-                            
+                            List<NotificationModel> groupItems =
+                                groupedNotifs[group]!;
+
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
+                                  padding: const EdgeInsets.only(
+                                      left: 16, top: 16, bottom: 8),
                                   child: Text(
                                     group,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 14,
-                                      color: isDark ? Colors.grey[400] : Colors.grey[700],
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[700],
                                     ),
                                   ),
                                 ),
-                                ...groupItems.map((notif) => _buildNotificationItem(notif, isDark)).toList(),
+                                ...groupItems
+                                    .map((notif) =>
+                                        _buildNotificationItem(notif, isDark))
+                                    .toList(),
                               ],
                             );
                           },
@@ -293,9 +330,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, bool isDark, {required String filterValue}) {
+  Widget _buildFilterChip(String label, bool isDark,
+      {required String filterValue}) {
     bool isSelected = _selectedFilter == filterValue;
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -305,15 +343,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? Colors.blueAccent[700] 
+          color: isSelected
+              ? Colors.blueAccent[700]
               : (isDark ? const Color(0xFF2A2A2A) : Colors.grey[100]),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : (isDark ? Colors.grey[300] : Colors.black87),
+            color: isSelected
+                ? Colors.white
+                : (isDark ? Colors.grey[300] : Colors.black87),
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
@@ -323,155 +363,166 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildNotificationItem(NotificationModel notif, bool isDark) {
     bool isUnread = notif.leido == 0;
-    
+
     // Pick the initial if it's a message, otherwise use icon
     String? initialLetter;
     if (notif.titulo.toLowerCase().contains("mensaje")) {
       initialLetter = "M"; // Initial for message, or we could extract sender
     }
-    
+
     bool isExpanded = false;
 
     return StatefulBuilder(
-      key: ValueKey(notif.hashCode),
-      builder: (context, setState) {
-        return Column(
-          children: [
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    isExpanded = !isExpanded;
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Icon
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: _getIconBackgroundColor(notif.tipo, isDark),
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: initialLetter != null 
-                            ? Text(
-                                initialLetter, 
-                                style: TextStyle(
-                                  fontSize: 20, 
-                                  fontWeight: FontWeight.bold,
+        key: ValueKey(notif.hashCode),
+        builder: (context, setState) {
+          return Column(
+            children: [
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      isExpanded = !isExpanded;
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Icon
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: _getIconBackgroundColor(notif.tipo, isDark),
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: initialLetter != null
+                              ? Text(initialLetter,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: _getIconColor(notif.tipo, isDark),
+                                  ))
+                              : Icon(
+                                  _getIconData(notif.tipo),
                                   color: _getIconColor(notif.tipo, isDark),
-                                )
-                              )
-                            : Icon(
-                                _getIconData(notif.tipo),
-                                color: _getIconColor(notif.tipo, isDark),
-                                size: 24,
+                                  size: 24,
+                                ),
+                        ),
+                        const SizedBox(width: 16),
+                        // Content
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Header info: Date and Time
+                              Text(
+                                _formatDateTime(notif.fechaCreacion),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDark
+                                      ? Colors.grey[500]
+                                      : Colors.grey[400],
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                      ),
-                      const SizedBox(width: 16),
-                      // Content
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Header info: Date and Time
-                            Text(
-                              _formatDateTime(notif.fechaCreacion),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: isDark ? Colors.grey[500] : Colors.grey[400],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            // Title with unread indicator
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (isUnread) ...[
-                                  Container(
-                                    margin: const EdgeInsets.only(top: 6, right: 6),
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: Colors.blueAccent[700],
-                                      shape: BoxShape.circle,
+                              const SizedBox(height: 4),
+                              // Title with unread indicator
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (isUnread) ...[
+                                    Container(
+                                      margin: const EdgeInsets.only(
+                                          top: 6, right: 6),
+                                      width: 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        color: Colors.blueAccent[700],
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ],
+                                  Expanded(
+                                    child: Text(
+                                      notif.titulo,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: isUnread
+                                            ? FontWeight.bold
+                                            : FontWeight.w600,
+                                        color: isDark
+                                            ? Colors.white
+                                            : Colors.black87,
+                                      ),
                                     ),
                                   ),
                                 ],
-                                Expanded(
-                                  child: Text(
-                                    notif.titulo,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: isUnread ? FontWeight.bold : FontWeight.w600,
-                                      color: isDark ? Colors.white : Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            // Source badge
-                            _buildSourceBadge(notif, isDark),
-                            const SizedBox(height: 6),
-                            // Message body
-                            Text(
-                              notif.mensaje,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                height: 1.4,
                               ),
-                              maxLines: isExpanded ? null : 1,
-                              overflow: isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Chevron icon
-                      Padding(
-                        padding: const EdgeInsets.only(top: 24.0),
-                        child: AnimatedRotation(
-                          turns: isExpanded ? 0.25 : 0.0,
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(
-                            Icons.chevron_right,
-                            color: isDark ? Colors.grey[700] : Colors.grey[400],
-                            size: 20,
+                              const SizedBox(height: 4),
+                              // Source badge
+                              _buildSourceBadge(notif, isDark),
+                              const SizedBox(height: 6),
+                              // Message body
+                              Text(
+                                notif.mensaje,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
+                                  height: 1.4,
+                                ),
+                                maxLines: isExpanded ? null : 1,
+                                overflow: isExpanded
+                                    ? TextOverflow.visible
+                                    : TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 12),
+                        // Chevron icon
+                        Padding(
+                          padding: const EdgeInsets.only(top: 24.0),
+                          child: AnimatedRotation(
+                            turns: isExpanded ? 0.25 : 0.0,
+                            duration: const Duration(milliseconds: 200),
+                            child: Icon(
+                              Icons.chevron_right,
+                              color:
+                                  isDark ? Colors.grey[700] : Colors.grey[400],
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            // Divider mapping the structure
-            Row(
-              children: [
-                const SizedBox(width: 80), // offset past the icon
-                Expanded(
-                  child: Divider(
-                    height: 1,
-                    thickness: 1,
-                    color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+              // Divider mapping the structure
+              Row(
+                children: [
+                  const SizedBox(width: 80), // offset past the icon
+                  Expanded(
+                    child: Divider(
+                      height: 1,
+                      thickness: 1,
+                      color:
+                          isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-              ],
-            ),
-          ],
-        );
-      }
-    );
+                  const SizedBox(width: 16),
+                ],
+              ),
+            ],
+          );
+        });
   }
 
   Widget _buildSourceBadge(NotificationModel notif, bool isDark) {
@@ -499,7 +550,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
+                color:
+                    isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
               ),
             ),
           ],
@@ -532,7 +584,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
+                color:
+                    isDark ? const Color(0xFFFB923C) : const Color(0xFFEA580C),
               ),
             ),
           ],
@@ -594,21 +647,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'alerta':
       case 'urgente':
       case 'seguridad':
-        return isDark ? const Color(0xFFDC2626).withOpacity(0.2) : const Color(0xFFFEE2E2);
+        return isDark
+            ? const Color(0xFFDC2626).withOpacity(0.2)
+            : const Color(0xFFFEE2E2);
       case 'cierre':
       case 'cierres':
       case 'cierre vial':
-        return isDark ? const Color(0xFF4F46E5).withOpacity(0.2) : const Color(0xFFE0E7FF);
+        return isDark
+            ? const Color(0xFF4F46E5).withOpacity(0.2)
+            : const Color(0xFFE0E7FF);
       case 'trafico':
       case 'trafico pesado':
-        return isDark ? const Color(0xFFEA580C).withOpacity(0.2) : const Color(0xFFFFF7ED);
+        return isDark
+            ? const Color(0xFFEA580C).withOpacity(0.2)
+            : const Color(0xFFFFF7ED);
       case 'general':
       case 'info':
       case 'sistema':
       case 'aviso':
       case 'aviso general':
       default:
-        return isDark ? const Color(0xFF374151).withOpacity(0.5) : const Color(0xFFF3F4F6);
+        return isDark
+            ? const Color(0xFF374151).withOpacity(0.5)
+            : const Color(0xFFF3F4F6);
     }
   }
 }

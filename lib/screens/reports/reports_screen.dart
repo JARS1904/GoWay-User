@@ -243,6 +243,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   void _showCreateReportDialog() {
+    FocusManager.instance.primaryFocus?.unfocus();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

@@ -376,6 +376,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     final unselectedColor = isDark ? Colors.grey[500]! : Colors.grey[600]!;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(
@@ -429,6 +430,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
                     onTap: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
                       if (_currentIndex == 0) {
                         (_routeSelectionKey.currentState as dynamic)?.refresh();
                       }
@@ -444,6 +446,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
                     onTap: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
                       if (_currentIndex == 1) {
                         (_favoritesKey.currentState as dynamic)?.refresh();
                       }
@@ -459,6 +462,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
                     onTap: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
                       if (_currentIndex == 2) {
                         (_reportsKey.currentState as dynamic)?.refresh();
                       }
@@ -474,6 +478,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
                     onTap: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
                       if (_currentIndex == 3) {
                         (_profileKey.currentState as dynamic)?.refresh();
                       }
@@ -538,11 +543,13 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     final unselectedColor = isDark ? Colors.grey[500] : Colors.grey[600];
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Row(
         children: [
           NavigationRail(
             selectedIndex: _currentIndex,
             onDestinationSelected: (index) {
+              FocusManager.instance.primaryFocus?.unfocus();
               if (index == _currentIndex) {
                 if (index == 0)
                   (_routeSelectionKey.currentState as dynamic)?.refresh();

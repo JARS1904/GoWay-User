@@ -600,6 +600,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showTermsAndConditions() {
+    FocusManager.instance.primaryFocus?.unfocus();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -609,6 +610,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _navigateToSettings(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -620,6 +622,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _navigateToIdCard() {
+    FocusManager.instance.primaryFocus?.unfocus();
     Navigator.push(
       context,
       MaterialPageRoute(

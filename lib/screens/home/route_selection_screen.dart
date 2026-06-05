@@ -457,6 +457,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   }
 
   Future<void> _searchRoutes() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     if (_origin == null || _destination == null) return;
 
     setState(() {
@@ -599,6 +600,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
           IconButton(
             icon: const Icon(Icons.notifications_outlined, size: 28),
             onPressed: () async {
+              FocusManager.instance.primaryFocus?.unfocus();
               await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -639,6 +641,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
@@ -655,9 +658,12 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         ),
         actions: [_buildNotificationIcon()],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Hola, $_userName 👋',
@@ -672,23 +678,24 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     color: isDark ? Colors.grey[500] : Colors.grey[600])),
             const SizedBox(height: 20),
             // Selector de punto de origen
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              borderRadius: BorderRadius.circular(20),
-              dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-              decoration: InputDecoration(
-                labelText: 'Seleccione el origen',
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Image.asset(
-                    'lib/assets/icons/icons8-marcador.png',
-                    width: 20,
-                    height: 20,
-                    color: isDark
-                        ? Colors.grey[400]
-                        : Colors.grey[600], // Para tintar la imagen
-                  ),
+            DropdownMenu<String>(
+              requestFocusOnTap: true,
+              expandedInsets: EdgeInsets.zero,
+              menuHeight: 300,
+              initialSelection: _origin,
+              label: const Text('Seleccione el origen'),
+              leadingIcon: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Image.asset(
+                  'lib/assets/icons/icons8-marcador.png',
+                  width: 20,
+                  height: 20,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
                 ),
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                isDense: true,
+                constraints: const BoxConstraints(maxHeight: 48),
                 border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20))),
                 enabledBorder: OutlineInputBorder(
@@ -706,18 +713,28 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                       BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
                 ),
                 contentPadding:
-                    const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
               ),
-              value: _origin,
-              items: _locations
-                  .map((location) => DropdownMenuItem(
-                      value: location,
-                      child: Text(location,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: isDark ? Colors.white : Colors.black87))))
+              menuStyle: MenuStyle(
+                backgroundColor: WidgetStatePropertyAll(
+                    isDark ? const Color(0xFF1E1E1E) : Colors.grey[50]),
+                shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20))),
+                elevation: const WidgetStatePropertyAll(8),
+              ),
+              dropdownMenuEntries: _locations
+                  .map((location) => DropdownMenuEntry(
+                        value: location,
+                        label: location,
+                        style: MenuItemButton.styleFrom(
+                          foregroundColor:
+                              isDark ? Colors.white : Colors.black87,
+                          textStyle: const TextStyle(fontSize: 14),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                      ))
                   .toList(),
-              onChanged: (newValue) => setState(() {
+              onSelected: (newValue) => setState(() {
                 _origin = newValue;
                 _routes = [];
                 _selectedRoute = null;
@@ -726,23 +743,24 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             ),
             const SizedBox(height: 16),
             // Selector de punto de destino
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              borderRadius: BorderRadius.circular(20),
-              dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-              decoration: InputDecoration(
-                labelText: 'Seleccione el destino',
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Image.asset(
-                    'lib/assets/icons/icons8-marcador.png',
-                    width: 20,
-                    height: 20,
-                    color: isDark
-                        ? Colors.grey[400]
-                        : Colors.grey[600], // Para tintar la imagen
-                  ),
+            DropdownMenu<String>(
+              requestFocusOnTap: true,
+              expandedInsets: EdgeInsets.zero,
+              menuHeight: 300,
+              initialSelection: _destination,
+              label: const Text('Seleccione el destino'),
+              leadingIcon: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Image.asset(
+                  'lib/assets/icons/icons8-marcador.png',
+                  width: 20,
+                  height: 20,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
                 ),
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                isDense: true,
+                constraints: const BoxConstraints(maxHeight: 48),
                 border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20))),
                 enabledBorder: OutlineInputBorder(
@@ -760,18 +778,28 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                       BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
                 ),
                 contentPadding:
-                    const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
               ),
-              value: _destination,
-              items: _locations
-                  .map((location) => DropdownMenuItem(
-                      value: location,
-                      child: Text(location,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: isDark ? Colors.white : Colors.black87))))
+              menuStyle: MenuStyle(
+                backgroundColor: WidgetStatePropertyAll(
+                    isDark ? const Color(0xFF1E1E1E) : Colors.grey[50]),
+                shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20))),
+                elevation: const WidgetStatePropertyAll(8),
+              ),
+              dropdownMenuEntries: _locations
+                  .map((location) => DropdownMenuEntry(
+                        value: location,
+                        label: location,
+                        style: MenuItemButton.styleFrom(
+                          foregroundColor:
+                              isDark ? Colors.white : Colors.black87,
+                          textStyle: const TextStyle(fontSize: 14),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                      ))
                   .toList(),
-              onChanged: (newValue) => setState(() {
+              onSelected: (newValue) => setState(() {
                 _destination = newValue;
                 _routes = [];
                 _selectedRoute = null;
@@ -830,6 +858,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -837,6 +866,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
@@ -853,8 +883,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         ),
         actions: [_buildNotificationIcon()],
       ),
-      body: Row(
-        children: [
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        behavior: HitTestBehavior.opaque,
+        child: Row(
+          children: [
           Expanded(
             flex: 2,
             child: Padding(
@@ -964,30 +997,42 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
           ),
         ],
       ),
+      ),
     );
   }
 
   Widget _buildDropdown(
       String label, String? value, Function(String?) onChanged, bool isDark) {
-    return DropdownButtonFormField<String>(
-      isExpanded: true,
-      borderRadius: BorderRadius.circular(16),
-      dropdownColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-      decoration: InputDecoration(
-          labelText: label,
+    return DropdownMenu<String>(
+      requestFocusOnTap: true,
+      expandedInsets: EdgeInsets.zero,
+      menuHeight: 300,
+      initialSelection: value,
+      label: Text(label),
+      inputDecorationTheme: InputDecorationTheme(
+          isDense: true,
+          constraints: const BoxConstraints(maxHeight: 48),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
           contentPadding:
-              const EdgeInsets.symmetric(vertical: 10, horizontal: 14)),
-      value: value,
-      items: _locations
-          .map((location) => DropdownMenuItem(
+              const EdgeInsets.symmetric(vertical: 0, horizontal: 16)),
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(
+            isDark ? const Color(0xFF1E1E1E) : Colors.grey[50]),
+        shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
+        elevation: const WidgetStatePropertyAll(8),
+      ),
+      dropdownMenuEntries: _locations
+          .map((location) => DropdownMenuEntry(
               value: location,
-              child: Text(location,
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? Colors.white : Colors.black87))))
+              label: location,
+              style: MenuItemButton.styleFrom(
+                foregroundColor: isDark ? Colors.white : Colors.black87,
+                textStyle: const TextStyle(fontSize: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+              )))
           .toList(),
-      onChanged: onChanged,
+      onSelected: onChanged,
     );
   }
 
