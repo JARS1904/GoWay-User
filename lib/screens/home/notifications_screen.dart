@@ -196,10 +196,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         child: Container(
                           height: 48,
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50], // Lighter grey for classic textfield feel
+                            color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[100], // Slightly darker background in light mode
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
-                              color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                              color: isDark ? Colors.grey[800]! : Colors.grey[300]!,
                             ),
                           ),
                           child: TextField(
@@ -211,11 +211,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             decoration: InputDecoration(
                               hintText: 'Buscar',
                               hintStyle: TextStyle(
-                                color: isDark ? Colors.grey[500] : Colors.grey[400],
+                                color: isDark ? Colors.grey[500] : Colors.grey[600],
                               ),
                               prefixIcon: Icon(
                                 Icons.search,
-                                color: isDark ? Colors.grey[500] : Colors.grey[400],
+                                color: isDark ? Colors.grey[500] : Colors.grey[600],
                               ),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.zero,
