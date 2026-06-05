@@ -95,6 +95,10 @@ class _IdCardScreenState extends State<IdCardScreen>
         elevation: 0,
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[100],
         foregroundColor: isDark ? Colors.white : Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(

@@ -1920,6 +1920,10 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
           backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
           elevation: 0,
           foregroundColor: isDark ? Colors.white : Colors.black,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_rounded),
+            onPressed: () => Navigator.pop(context),
+          ),
           title: Text(route['empresa_nombre'],
               style: TextStyle(
                   fontSize: 16,

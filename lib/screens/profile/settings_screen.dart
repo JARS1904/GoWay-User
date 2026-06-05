@@ -117,6 +117,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
         foregroundColor: isDark ? Colors.white : Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: isTablet ? _buildTabletLayout(isDark) : _buildMobileLayout(isDark),
     );
