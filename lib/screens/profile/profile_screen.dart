@@ -13,8 +13,13 @@
 //          Emilio Domíngez Silva
 // Mantenido por: Hydra. Inc
 
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:goway_user/services/api_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'id_card_screen.dart';
 import 'terms_and_conditions_screen.dart';
 import 'settings_screen.dart';
@@ -48,10 +53,216 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _photoLoadError = false;
+  String? _currentPhotoUrl;
+  File? _localImageFile;
+  bool _isUploading = false;
 
   @override
   void initState() {
     super.initState();
+    _currentPhotoUrl = widget.userPhotoUrl;
+  }
+  
+  void _showSuccessSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(children: [
+          const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
+        ]),
+        backgroundColor: Colors.blueAccent[700],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void _showErrorSnackbar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(children: [
+          const Icon(Icons.error_rounded, color: Colors.white, size: 20),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
+        ]),
+        backgroundColor: Colors.redAccent[700],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    if (widget.userId == null) {
+      _showErrorSnackbar('Error: Usuario no identificado');
+      return;
+    }
+    
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      
+      if (pickedFile == null) return;
+
+      setState(() {
+        _isUploading = true;
+      });
+
+      final request = http.MultipartRequest('POST', Uri.parse(ApiService.usuariosUrl));
+      request.fields['_method'] = 'PUT';
+      request.fields['id'] = widget.userId.toString();
+      
+      final file = await http.MultipartFile.fromPath('foto', pickedFile.path);
+      request.files.add(file);
+      
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Obtenemos los usuarios para saber la nueva URL
+        final getResponse = await http.get(Uri.parse(ApiService.usuariosUrl));
+        if (getResponse.statusCode == 200) {
+          final users = json.decode(getResponse.body) as List;
+          final updatedUser = users.firstWhere(
+            (u) => u['id'].toString() == widget.userId.toString(), 
+            orElse: () => null
+          );
+          
+          if (updatedUser != null && updatedUser['foto_url'] != null) {
+            final newUrl = updatedUser['foto_url'];
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('userPhotoUrl', newUrl);
+            
+            if (mounted) {
+              setState(() {
+                _currentPhotoUrl = newUrl;
+                _localImageFile = null;
+                _photoLoadError = false;
+              });
+            }
+          } else {
+             if (mounted) setState(() {
+                _localImageFile = File(pickedFile.path);
+                _photoLoadError = false;
+             });
+          }
+        } else {
+           if (mounted) setState(() {
+              _localImageFile = File(pickedFile.path);
+              _photoLoadError = false;
+           });
+        }
+        
+        _showSuccessSnackbar('Foto de perfil actualizada');
+      } else {
+        String errorMsg = 'Error al actualizar la foto';
+        try {
+          final parsed = json.decode(responseBody);
+          if (parsed['error'] != null) errorMsg = parsed['error'];
+        } catch (_) {}
+        _showErrorSnackbar(errorMsg);
+      }
+    } catch (e) {
+      _showErrorSnackbar('Error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
+    }
+  }
+
+  Widget _buildProfileImage(double radius, bool isDark) {
+    final hasPhoto = (_currentPhotoUrl != null || _localImageFile != null) && !_photoLoadError;
+    
+    ImageProvider? imageProvider;
+    if (_localImageFile != null) {
+      imageProvider = FileImage(_localImageFile!);
+    } else if (_currentPhotoUrl != null && !_photoLoadError) {
+      imageProvider = NetworkImage(ApiService.buildPhotoUrl(_currentPhotoUrl)!);
+    }
+
+    return GestureDetector(
+      onTap: _isUploading ? null : _pickAndUploadImage,
+      child: Stack(
+        alignment: Alignment.bottomRight,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: isDark ? Colors.grey[600]! : Colors.grey[400]!,
+                  width: 3.0),
+            ),
+            child: CircleAvatar(
+              radius: radius,
+              backgroundColor: Colors.blueAccent[700],
+              backgroundImage: imageProvider,
+              onBackgroundImageError: hasPhoto
+                  ? (_, __) {
+                      if (!_photoLoadError && mounted) {
+                        setState(() => _photoLoadError = true);
+                      }
+                    }
+                  : null,
+              child: (!hasPhoto)
+                  ? Text(
+                      widget.userName.isNotEmpty
+                          ? widget.userName[0].toUpperCase()
+                          : 'U',
+                      style: TextStyle(
+                        fontSize: radius * 0.6,
+                        color: Colors.white,
+                      ),
+                    )
+                  : null,
+            ),
+          ),
+          if (_isUploading)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black45,
+                ),
+                child: const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
+              ),
+            )
+          else
+            Positioned(
+              bottom: radius * 0.1,
+              right: radius * 0.1,
+              child: Container(
+                padding: EdgeInsets.all(radius * 0.15),
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent[700],
+                  shape: BoxShape.circle,
+                  border: Border.all(color: isDark ? const Color(0xFF121212) : Colors.grey[50]!, width: 2),
+                ),
+                child: Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                  size: radius * 0.35,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   void refresh() => setState(() {});
@@ -88,31 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            CircleAvatar(
-              radius: 60,
-              backgroundColor: Colors.blueAccent[700],
-              backgroundImage: (widget.userPhotoUrl != null && !_photoLoadError)
-                  ? NetworkImage(ApiService.buildPhotoUrl(widget.userPhotoUrl)!)
-                  : null,
-              onBackgroundImageError:
-                  (widget.userPhotoUrl != null && !_photoLoadError)
-                      ? (_, __) {
-                          if (!_photoLoadError)
-                            setState(() => _photoLoadError = true);
-                        }
-                      : null,
-              child: (widget.userPhotoUrl == null || _photoLoadError)
-                  ? Text(
-                      widget.userName.isNotEmpty
-                          ? widget.userName[0].toUpperCase()
-                          : 'U',
-                      style: const TextStyle(
-                        fontSize: 40,
-                        color: Colors.white,
-                      ),
-                    )
-                  : null,
-            ),
+            _buildProfileImage(60, isDark),
             const SizedBox(height: 20),
             Text(
               widget.userName,
@@ -206,35 +393,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       flex: 3,
                       child: Column(
                         children: [
-                          CircleAvatar(
-                            radius: 80,
-                            backgroundColor: Colors.blueAccent[700],
-                            backgroundImage: (widget.userPhotoUrl != null &&
-                                    !_photoLoadError)
-                                ? NetworkImage(ApiService.buildPhotoUrl(
-                                    widget.userPhotoUrl)!)
-                                : null,
-                            onBackgroundImageError: (widget.userPhotoUrl !=
-                                        null &&
-                                    !_photoLoadError)
-                                ? (_, __) {
-                                    if (!_photoLoadError)
-                                      setState(() => _photoLoadError = true);
-                                  }
-                                : null,
-                            child:
-                                (widget.userPhotoUrl == null || _photoLoadError)
-                                    ? Text(
-                                        widget.userName.isNotEmpty
-                                            ? widget.userName[0].toUpperCase()
-                                            : 'U',
-                                        style: const TextStyle(
-                                          fontSize: 50,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : null,
-                          ),
+                          _buildProfileImage(80, isDark),
                           const SizedBox(height: 30),
                           Text(
                             widget.userName,
