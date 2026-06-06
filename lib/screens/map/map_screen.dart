@@ -1,18 +1,23 @@
-// ██████╗  ██████╗  ██╗    ██╗ █████╗ ██╗   ██╗
-// ██╔════╝ ██╔═══██╗██║    ██║██╔══██╗╚██╗ ██╔╝
-// ██║  ███╗██║   ██║██║ █╗ ██║███████║ ╚████╔╝
-// ██║   ██║██║   ██║██║███╗██║██╔══██║  ╚██╔╝
-// ╚██████╔╝╚██████╔╝╚███╔███╔╝██║  ██║   ██║
-//  ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
+// â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—  â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—  â–ˆâ–ˆâ•—    â–ˆâ–ˆâ•— â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—
+// â–ˆâ–ˆâ•”â•â•â•â•â• â–ˆâ–ˆâ•”â•â•â•â–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘    â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”â•â•â–ˆâ–ˆâ•—â•šâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”â•
+// â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘ â–ˆâ•— â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•‘ â•šâ–ˆâ–ˆâ–ˆâ–ˆâ•”â•
+// â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”â•â•â–ˆâ–ˆâ•‘  â•šâ–ˆâ–ˆâ•”â•
+// â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”â•â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”â•â•šâ–ˆâ–ˆâ–ˆâ•”â–ˆâ–ˆâ–ˆâ•”â•â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘
+//  â•šâ•â•â•â•â•â•  â•šâ•â•â•â•â•â•  â•šâ•â•â•â•šâ•â•â• â•šâ•â•  â•šâ•â•   â•šâ•â•
 //
 // map_screen.dart - Pantalla de mapa con OpenStreetMap
-// Versión: 2.0.0 | Última actualización: 19-01-2026
+// VersiÃ³n: 2.0.0 | Ãšltima actualizaciÃ³n: 19-01-2026
 // Mantenido por: Hydra. Inc
 
+import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:goway_user/services/nominatim_service.dart';
+import 'package:goway_user/screens/map/map_search_delegate.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -24,15 +29,47 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   late MapController _mapController;
   LatLng _currentLocation =
-      const LatLng(18.17678, -93.06376); // Jalpa de Méndez
+      const LatLng(18.17678, -93.06376); // Jalpa de MÃ©ndez
   double _zoom = 15;
   bool _isLoading = true;
+  double _rotation = 0.0;
+  StreamSubscription<MapEvent>? _mapEventSubscription;
+  bool _darkMapEnabled = false;
 
   @override
   void initState() {
     super.initState();
+    _loadPreferences();
     _mapController = MapController();
+    _mapEventSubscription = _mapController.mapEventStream.listen((event) {
+      if (event is MapEventRotate || event is MapEventMove) {
+        final newRotation = _mapController.camera.rotation;
+        if ((_rotation - newRotation).abs() > 0.1) {
+          if (mounted) {
+            setState(() {
+              _rotation = newRotation;
+            });
+          }
+        }
+      }
+    });
     _initLocation();
+  }
+
+  @override
+  void dispose() {
+    _mapEventSubscription?.cancel();
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _darkMapEnabled = prefs.getBool('darkMapEnabled') ?? false;
+      });
+    }
   }
 
   Future<void> _initLocation() async {
@@ -47,12 +84,11 @@ class _MapScreenState extends State<MapScreen> {
         _mapController.move(newLocation, _zoom);
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$e')),
-        );
-      }
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$e')),
+      );
     }
   }
 
@@ -62,14 +98,14 @@ class _MapScreenState extends State<MapScreen> {
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      return Future.error('Los servicios de ubicación están deshabilitados.');
+      return Future.error('Los servicios de ubicaciÃ³n estÃ¡n deshabilitados.');
     }
 
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        return Future.error('Los permisos de ubicación fueron denegados');
+        return Future.error('Los permisos de ubicaciÃ³n fueron denegados');
       }
     }
 
@@ -79,12 +115,6 @@ class _MapScreenState extends State<MapScreen> {
 
     return await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-  }
-
-  @override
-  void dispose() {
-    _mapController.dispose();
-    super.dispose();
   }
 
   void _centerMap(LatLng location) {
@@ -113,10 +143,38 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bool isTablet = MediaQuery.of(context).size.width >= 600;
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+      appBar: AppBar(
+        title: const Text(
+          'Mapa',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: false,
+        elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+        foregroundColor: isDark ? Colors.white : Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search_rounded),
+            onPressed: () async {
+              final result = await showSearch(
+                context: context,
+                delegate: MapSearchDelegate(),
+              );
+              if (result != null && result is LatLng) {
+                _centerMap(result);
+              }
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Stack(
         children: [
           // Mapa principal
@@ -126,21 +184,25 @@ class _MapScreenState extends State<MapScreen> {
               initialCenter: _currentLocation,
               initialZoom: _zoom,
               minZoom: 2,
-              maxZoom: 22,
+              maxZoom: 19,
               keepAlive: true,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all,
+              ),
             ),
             children: [
               // Capa de tiles
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: _darkMapEnabled 
+                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+                    : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.goway_user',
-                maxZoom: 22,
-                maxNativeZoom: 19,
+                maxZoom: 19,
                 minZoom: 2,
                 retinaMode: true,
                 tileProvider: NetworkTileProvider(),
                 additionalOptions: const {
-                  'attribution': '© OpenStreetMap contributors',
+                  'attribution': 'Â© OpenStreetMap contributors',
                 },
                 wmsOptions: null,
               ),
@@ -184,31 +246,37 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
 
-          // Botón volver atrás
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 16,
-            left: 16,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1F1F1F) : Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
+          // BrÃºjula inteligente
+          if (_rotation != 0.0)
+            Positioned(
+              top: 16,
+              right: 16,
+              child: GestureDetector(
+                onTap: () {
+                  _mapController.rotate(0.0);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isDark ? const Color(0xFF1F1F1F) : Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                onPressed: () => Navigator.pop(context),
-                color: isDark ? Colors.white : Colors.black,
+                  padding: const EdgeInsets.all(8),
+                  child: Transform.rotate(
+                    angle: -_rotation * (math.pi / 180.0),
+                    child: Icon(Icons.explore, color: Colors.blueAccent[700], size: 28),
+                  ),
+                ),
               ),
             ),
-          ),
 
-          // Controles de zoom (un poco más abajo)
+          // Controles de zoom (un poco mÃ¡s abajo)
           Positioned(
             right: 16,
             bottom: 120,
@@ -258,7 +326,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Botón Mi Ubicación
+          // BotÃ³n Mi UbicaciÃ³n
           Positioned(
             bottom: 32,
             left: 16,
@@ -271,11 +339,10 @@ class _MapScreenState extends State<MapScreen> {
                   LatLng loc = LatLng(position.latitude, position.longitude);
                   _centerMap(loc);
                 } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('$e')),
-                    );
-                  }
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('$e')),
+                  );
                 } finally {
                   if (mounted) setState(() => _isLoading = false);
                 }
@@ -296,7 +363,7 @@ class _MapScreenState extends State<MapScreen> {
                 height: 24,
               ),
               label: const Text(
-                'Mi ubicación',
+                'Mi Ubicación',
                 style: TextStyle(
                   fontSize: 16,
                 ),
@@ -308,3 +375,4 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 }
+

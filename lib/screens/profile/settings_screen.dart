@@ -42,6 +42,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isDarkMode = false;
   bool _hideUnassignedSchedules = false;
+  bool _darkMapEnabled = false;
 
   @override
   void initState() {
@@ -59,6 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _isDarkMode = prefs.getBool('isDarkMode') ?? false;
       _hideUnassignedSchedules =
           prefs.getBool('hideUnassignedSchedules') ?? false;
+      _darkMapEnabled = prefs.getBool('darkMapEnabled') ?? false;
     });
   }
 
@@ -99,6 +101,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _hideUnassignedSchedules = value;
     });
     _saveHideUnassignedSchedulesPreference(value);
+  }
+
+  Future<void> _saveDarkMapPreference(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('darkMapEnabled', enabled);
+  }
+
+  void _toggleDarkMap(bool value) {
+    setState(() {
+      _darkMapEnabled = value;
+    });
+    _saveDarkMapPreference(value);
   }
 
   @override
@@ -143,7 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 16),
           _buildSettingOption(
             icon: _isDarkMode ? Icons.dark_mode : Icons.light_mode,
-            title: 'Modo Oscuro',
+            title: 'Modo oscuro',
             subtitle:
                 _isDarkMode ? 'Modo oscuro activado' : 'Modo claro activado',
             trailing: Switch(
@@ -163,6 +177,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: _hideUnassignedSchedules,
               onChanged: _toggleHideUnassignedSchedules,
+              activeColor: Colors.blueAccent[700],
+              inactiveThumbColor: Colors.grey[400],
+            ),
+            isDark: isDark,
+          ),
+          _buildSettingOption(
+            icon: Icons.map_outlined,
+            title: 'Mapa oscuro',
+            subtitle: _darkMapEnabled
+                ? 'El mapa se mostrará en modo oscuro'
+                : 'El mapa se mostrará en modo claro',
+            trailing: Switch(
+              value: _darkMapEnabled,
+              onChanged: _toggleDarkMap,
               activeColor: Colors.blueAccent[700],
               inactiveThumbColor: Colors.grey[400],
             ),
