@@ -18,6 +18,7 @@ import 'package:goway_user/services/api_service.dart';
 import 'id_card_screen.dart';
 import 'terms_and_conditions_screen.dart';
 import 'settings_screen.dart';
+import '../map/map_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userName;
@@ -81,6 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildMobileLayout(bool isDark) {
     return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -157,6 +159,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               isDark: isDark,
             ),
             _buildProfileOption(
+              icon: Icons.map_outlined,
+              title: 'Mapa',
+              onTap: () => _navigateToMap(),
+              isDark: isDark,
+            ),
+            _buildProfileOption(
               icon: Icons.description_outlined,
               title: 'Términos y condiciones',
               onTap: () => _showTermsAndConditions(),
@@ -168,6 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () => _navigateToSettings(context),
               isDark: isDark,
             ),
+            const SizedBox(height: 100),
           ],
         ),
       ),
@@ -175,111 +184,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildTabletLayout(bool isDark) {
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 1000),
-        child: Card(
-          elevation: 8,
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          margin: const EdgeInsets.all(40),
-          child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Columna izquierda - Información del perfil
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 80,
-                        backgroundColor: Colors.blueAccent[700],
-                        backgroundImage: (widget.userPhotoUrl != null &&
-                                !_photoLoadError)
-                            ? NetworkImage(
-                                ApiService.buildPhotoUrl(widget.userPhotoUrl)!)
-                            : null,
-                        onBackgroundImageError:
-                            (widget.userPhotoUrl != null && !_photoLoadError)
+    return SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 1000),
+            child: Card(
+              elevation: 8,
+              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              margin: const EdgeInsets.all(40),
+              child: Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Columna izquierda - Información del perfil
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 80,
+                            backgroundColor: Colors.blueAccent[700],
+                            backgroundImage: (widget.userPhotoUrl != null &&
+                                    !_photoLoadError)
+                                ? NetworkImage(ApiService.buildPhotoUrl(
+                                    widget.userPhotoUrl)!)
+                                : null,
+                            onBackgroundImageError: (widget.userPhotoUrl !=
+                                        null &&
+                                    !_photoLoadError)
                                 ? (_, __) {
                                     if (!_photoLoadError)
                                       setState(() => _photoLoadError = true);
                                   }
                                 : null,
-                        child: (widget.userPhotoUrl == null || _photoLoadError)
-                            ? Text(
-                                widget.userName.isNotEmpty
-                                    ? widget.userName[0].toUpperCase()
-                                    : 'U',
-                                style: const TextStyle(
-                                  fontSize: 50,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : null,
+                            child:
+                                (widget.userPhotoUrl == null || _photoLoadError)
+                                    ? Text(
+                                        widget.userName.isNotEmpty
+                                            ? widget.userName[0].toUpperCase()
+                                            : 'U',
+                                        style: const TextStyle(
+                                          fontSize: 50,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : null,
+                          ),
+                          const SizedBox(height: 30),
+                          Text(
+                            widget.userName,
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            widget.userEmail,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color:
+                                  isDark ? Colors.grey[400] : Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                        ],
                       ),
-                      const SizedBox(height: 30),
-                      Text(
-                        widget.userName,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        widget.userEmail,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-                    ],
-                  ),
-                ),
+                    ),
 
-                // Separador vertical
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: VerticalDivider(
-                    thickness: 1,
-                    width: 1,
-                    color: isDark ? Colors.grey[700] : Colors.grey[300],
-                  ),
-                ),
+                    // Separador vertical
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: VerticalDivider(
+                        thickness: 1,
+                        width: 1,
+                        color: isDark ? Colors.grey[700] : Colors.grey[300],
+                      ),
+                    ),
 
-                // Columna derecha - Opciones del perfil
-                Expanded(
-                  flex: 4,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Opciones del Perfil',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      Visibility(
-                        visible: false,
-                        child: _buildProfileOption(
-                          icon: Icons.person_outline,
-                          title: 'Editar Perfil',
-                          onTap: () => _showEditProfileDialog(),
-                          tabletMode: true,
-                          isDark: isDark,
-                        ),
-                      ),
-                      /*
+                    // Columna derecha - Opciones del perfil
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Opciones del Perfil',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          Visibility(
+                            visible: false,
+                            child: _buildProfileOption(
+                              icon: Icons.person_outline,
+                              title: 'Editar Perfil',
+                              onTap: () => _showEditProfileDialog(),
+                              tabletMode: true,
+                              isDark: isDark,
+                            ),
+                          ),
+                          /*
                       _buildProfileOption(
                         icon: Icons.history,
                         title: 'Historial de Viajes',
@@ -293,36 +307,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         tabletMode: true,
                       ),
                       */
-                      _buildProfileOption(
-                        icon: Icons.badge_outlined,
-                        title: 'Tarjeta',
-                        onTap: () => _navigateToIdCard(),
-                        tabletMode: true,
-                        isDark: isDark,
+                          _buildProfileOption(
+                            icon: Icons.badge_outlined,
+                            title: 'Tarjeta',
+                            onTap: () => _navigateToIdCard(),
+                            tabletMode: true,
+                            isDark: isDark,
+                          ),
+                          _buildProfileOption(
+                            icon: Icons.map_outlined,
+                            title: 'Mapa',
+                            onTap: () => _navigateToMap(),
+                            tabletMode: true,
+                            isDark: isDark,
+                          ),
+                          _buildProfileOption(
+                            icon: Icons.description_outlined,
+                            title: 'Términos y condiciones',
+                            onTap: () => _showTermsAndConditions(),
+                            tabletMode: true,
+                            isDark: isDark,
+                          ),
+                          _buildProfileOption(
+                            icon: Icons.settings,
+                            title: 'Configuración',
+                            onTap: () => _navigateToSettings(context),
+                            tabletMode: true,
+                            isDark: isDark,
+                          ),
+                        ],
                       ),
-                      _buildProfileOption(
-                        icon: Icons.description_outlined,
-                        title: 'Términos y condiciones',
-                        onTap: () => _showTermsAndConditions(),
-                        tabletMode: true,
-                        isDark: isDark,
-                      ),
-                      _buildProfileOption(
-                        icon: Icons.settings,
-                        title: 'Configuración',
-                        onTap: () => _navigateToSettings(context),
-                        tabletMode: true,
-                        isDark: isDark,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _buildProfileOption({
@@ -635,6 +656,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           userRegistrationDate: widget.userRegistrationDate,
           userType: widget.userType,
         ),
+      ),
+    );
+  }
+
+  void _navigateToMap() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MapScreen(),
       ),
     );
   }
