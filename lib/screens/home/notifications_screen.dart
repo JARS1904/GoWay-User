@@ -205,43 +205,41 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: Container(
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? const Color(0xFF1E1E1E)
-                                : Colors.grey[
-                                    100], // Slightly darker background in light mode
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
-                              color: isDark
-                                  ? Colors.grey[800]!
-                                  : Colors.grey[300]!,
-                            ),
+                        child: TextField(
+                          onChanged: (value) =>
+                              setState(() => _searchQuery = value),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black87,
                           ),
-                          child: TextField(
-                            textAlignVertical: TextAlignVertical.center,
-                            onChanged: (value) =>
-                                setState(() => _searchQuery = value),
-                            style: TextStyle(
-                              color: isDark ? Colors.white : Colors.black87,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'Buscar',
+                            hintStyle: TextStyle(
+                              color: isDark
+                                  ? Colors.grey[500]
+                                  : Colors.grey[600],
                             ),
-                            decoration: InputDecoration(
-                              hintText: 'Buscar',
-                              hintStyle: TextStyle(
-                                color: isDark
-                                    ? Colors.grey[500]
-                                    : Colors.grey[600],
-                              ),
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: isDark
-                                    ? Colors.grey[500]
-                                    : Colors.grey[600],
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
+                            prefixIcon: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Icon(Icons.search,
+                                  size: 20,
+                                  color: isDark ? Colors.grey[400] : Colors.grey[600]),
                             ),
+                            prefixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 48),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                           ),
                         ),
                       ),
