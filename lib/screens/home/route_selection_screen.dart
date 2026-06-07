@@ -293,6 +293,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   bool _loading = false;
   late String _userId;
   String _userName = 'Usuario';
+  String? _userPhotoUrl;
   Map<String, dynamic>? _selectedRoute;
   Set<String> _favoriteRouteIds = {};
   int _unreadNotifications = 0;
@@ -318,6 +319,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   @override
   void initState() {
     super.initState();
+    _userPhotoUrl = widget.userPhotoUrl;
     WidgetsBinding.instance.addObserver(this);
     _initializeUserId();
     _startNotificationTimer();
@@ -347,10 +349,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   }
 
   void refresh() {
-    _fetchLocations();
-    _loadFavorites();
-    _fetchUnreadNotificationsCount();
-    _loadPreferences();
+    _initializeUserId();
   }
 
   Future<void> _loadPreferences() async {
@@ -367,11 +366,17 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId') ?? '1';
     final userName =
-        widget.userName ?? prefs.getString('userName') ?? 'Usuario';
+        prefs.getString('userName') ?? widget.userName ?? 'Usuario';
+    final userPhotoUrl =
+        prefs.getString('userPhotoUrl') ?? widget.userPhotoUrl;
     if (mounted) {
       setState(() {
         _userId = userId;
         _userName = userName;
+        if (_userPhotoUrl != userPhotoUrl) {
+          _userPhotoUrl = userPhotoUrl;
+          _photoLoadError = false;
+        }
       });
     }
     _loadFavorites();
@@ -554,8 +559,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
 
   /// Avatar de usuario (con borde)
   Widget _buildAppBarAvatar() {
-    final hasPhoto = widget.userPhotoUrl != null &&
-        widget.userPhotoUrl!.isNotEmpty &&
+    final hasPhoto = _userPhotoUrl != null &&
+        _userPhotoUrl!.isNotEmpty &&
         !_photoLoadError;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -572,7 +577,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
           radius: 16,
           backgroundColor: Colors.blueAccent[700],
           backgroundImage: hasPhoto
-              ? NetworkImage(ApiService.buildPhotoUrl(widget.userPhotoUrl)!)
+              ? NetworkImage(ApiService.buildPhotoUrl(_userPhotoUrl)!)
               : null,
           onBackgroundImageError: hasPhoto
               ? (_, __) => setState(() => _photoLoadError = true)

@@ -198,47 +198,55 @@ class _ReportsScreenState extends State<ReportsScreen> {
       _ReportCard(report: report, isDark: isDark);
 
   Widget _buildEmptyState(bool isDark) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 96,
-              height: 96,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.blueAccent.withOpacity(0.12)
-                    : Colors.blueAccent.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.assignment_outlined,
-                size: 48,
-                color: isDark ? Colors.blueAccent[100] : Colors.blueAccent[700],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Sin reportes aun',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.7,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.blueAccent.withOpacity(0.12)
+                          : Colors.blueAccent.withOpacity(0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.assignment_outlined,
+                      size: 48,
+                      color: isDark ? Colors.blueAccent[100] : Colors.blueAccent[700],
+                    ),
                   ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Registra incidencias en las rutas para que el equipo pueda atenderlas.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    height: 1.4,
+                  const SizedBox(height: 20),
+                  Text(
+                    'Sin reportes aun',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
                   ),
-              textAlign: TextAlign.center,
+                  const SizedBox(height: 8),
+                  Text(
+                    'Registra incidencias en las rutas para que el equipo pueda atenderlas.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          height: 1.4,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 

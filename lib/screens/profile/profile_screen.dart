@@ -57,12 +57,144 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _localImageFile;
   bool _isUploading = false;
 
+  int _favoriteCount = 0;
+  int _reportCount = 0;
+  bool _loadingStats = true;
+
   @override
   void initState() {
     super.initState();
     _currentPhotoUrl = widget.userPhotoUrl;
+    _loadStats();
   }
-  
+
+  Future<void> _loadStats() async {
+    if (widget.userId == null) {
+      if (mounted) setState(() => _loadingStats = false);
+      return;
+    }
+
+    try {
+      final favUrl =
+          '${ApiService.favoritesUrl}?id_usuario=${widget.userId}&action=get_favorites';
+      final favRes = await http.get(Uri.parse(favUrl));
+      if (favRes.statusCode == 200) {
+        final decodedResponse = json.decode(favRes.body);
+        if (decodedResponse is List) {
+          _favoriteCount = decodedResponse.length;
+        } else if (decodedResponse is Map &&
+            decodedResponse['favorites'] is List) {
+          _favoriteCount = (decodedResponse['favorites'] as List).length;
+        }
+      }
+
+      final repUri = Uri.parse(ApiService.reportsUrl).replace(
+        queryParameters: {
+          'action': 'get_reports',
+          'id_usuario': widget.userId.toString()
+        },
+      );
+      final repRes = await http.get(repUri);
+      if (repRes.statusCode == 200 && repRes.body.trimLeft().startsWith('{')) {
+        final data = json.decode(repRes.body);
+        if (data is Map &&
+            data['success'] == true &&
+            data['reportes'] is List) {
+          _reportCount = (data['reportes'] as List).length;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading stats: $e');
+    }
+
+    if (mounted) {
+      setState(() {
+        _loadingStats = false;
+      });
+    }
+  }
+
+  Widget _buildStatsCards(bool isDark) {
+    if (_loadingStats) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 30),
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: _buildStatCard(
+              isDark,
+              iconColor: Colors.blueAccent[700]!,
+              count: _favoriteCount.toString(),
+              label: 'RUTAS FAVORITAS',
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _buildStatCard(
+              isDark,
+              iconColor: Colors.blueAccent[700]!,
+              count: _reportCount.toString(),
+              label: 'REPORTES CREADOS',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(bool isDark,
+      {required Color iconColor,
+      required String count,
+      required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: isDark ? Border.all(color: Colors.white12) : null,
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            count,
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showSuccessSnackbar(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -70,7 +202,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Row(children: [
           const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
           const SizedBox(width: 10),
-          Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
+          Expanded(
+              child:
+                  Text(message, style: const TextStyle(color: Colors.white))),
         ]),
         backgroundColor: Colors.blueAccent[700],
         shape: RoundedRectangleBorder(
@@ -90,7 +224,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Row(children: [
           const Icon(Icons.error_rounded, color: Colors.white, size: 20),
           const SizedBox(width: 10),
-          Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
+          Expanded(
+              child:
+                  Text(message, style: const TextStyle(color: Colors.white))),
         ]),
         backgroundColor: Colors.redAccent[700],
         shape: RoundedRectangleBorder(
@@ -108,42 +244,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _showErrorSnackbar('Error: Usuario no identificado');
       return;
     }
-    
+
     try {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-      
+
       if (pickedFile == null) return;
 
       setState(() {
         _isUploading = true;
       });
 
-      final request = http.MultipartRequest('POST', Uri.parse(ApiService.usuariosUrl));
+      final request =
+          http.MultipartRequest('POST', Uri.parse(ApiService.usuariosUrl));
       request.fields['_method'] = 'PUT';
       request.fields['id'] = widget.userId.toString();
-      
+
       final file = await http.MultipartFile.fromPath('foto', pickedFile.path);
       request.files.add(file);
-      
+
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Obtenemos los usuarios para saber la nueva URL
         final getResponse = await http.get(Uri.parse(ApiService.usuariosUrl));
         if (getResponse.statusCode == 200) {
           final users = json.decode(getResponse.body) as List;
           final updatedUser = users.firstWhere(
-            (u) => u['id'].toString() == widget.userId.toString(), 
-            orElse: () => null
-          );
-          
+              (u) => u['id'].toString() == widget.userId.toString(),
+              orElse: () => null);
+
           if (updatedUser != null && updatedUser['foto_url'] != null) {
             final newUrl = updatedUser['foto_url'];
             final prefs = await SharedPreferences.getInstance();
             await prefs.setString('userPhotoUrl', newUrl);
-            
+
             if (mounted) {
               setState(() {
                 _currentPhotoUrl = newUrl;
@@ -152,18 +288,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               });
             }
           } else {
-             if (mounted) setState(() {
+            if (mounted)
+              setState(() {
                 _localImageFile = File(pickedFile.path);
                 _photoLoadError = false;
-             });
+              });
           }
         } else {
-           if (mounted) setState(() {
+          if (mounted)
+            setState(() {
               _localImageFile = File(pickedFile.path);
               _photoLoadError = false;
-           });
+            });
         }
-        
+
         _showSuccessSnackbar('Foto de perfil actualizada');
       } else {
         String errorMsg = 'Error al actualizar la foto';
@@ -185,8 +323,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileImage(double radius, bool isDark) {
-    final hasPhoto = (_currentPhotoUrl != null || _localImageFile != null) && !_photoLoadError;
-    
+    final hasPhoto = (_currentPhotoUrl != null || _localImageFile != null) &&
+        !_photoLoadError;
+
     ImageProvider? imageProvider;
     if (_localImageFile != null) {
       imageProvider = FileImage(_localImageFile!);
@@ -251,7 +390,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 decoration: BoxDecoration(
                   color: Colors.blueAccent[700],
                   shape: BoxShape.circle,
-                  border: Border.all(color: isDark ? const Color(0xFF121212) : Colors.grey[50]!, width: 2),
+                  border: Border.all(
+                      color:
+                          isDark ? const Color(0xFF121212) : Colors.grey[50]!,
+                      width: 2),
                 ),
                 child: Icon(
                   Icons.camera_alt,
@@ -317,16 +459,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
-            const SizedBox(height: 40),
-            Visibility(
-              visible: false,
-              child: _buildProfileOption(
-                icon: Icons.person_outline,
-                title: 'Editar Perfil',
-                onTap: () => _showEditProfileDialog(),
-                isDark: isDark,
-              ),
-            ),
+            _buildStatsCards(isDark),
             /*
             _buildProfileOption(
               icon: Icons.history,
@@ -339,29 +472,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () => _showComingSoonSnackbar(),
             ),
             */
-            _buildProfileOption(
-              icon: Icons.badge_outlined,
-              title: 'Tarjeta',
-              onTap: () => _navigateToIdCard(),
-              isDark: isDark,
-            ),
-            _buildProfileOption(
-              icon: Icons.map_outlined,
-              title: 'Mapa',
-              onTap: () => _navigateToMap(),
-              isDark: isDark,
-            ),
-            _buildProfileOption(
-              icon: Icons.description_outlined,
-              title: 'Términos y condiciones',
-              onTap: () => _showTermsAndConditions(),
-              isDark: isDark,
-            ),
-            _buildProfileOption(
-              icon: Icons.settings,
-              title: 'Configuración',
-              onTap: () => _navigateToSettings(context),
-              isDark: isDark,
+            Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: isDark ? Border.all(color: Colors.white12) : null,
+                boxShadow: isDark
+                    ? []
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+              ),
+              child: Column(
+                children: [
+                  _buildProfileOption(
+                    icon: Icons.badge_outlined,
+                    title: 'Tarjeta',
+                    onTap: () => _navigateToIdCard(),
+                    isDark: isDark,
+                  ),
+                  Divider(
+                      height: 1,
+                      color: isDark ? Colors.white12 : Colors.grey[200],
+                      indent: 16,
+                      endIndent: 16),
+                  _buildProfileOption(
+                    icon: Icons.map_outlined,
+                    title: 'Mapa',
+                    onTap: () => _navigateToMap(),
+                    isDark: isDark,
+                  ),
+                  Divider(
+                      height: 1,
+                      color: isDark ? Colors.white12 : Colors.grey[200],
+                      indent: 16,
+                      endIndent: 16),
+                  _buildProfileOption(
+                    icon: Icons.description_outlined,
+                    title: 'Términos y condiciones',
+                    onTap: () => _showTermsAndConditions(),
+                    isDark: isDark,
+                  ),
+                  Divider(
+                      height: 1,
+                      color: isDark ? Colors.white12 : Colors.grey[200],
+                      indent: 16,
+                      endIndent: 16),
+                  _buildProfileOption(
+                    icon: Icons.settings,
+                    title: 'Configuración',
+                    onTap: () => _navigateToSettings(context),
+                    isDark: isDark,
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 100),
           ],
@@ -412,7 +580,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   isDark ? Colors.grey[400] : Colors.grey[600],
                             ),
                           ),
-                          const SizedBox(height: 40),
+                          _buildStatsCards(isDark),
                         ],
                       ),
                     ),
@@ -441,17 +609,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: isDark ? Colors.white : Colors.black,
                             ),
                           ),
-                          const SizedBox(height: 30),
-                          Visibility(
-                            visible: false,
-                            child: _buildProfileOption(
-                              icon: Icons.person_outline,
-                              title: 'Editar Perfil',
-                              onTap: () => _showEditProfileDialog(),
-                              tabletMode: true,
-                              isDark: isDark,
-                            ),
-                          ),
+                          const SizedBox(height: 20),
                           /*
                       _buildProfileOption(
                         icon: Icons.history,
@@ -466,33 +624,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         tabletMode: true,
                       ),
                       */
-                          _buildProfileOption(
-                            icon: Icons.badge_outlined,
-                            title: 'Tarjeta',
-                            onTap: () => _navigateToIdCard(),
-                            tabletMode: true,
-                            isDark: isDark,
-                          ),
-                          _buildProfileOption(
-                            icon: Icons.map_outlined,
-                            title: 'Mapa',
-                            onTap: () => _navigateToMap(),
-                            tabletMode: true,
-                            isDark: isDark,
-                          ),
-                          _buildProfileOption(
-                            icon: Icons.description_outlined,
-                            title: 'Términos y condiciones',
-                            onTap: () => _showTermsAndConditions(),
-                            tabletMode: true,
-                            isDark: isDark,
-                          ),
-                          _buildProfileOption(
-                            icon: Icons.settings,
-                            title: 'Configuración',
-                            onTap: () => _navigateToSettings(context),
-                            tabletMode: true,
-                            isDark: isDark,
+                          Container(
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF1A1A1A)
+                                  : Colors.grey[50],
+                              borderRadius: BorderRadius.circular(20),
+                              border: isDark
+                                  ? Border.all(color: Colors.white12)
+                                  : Border.all(color: Colors.grey[200]!),
+                            ),
+                            child: Column(
+                              children: [
+                                _buildProfileOption(
+                                  icon: Icons.badge_outlined,
+                                  title: 'Tarjeta',
+                                  onTap: () => _navigateToIdCard(),
+                                  tabletMode: true,
+                                  isDark: isDark,
+                                ),
+                                Divider(
+                                    height: 1,
+                                    color: isDark
+                                        ? Colors.white12
+                                        : Colors.grey[200],
+                                    indent: 16,
+                                    endIndent: 16),
+                                _buildProfileOption(
+                                  icon: Icons.map_outlined,
+                                  title: 'Mapa',
+                                  onTap: () => _navigateToMap(),
+                                  tabletMode: true,
+                                  isDark: isDark,
+                                ),
+                                Divider(
+                                    height: 1,
+                                    color: isDark
+                                        ? Colors.white12
+                                        : Colors.grey[200],
+                                    indent: 16,
+                                    endIndent: 16),
+                                _buildProfileOption(
+                                  icon: Icons.description_outlined,
+                                  title: 'Términos y condiciones',
+                                  onTap: () => _showTermsAndConditions(),
+                                  tabletMode: true,
+                                  isDark: isDark,
+                                ),
+                                Divider(
+                                    height: 1,
+                                    color: isDark
+                                        ? Colors.white12
+                                        : Colors.grey[200],
+                                    indent: 16,
+                                    endIndent: 16),
+                                _buildProfileOption(
+                                  icon: Icons.settings,
+                                  title: 'Configuración',
+                                  onTap: () => _navigateToSettings(context),
+                                  tabletMode: true,
+                                  isDark: isDark,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -512,58 +706,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool tabletMode = false,
     bool isDark = false,
   }) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: tabletMode ? 8 : 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        border:
-            isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        splashColor: isDark ? Colors.white10 : Colors.black12,
+        highlightColor: isDark ? Colors.white10 : Colors.black12,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: tabletMode ? 18 : 16,
+            horizontal: 16,
           ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(15),
-          splashFactory: NoSplash.splashFactory,
-          highlightColor: Colors.blueAccent.withValues(alpha: 0.12),
-          child: ListTile(
-            leading: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blueAccent.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  size: tabletMode ? 24 : 20,
+                  color: Colors.blueAccent[700],
+                ),
               ),
-              child: Icon(
-                icon,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: tabletMode ? 18 : 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
                 size: tabletMode ? 28 : 24,
-                color: Colors.blueAccent[700],
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
               ),
-            ),
-            title: Text(
-              title,
-              style: TextStyle(
-                fontSize: tabletMode ? 20 : 16,
-                fontWeight: FontWeight.w500,
-                color: isDark ? Colors.white : Colors.black,
-              ),
-            ),
-            trailing: Icon(
-              Icons.chevron_right,
-              size: tabletMode ? 30 : 24,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              vertical: tabletMode ? 12 : 8,
-              horizontal: tabletMode ? 16 : 8,
-            ),
+            ],
           ),
         ),
       ),

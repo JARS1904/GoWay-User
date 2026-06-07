@@ -431,9 +431,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     unselectedColor: unselectedColor,
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
-                      if (_currentIndex == 0) {
-                        (_routeSelectionKey.currentState as dynamic)?.refresh();
-                      }
+                      (_routeSelectionKey.currentState as dynamic)?.refresh();
                       setState(() => _currentIndex = 0);
                     },
                   ),
@@ -447,9 +445,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     unselectedColor: unselectedColor,
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
-                      if (_currentIndex == 1) {
-                        (_favoritesKey.currentState as dynamic)?.refresh();
-                      }
+                      (_favoritesKey.currentState as dynamic)?.refresh();
                       setState(() => _currentIndex = 1);
                     },
                   ),
@@ -463,9 +459,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     unselectedColor: unselectedColor,
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
-                      if (_currentIndex == 2) {
-                        (_reportsKey.currentState as dynamic)?.refresh();
-                      }
+                      (_reportsKey.currentState as dynamic)?.refresh();
                       setState(() => _currentIndex = 2);
                     },
                   ),
@@ -479,9 +473,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     unselectedColor: unselectedColor,
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
-                      if (_currentIndex == 3) {
-                        (_profileKey.currentState as dynamic)?.refresh();
-                      }
+                      (_profileKey.currentState as dynamic)?.refresh();
                       setState(() => _currentIndex = 3);
                     },
                   ),
@@ -550,20 +542,16 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             selectedIndex: _currentIndex,
             onDestinationSelected: (index) {
               FocusManager.instance.primaryFocus?.unfocus();
-              if (index == _currentIndex) {
-                if (index == 0)
-                  (_routeSelectionKey.currentState as dynamic)?.refresh();
-                if (index == 1)
-                  (_favoritesKey.currentState as dynamic)?.refresh();
-                if (index == 2)
-                  (_reportsKey.currentState as dynamic)?.refresh();
-                if (index == 3)
-                  (_profileKey.currentState as dynamic)?.refresh();
-              }
-              setState(() => _currentIndex = index);
               if (index == 0) {
                 (_routeSelectionKey.currentState as dynamic)?.refresh();
+              } else if (index == 1) {
+                (_favoritesKey.currentState as dynamic)?.refresh();
+              } else if (index == 2) {
+                (_reportsKey.currentState as dynamic)?.refresh();
+              } else if (index == 3) {
+                (_profileKey.currentState as dynamic)?.refresh();
               }
+              setState(() => _currentIndex = index);
             },
             labelType: NavigationRailLabelType.all,
             backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
