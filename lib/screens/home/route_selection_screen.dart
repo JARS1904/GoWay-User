@@ -10,6 +10,7 @@ import 'package:goway_user/screens/home/notifications_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:goway_user/services/audio_service.dart';
+import 'package:marquee/marquee.dart';
 
 // ── Horarios: deduplicación y badge de estado (API routes / favorites) ─────
 
@@ -1202,16 +1203,27 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                         : Colors.orange[700]),
                                 const SizedBox(width: 2),
                                 Flexible(
-                                    child: Text(
-                                        '${route['parada_embarque'] ?? '-'} → ${route['parada_bajada'] ?? '-'}',
-                                        style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w500,
-                                            color: isDark
-                                                ? Colors.orange[300]
-                                                : Colors.orange[800]),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis)),
+                                    child: SizedBox(
+                                        height: 15,
+                                        child: Marquee(
+                                            text: '${route['parada_embarque'] ?? '-'}   ➔   ${route['parada_bajada'] ?? '-'}',
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w500,
+                                                color: isDark
+                                                    ? Colors.orange[300]
+                                                    : Colors.orange[800]),
+                                            scrollAxis: Axis.horizontal,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            blankSpace: 40.0,
+                                            velocity: 30.0,
+                                            pauseAfterRound: const Duration(seconds: 2),
+                                            startPadding: 0.0,
+                                            accelerationDuration: const Duration(milliseconds: 500),
+                                            accelerationCurve: Curves.easeIn,
+                                            decelerationDuration: const Duration(milliseconds: 500),
+                                            decelerationCurve: Curves.easeOut,
+                                        ))),
                               ],
                             ),
                           ],
@@ -1428,25 +1440,25 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             const SizedBox(height: 8),
           ],
           if (route['es_tramo'] == 1) ...[
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text(route['parada_embarque'] ?? '-',
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black)),
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: Icon(Icons.arrow_forward_rounded,
-                        size: 22,
-                        color: isDark ? Colors.grey[500] : Colors.grey[600])),
-                Text(route['parada_bajada'] ?? '-',
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black)),
-              ],
+            SizedBox(
+              height: 32,
+              child: Marquee(
+                text: '${route['parada_embarque'] ?? '-'}   ➔   ${route['parada_bajada'] ?? '-'}',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black),
+                scrollAxis: Axis.horizontal,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                blankSpace: 60.0,
+                velocity: 40.0,
+                pauseAfterRound: const Duration(seconds: 2),
+                startPadding: 0.0,
+                accelerationDuration: const Duration(milliseconds: 500),
+                accelerationCurve: Curves.easeIn,
+                decelerationDuration: const Duration(milliseconds: 500),
+                decelerationCurve: Curves.easeOut,
+              ),
             ),
             const SizedBox(height: 8),
             Container(

@@ -17,6 +17,8 @@ import 'package:goway_user/screens/auth/get_started_screen.dart';
 import 'package:goway_user/screens/favorites/favorites_screen.dart';
 import 'package:goway_user/screens/reports/reports_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:goway_user/screens/map/map_screen.dart';
+import 'package:goway_user/screens/profile/id_card_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -288,6 +290,7 @@ class MainNavigationWrapper extends StatefulWidget {
 
 class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   int _currentIndex = 0;
+  bool _isMenuOpen = false;
   List<Widget> _screens = []; // ✅ Inicializado vacío (ya no es late)
   final GlobalKey _routeSelectionKey = GlobalKey();
   final GlobalKey _favoritesKey = GlobalKey();
@@ -401,6 +404,34 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               ),
             ),
           ),
+          Positioned.fill(
+            child: IgnorePointer(
+              ignoring: !_isMenuOpen,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: _isMenuOpen ? 1.0 : 0.0,
+                child: GestureDetector(
+                  onTap: () => setState(() => _isMenuOpen = false),
+                  child: Container(color: Colors.black.withOpacity(0.3)),
+                ),
+              ),
+            ),
+          ),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOutBack,
+            left: 16,
+            right: 16,
+            bottom: _isMenuOpen ? 90 : 20,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: _isMenuOpen ? 1.0 : 0.0,
+              child: IgnorePointer(
+                ignoring: !_isMenuOpen,
+                child: _buildPopupMenu(isDark),
+              ),
+            ),
+          ),
           Positioned(
             left: 16,
             right: 16,
@@ -449,6 +480,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                       setState(() => _currentIndex = 1);
                     },
                   ),
+                  _buildCenterActionButton(isDark),
                   _buildFloatingNavItem(
                     icon: _currentIndex == 2
                         ? Icons.description_rounded
@@ -500,7 +532,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -536,84 +568,216 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Row(
+      body: Stack(
         children: [
-          NavigationRail(
-            selectedIndex: _currentIndex,
-            onDestinationSelected: (index) {
-              FocusManager.instance.primaryFocus?.unfocus();
-              if (index == 0) {
-                (_routeSelectionKey.currentState as dynamic)?.refresh();
-              } else if (index == 1) {
-                (_favoritesKey.currentState as dynamic)?.refresh();
-              } else if (index == 2) {
-                (_reportsKey.currentState as dynamic)?.refresh();
-              } else if (index == 3) {
-                (_profileKey.currentState as dynamic)?.refresh();
-              }
-              setState(() => _currentIndex = index);
-            },
-            labelType: NavigationRailLabelType.all,
-            backgroundColor: isDark ? const Color(0xFF1F1F1F) : Colors.white,
-            groupAlignment: 0.0,
-            destinations: [
-              NavigationRailDestination(
-                icon: Icon(Icons.home_outlined,
-                    color:
-                        _currentIndex == 0 ? selectedColor : unselectedColor),
-                selectedIcon: Icon(Icons.home_rounded, color: selectedColor),
-                label: Text('Inicio',
-                    style: TextStyle(
+          Row(
+            children: [
+              NavigationRail(
+                selectedIndex: _currentIndex,
+                onDestinationSelected: (index) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  if (index == 0) {
+                    (_routeSelectionKey.currentState as dynamic)?.refresh();
+                  } else if (index == 1) {
+                    (_favoritesKey.currentState as dynamic)?.refresh();
+                  } else if (index == 2) {
+                    (_reportsKey.currentState as dynamic)?.refresh();
+                  } else if (index == 3) {
+                    (_profileKey.currentState as dynamic)?.refresh();
+                  }
+                  setState(() => _currentIndex = index);
+                },
+                labelType: NavigationRailLabelType.all,
+                backgroundColor:
+                    isDark ? const Color(0xFF1F1F1F) : Colors.white,
+                groupAlignment: 0.0,
+                trailing: Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: _buildCenterActionButton(isDark),
+                ),
+                destinations: [
+                  NavigationRailDestination(
+                    icon: Icon(Icons.home_outlined,
                         color: _currentIndex == 0
                             ? selectedColor
-                            : unselectedColor)),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.favorite_border_rounded,
-                    color:
-                        _currentIndex == 1 ? selectedColor : unselectedColor),
-                selectedIcon:
-                    Icon(Icons.favorite_rounded, color: selectedColor),
-                label: Text('Favoritos',
-                    style: TextStyle(
+                            : unselectedColor),
+                    selectedIcon:
+                        Icon(Icons.home_rounded, color: selectedColor),
+                    label: Text('Inicio',
+                        style: TextStyle(
+                            color: _currentIndex == 0
+                                ? selectedColor
+                                : unselectedColor)),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.favorite_border_rounded,
                         color: _currentIndex == 1
                             ? selectedColor
-                            : unselectedColor)),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.description_outlined,
-                    color:
-                        _currentIndex == 2 ? selectedColor : unselectedColor),
-                selectedIcon:
-                    Icon(Icons.description_rounded, color: selectedColor),
-                label: Text('Reportes',
-                    style: TextStyle(
+                            : unselectedColor),
+                    selectedIcon:
+                        Icon(Icons.favorite_rounded, color: selectedColor),
+                    label: Text('Favoritos',
+                        style: TextStyle(
+                            color: _currentIndex == 1
+                                ? selectedColor
+                                : unselectedColor)),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.description_outlined,
                         color: _currentIndex == 2
                             ? selectedColor
-                            : unselectedColor)),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.person_outline_rounded,
-                    color:
-                        _currentIndex == 3 ? selectedColor : unselectedColor),
-                selectedIcon: Icon(Icons.person_rounded, color: selectedColor),
-                label: Text('Perfil',
-                    style: TextStyle(
+                            : unselectedColor),
+                    selectedIcon:
+                        Icon(Icons.description_rounded, color: selectedColor),
+                    label: Text('Reportes',
+                        style: TextStyle(
+                            color: _currentIndex == 2
+                                ? selectedColor
+                                : unselectedColor)),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.person_outline_rounded,
                         color: _currentIndex == 3
                             ? selectedColor
-                            : unselectedColor)),
+                            : unselectedColor),
+                    selectedIcon:
+                        Icon(Icons.person_rounded, color: selectedColor),
+                    label: Text('Perfil',
+                        style: TextStyle(
+                            color: _currentIndex == 3
+                                ? selectedColor
+                                : unselectedColor)),
+                  ),
+                ],
+              ),
+              const VerticalDivider(thickness: 1, width: 1),
+              Expanded(
+                child: IndexedStack(
+                  index: _currentIndex,
+                  children: _screens,
+                ),
               ),
             ],
           ),
-          const VerticalDivider(thickness: 1, width: 1),
-          Expanded(
-            child: IndexedStack(
-              index: _currentIndex,
-              children: _screens,
+          Positioned.fill(
+            child: IgnorePointer(
+              ignoring: !_isMenuOpen,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: _isMenuOpen ? 1.0 : 0.0,
+                child: GestureDetector(
+                  onTap: () => setState(() => _isMenuOpen = false),
+                  child: Container(color: Colors.black.withOpacity(0.3)),
+                ),
+              ),
+            ),
+          ),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOutBack,
+            left: 100,
+            bottom: _isMenuOpen ? 40 : 10,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: _isMenuOpen ? 1.0 : 0.0,
+              child: IgnorePointer(
+                ignoring: !_isMenuOpen,
+                child: _buildPopupMenu(isDark, isTablet: true),
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildCenterActionButton(bool isDark) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isMenuOpen = !_isMenuOpen;
+        });
+      },
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+            color: Colors.blueAccent[700],
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blueAccent.withOpacity(0.4),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              )
+            ]),
+        child: Icon(
+          _isMenuOpen ? Icons.close_rounded : Icons.add_rounded,
+          color: Colors.white,
+          size: 28,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPopupMenu(bool isDark, {bool isTablet = false}) {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: isTablet ? 220 : null,
+        decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                )
+              ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.map_rounded, color: Colors.blueAccent[700]),
+                title: Text('Ir al mapa',
+                    style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.w600)),
+                onTap: () {
+                  setState(() => _isMenuOpen = false);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const MapScreen()));
+                },
+              ),
+              Divider(
+                  height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
+              ListTile(
+                leading: Icon(Icons.credit_card_rounded,
+                    color: Colors.blueAccent[700]),
+                title: Text('Mi tarjeta',
+                    style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.w600)),
+                onTap: () {
+                  setState(() => _isMenuOpen = false);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => IdCardScreen(
+                                userName: _userName,
+                                userEmail: _userEmail,
+                                userPhotoUrl: _userPhotoUrl,
+                                userId: _userId,
+                                userPhone: _userPhone,
+                                userRegistrationDate: _userRegistrationDate,
+                                userType: _userType,
+                              )));
+                },
+              ),
+            ],
+          ),
+        ),
+      );
   }
 }
