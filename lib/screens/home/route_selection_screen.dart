@@ -368,8 +368,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
     final userId = prefs.getString('userId') ?? '1';
     final userName =
         prefs.getString('userName') ?? widget.userName ?? 'Usuario';
-    final userPhotoUrl =
-        prefs.getString('userPhotoUrl') ?? widget.userPhotoUrl;
+    final userPhotoUrl = prefs.getString('userPhotoUrl') ?? widget.userPhotoUrl;
     if (mounted) {
       setState(() {
         _userId = userId;
@@ -560,9 +559,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
 
   /// Avatar de usuario (con borde)
   Widget _buildAppBarAvatar() {
-    final hasPhoto = _userPhotoUrl != null &&
-        _userPhotoUrl!.isNotEmpty &&
-        !_photoLoadError;
+    final hasPhoto =
+        _userPhotoUrl != null && _userPhotoUrl!.isNotEmpty && !_photoLoadError;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
@@ -670,200 +668,200 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Hola, $_userName 👋',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black)),
-            const SizedBox(height: 4),
-            Text('¿A dónde quieres ir?',
-                style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? Colors.grey[500] : Colors.grey[600])),
-            const SizedBox(height: 20),
-            // Selector de punto de origen
-            DropdownMenu<String>(
-              requestFocusOnTap: true,
-              expandedInsets: EdgeInsets.zero,
-              menuHeight: 300,
-              initialSelection: _origin,
-              label: const Text('Seleccione el origen'),
-              leadingIcon: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Image.asset(
-                  'lib/assets/icons/icons8-marcador.png',
-                  width: 20,
-                  height: 20,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
-                ),
-              ),
-              inputDecorationTheme: InputDecorationTheme(
-                isDense: true,
-                constraints: const BoxConstraints(maxHeight: 48),
-                border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  borderSide: BorderSide(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .outline
-                        .withValues(alpha: 0.4),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Hola, $_userName 👋',
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black)),
+              const SizedBox(height: 4),
+              Text('¿A dónde quieres ir?',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[500] : Colors.grey[600])),
+              const SizedBox(height: 20),
+              // Selector de punto de origen
+              DropdownMenu<String>(
+                requestFocusOnTap: true,
+                expandedInsets: EdgeInsets.zero,
+                menuHeight: 300,
+                initialSelection: _origin,
+                label: const Text('Seleccione el origen'),
+                leadingIcon: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Image.asset(
+                    'lib/assets/icons/icons8-marcador.png',
+                    width: 20,
+                    height: 20,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
                   ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  borderSide:
-                      BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                inputDecorationTheme: InputDecorationTheme(
+                  isDense: true,
+                  constraints: const BoxConstraints(maxHeight: 48),
+                  border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    borderSide: BorderSide(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.4),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    borderSide:
+                        BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-              ),
-              menuStyle: MenuStyle(
-                backgroundColor: WidgetStatePropertyAll(
-                    isDark ? const Color(0xFF1E1E1E) : Colors.grey[50]),
-                shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20))),
-                elevation: const WidgetStatePropertyAll(8),
-              ),
-              dropdownMenuEntries: _locations
-                  .map((location) => DropdownMenuEntry(
-                        value: location,
-                        label: location,
-                        style: MenuItemButton.styleFrom(
-                          foregroundColor:
-                              isDark ? Colors.white : Colors.black87,
-                          textStyle: const TextStyle(fontSize: 14),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                      ))
-                  .toList(),
-              onSelected: (newValue) => setState(() {
-                _origin = newValue;
-                _routes = [];
-                _selectedRoute = null;
-                _currentSchedulePage = 0;
-              }),
-            ),
-            const SizedBox(height: 16),
-            // Selector de punto de destino
-            DropdownMenu<String>(
-              requestFocusOnTap: true,
-              expandedInsets: EdgeInsets.zero,
-              menuHeight: 300,
-              initialSelection: _destination,
-              label: const Text('Seleccione el destino'),
-              leadingIcon: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Image.asset(
-                  'lib/assets/icons/icons8-marcador.png',
-                  width: 20,
-                  height: 20,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                menuStyle: MenuStyle(
+                  backgroundColor: WidgetStatePropertyAll(
+                      isDark ? const Color(0xFF1E1E1E) : Colors.grey[50]),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20))),
+                  elevation: const WidgetStatePropertyAll(8),
                 ),
+                dropdownMenuEntries: _locations
+                    .map((location) => DropdownMenuEntry(
+                          value: location,
+                          label: location,
+                          style: MenuItemButton.styleFrom(
+                            foregroundColor:
+                                isDark ? Colors.white : Colors.black87,
+                            textStyle: const TextStyle(fontSize: 14),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                          ),
+                        ))
+                    .toList(),
+                onSelected: (newValue) => setState(() {
+                  _origin = newValue;
+                  _routes = [];
+                  _selectedRoute = null;
+                  _currentSchedulePage = 0;
+                }),
               ),
-              inputDecorationTheme: InputDecorationTheme(
-                isDense: true,
-                constraints: const BoxConstraints(maxHeight: 48),
-                border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  borderSide: BorderSide(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .outline
-                        .withValues(alpha: 0.4),
+              const SizedBox(height: 16),
+              // Selector de punto de destino
+              DropdownMenu<String>(
+                requestFocusOnTap: true,
+                expandedInsets: EdgeInsets.zero,
+                menuHeight: 300,
+                initialSelection: _destination,
+                label: const Text('Seleccione el destino'),
+                leadingIcon: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Image.asset(
+                    'lib/assets/icons/icons8-marcador.png',
+                    width: 20,
+                    height: 20,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
                   ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  borderSide:
-                      BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                inputDecorationTheme: InputDecorationTheme(
+                  isDense: true,
+                  constraints: const BoxConstraints(maxHeight: 48),
+                  border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    borderSide: BorderSide(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.4),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    borderSide:
+                        BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                menuStyle: MenuStyle(
+                  backgroundColor: WidgetStatePropertyAll(
+                      isDark ? const Color(0xFF1E1E1E) : Colors.grey[50]),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20))),
+                  elevation: const WidgetStatePropertyAll(8),
+                ),
+                dropdownMenuEntries: _locations
+                    .map((location) => DropdownMenuEntry(
+                          value: location,
+                          label: location,
+                          style: MenuItemButton.styleFrom(
+                            foregroundColor:
+                                isDark ? Colors.white : Colors.black87,
+                            textStyle: const TextStyle(fontSize: 14),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                          ),
+                        ))
+                    .toList(),
+                onSelected: (newValue) => setState(() {
+                  _destination = newValue;
+                  _routes = [];
+                  _selectedRoute = null;
+                  _currentSchedulePage = 0;
+                }),
               ),
-              menuStyle: MenuStyle(
-                backgroundColor: WidgetStatePropertyAll(
-                    isDark ? const Color(0xFF1E1E1E) : Colors.grey[50]),
-                shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20))),
-                elevation: const WidgetStatePropertyAll(8),
-              ),
-              dropdownMenuEntries: _locations
-                  .map((location) => DropdownMenuEntry(
-                        value: location,
-                        label: location,
-                        style: MenuItemButton.styleFrom(
-                          foregroundColor:
-                              isDark ? Colors.white : Colors.black87,
-                          textStyle: const TextStyle(fontSize: 14),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                      ))
-                  .toList(),
-              onSelected: (newValue) => setState(() {
-                _destination = newValue;
-                _routes = [];
-                _selectedRoute = null;
-                _currentSchedulePage = 0;
-              }),
-            ),
-            const SizedBox(height: 24),
-            _PressScale(
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: _origin != null && _destination != null
-                      ? _searchRoutes
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent[700],
-                      foregroundColor: Colors.white,
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20))),
-                  icon: _loading
-                      ? const SizedBox.shrink()
-                      : const Icon(Icons.search_rounded, size: 20),
-                  label: _loading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Buscar', style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 24),
+              _PressScale(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: _origin != null && _destination != null
+                        ? _searchRoutes
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent[700],
+                        foregroundColor: Colors.white,
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20))),
+                    icon: _loading
+                        ? const SizedBox.shrink()
+                        : const Icon(Icons.search_rounded, size: 20),
+                    label: _loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('Buscar', style: TextStyle(fontSize: 16)),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Divider(
-                    color: isDark ? Colors.grey[800] : Colors.grey[300],
-                    thickness: 1.5)),
-            const SizedBox(height: 24),
-            if (_loading)
-              const Center(child: CircularProgressIndicator())
-            else if (_routes.isNotEmpty)
-              Expanded(
-                  child: ListView.builder(
-                      itemCount: _routes.length,
-                      itemBuilder: (context, index) =>
-                          _buildRouteCard(_routes[index])))
-            else if (_origin != null && _destination != null && !_loading)
-              const Center(
-                  child: Padding(
-                      padding: EdgeInsets.only(
-                          top: 16, left: 30, bottom: 16, right: 30),
-                      child: Text(
-                          'No se encontraron rutas para esta combinación',
-                          style: TextStyle(fontSize: 14),
-                          textAlign: TextAlign.center))),
-          ],
+              const SizedBox(height: 24),
+              Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Divider(
+                      color: isDark ? Colors.grey[800] : Colors.grey[300],
+                      thickness: 1.5)),
+              const SizedBox(height: 24),
+              if (_loading)
+                const Center(child: CircularProgressIndicator())
+              else if (_routes.isNotEmpty)
+                Expanded(
+                    child: ListView.builder(
+                        itemCount: _routes.length,
+                        itemBuilder: (context, index) =>
+                            _buildRouteCard(_routes[index])))
+              else if (_origin != null && _destination != null && !_loading)
+                const Center(
+                    child: Padding(
+                        padding: EdgeInsets.only(
+                            top: 16, left: 30, bottom: 16, right: 30),
+                        child: Text(
+                            'No se encontraron rutas para esta combinación',
+                            style: TextStyle(fontSize: 14),
+                            textAlign: TextAlign.center))),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -894,115 +892,120 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         behavior: HitTestBehavior.opaque,
         child: Row(
           children: [
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Hola, $_userName 👋',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black)),
-                  const SizedBox(height: 4),
-                  Text('¿A dónde quieres ir?',
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: isDark ? Colors.grey[500] : Colors.grey[600])),
-                  const SizedBox(height: 20),
-                  _buildDropdown(
-                      'Seleccione el origen',
-                      _origin,
-                      (v) => setState(() {
-                            _origin = v;
-                            _routes = [];
-                            _selectedRoute = null;
-                            _currentSchedulePage = 0;
-                          }),
-                      isDark),
-                  const SizedBox(height: 16),
-                  _buildDropdown(
-                      'Seleccione el destino',
-                      _destination,
-                      (v) => setState(() {
-                            _destination = v;
-                            _routes = [];
-                            _selectedRoute = null;
-                            _currentSchedulePage = 0;
-                          }),
-                      isDark),
-                  const SizedBox(height: 24),
-                  _PressScale(
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton.icon(
-                        onPressed: _origin != null && _destination != null
-                            ? _searchRoutes
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent[700],
-                            foregroundColor: Colors.white,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20))),
-                        icon: _loading
-                            ? const SizedBox.shrink()
-                            : const Icon(Icons.search_rounded, size: 20),
-                        label: _loading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white)
-                            : const Text('Buscar',
-                                style: TextStyle(fontSize: 16)),
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Hola, $_userName 👋',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black)),
+                    const SizedBox(height: 4),
+                    Text('¿A dónde quieres ir?',
+                        style: TextStyle(
+                            fontSize: 14,
+                            color:
+                                isDark ? Colors.grey[500] : Colors.grey[600])),
+                    const SizedBox(height: 20),
+                    _buildDropdown(
+                        'Seleccione el origen',
+                        _origin,
+                        (v) => setState(() {
+                              _origin = v;
+                              _routes = [];
+                              _selectedRoute = null;
+                              _currentSchedulePage = 0;
+                            }),
+                        isDark),
+                    const SizedBox(height: 16),
+                    _buildDropdown(
+                        'Seleccione el destino',
+                        _destination,
+                        (v) => setState(() {
+                              _destination = v;
+                              _routes = [];
+                              _selectedRoute = null;
+                              _currentSchedulePage = 0;
+                            }),
+                        isDark),
+                    const SizedBox(height: 24),
+                    _PressScale(
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: _origin != null && _destination != null
+                              ? _searchRoutes
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent[700],
+                              foregroundColor: Colors.white,
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20))),
+                          icon: _loading
+                              ? const SizedBox.shrink()
+                              : const Icon(Icons.search_rounded, size: 20),
+                          label: _loading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white)
+                              : const Text('Buscar',
+                                  style: TextStyle(fontSize: 16)),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Divider(
-                          color: isDark ? Colors.grey[800] : Colors.grey[300],
-                          thickness: 1.5)),
-                  const SizedBox(height: 24),
-                  if (_loading)
-                    const Center(child: CircularProgressIndicator())
-                  else if (_routes.isNotEmpty)
-                    Expanded(
-                        child: ListView.builder(
-                            itemCount: _routes.length,
-                            itemBuilder: (context, index) => _buildRouteCard(
-                                _routes[index],
-                                forTablet: true)))
-                  else if (_origin != null && _destination != null && !_loading)
-                    const Center(
-                        child: Text(
-                            'No se encontraron rutas para esta combinación')),
-                ],
+                    const SizedBox(height: 24),
+                    Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Divider(
+                            color: isDark ? Colors.grey[800] : Colors.grey[300],
+                            thickness: 1.5)),
+                    const SizedBox(height: 24),
+                    if (_loading)
+                      const Center(child: CircularProgressIndicator())
+                    else if (_routes.isNotEmpty)
+                      Expanded(
+                          child: ListView.builder(
+                              itemCount: _routes.length,
+                              itemBuilder: (context, index) => _buildRouteCard(
+                                  _routes[index],
+                                  forTablet: true)))
+                    else if (_origin != null &&
+                        _destination != null &&
+                        !_loading)
+                      const Center(
+                          child: Text(
+                              'No se encontraron rutas para esta combinación')),
+                  ],
+                ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 3,
-            child: _selectedRoute != null
-                ? _buildRouteDetails(_selectedRoute!)
-                : Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset('lib/assets/images/logo_sin_nombre.png',
-                            width: 60, height: 60),
-                        const SizedBox(height: 16),
-                        const Text('Selecciona una ruta para ver los detalles',
-                            style: TextStyle(fontSize: 18, color: Colors.grey)),
-                      ],
+            Expanded(
+              flex: 3,
+              child: _selectedRoute != null
+                  ? _buildRouteDetails(_selectedRoute!)
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset('lib/assets/images/logo_sin_nombre.png',
+                              width: 60, height: 60),
+                          const SizedBox(height: 16),
+                          const Text(
+                              'Selecciona una ruta para ver los detalles',
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.grey)),
+                        ],
+                      ),
                     ),
-                  ),
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1109,8 +1112,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                         decoration: BoxDecoration(
                             color: Colors.blueAccent.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.directions_bus_rounded,
-                            color: Colors.blueAccent, size: 22)),
+                        child: Icon(Icons.directions_bus_rounded,
+                            color: Colors.blueAccent[700], size: 22)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -1206,23 +1209,28 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                     child: SizedBox(
                                         height: 15,
                                         child: Marquee(
-                                            text: '${route['parada_embarque'] ?? '-'}   ➔   ${route['parada_bajada'] ?? '-'}',
-                                            style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w500,
-                                                color: isDark
-                                                    ? Colors.orange[300]
-                                                    : Colors.orange[800]),
-                                            scrollAxis: Axis.horizontal,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            blankSpace: 40.0,
-                                            velocity: 30.0,
-                                            pauseAfterRound: const Duration(seconds: 2),
-                                            startPadding: 0.0,
-                                            accelerationDuration: const Duration(milliseconds: 500),
-                                            accelerationCurve: Curves.easeIn,
-                                            decelerationDuration: const Duration(milliseconds: 500),
-                                            decelerationCurve: Curves.easeOut,
+                                          text:
+                                              '${route['parada_embarque'] ?? '-'}   ➔   ${route['parada_bajada'] ?? '-'}',
+                                          style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                              color: isDark
+                                                  ? Colors.orange[300]
+                                                  : Colors.orange[800]),
+                                          scrollAxis: Axis.horizontal,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          blankSpace: 40.0,
+                                          velocity: 30.0,
+                                          pauseAfterRound:
+                                              const Duration(seconds: 2),
+                                          startPadding: 0.0,
+                                          accelerationDuration:
+                                              const Duration(milliseconds: 500),
+                                          accelerationCurve: Curves.easeIn,
+                                          decelerationDuration:
+                                              const Duration(milliseconds: 500),
+                                          decelerationCurve: Curves.easeOut,
                                         ))),
                               ],
                             ),
@@ -1245,9 +1253,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                         Row(children: [
                           Icon(Icons.calendar_month_rounded,
                               size: 20,
-                              color: isDark
-                                  ? Colors.blueAccent[100]
-                                  : Colors.blueAccent[700]),
+                              color: Colors.blueAccent),
                           const SizedBox(width: 8),
                           Text('Horarios disponibles',
                               style: Theme.of(context)
@@ -1443,7 +1449,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             SizedBox(
               height: 32,
               child: Marquee(
-                text: '${route['parada_embarque'] ?? '-'}   ➔   ${route['parada_bajada'] ?? '-'}',
+                text:
+                    '${route['parada_embarque'] ?? '-'}   ➔   ${route['parada_bajada'] ?? '-'}',
                 style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

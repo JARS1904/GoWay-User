@@ -315,8 +315,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       color: Colors.blueAccent.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.directions_bus_rounded,
-                        color: Colors.blueAccent, size: 22),
+                    child: Icon(Icons.directions_bus_rounded,
+                        color: Colors.blueAccent[700], size: 22),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -409,9 +409,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         children: [
                           Icon(Icons.calendar_month_rounded,
                               size: 20,
-                              color: isDark
-                                  ? Colors.blueAccent[100]
-                                  : Colors.blueAccent[700]),
+                              color: Colors.blueAccent),
                           const SizedBox(width: 8),
                           Text(
                             'Horarios disponibles',

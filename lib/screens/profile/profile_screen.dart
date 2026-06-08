@@ -396,7 +396,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 2),
                 ),
                 child: Icon(
-                  Icons.camera_alt,
+                  Icons.camera_alt_rounded,
                   color: Colors.white,
                   size: radius * 0.35,
                 ),
@@ -420,7 +420,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ? null
           : AppBar(
               title: const Text(
-                'Mi Perfil',
+                'Mi perfil',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: false,
@@ -490,7 +490,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 children: [
                   _buildProfileOption(
-                    icon: Icons.badge_outlined,
+                    icon: Icons.badge_rounded,
                     title: 'Tarjeta',
                     onTap: () => _navigateToIdCard(),
                     isDark: isDark,
@@ -501,7 +501,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       indent: 16,
                       endIndent: 16),
                   _buildProfileOption(
-                    icon: Icons.map_outlined,
+                    icon: Icons.map_rounded,
                     title: 'Mapa',
                     onTap: () => _navigateToMap(),
                     isDark: isDark,
@@ -512,7 +512,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       indent: 16,
                       endIndent: 16),
                   _buildProfileOption(
-                    icon: Icons.description_outlined,
+                    icon: Icons.description_rounded,
                     title: 'Términos y condiciones',
                     onTap: () => _showTermsAndConditions(),
                     isDark: isDark,
@@ -523,7 +523,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       indent: 16,
                       endIndent: 16),
                   _buildProfileOption(
-                    icon: Icons.settings,
+                    icon: Icons.settings_rounded,
                     title: 'Configuración',
                     onTap: () => _navigateToSettings(context),
                     isDark: isDark,
@@ -637,7 +637,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Column(
                               children: [
                                 _buildProfileOption(
-                                  icon: Icons.badge_outlined,
+                                  icon: Icons.badge_rounded,
                                   title: 'Tarjeta',
                                   onTap: () => _navigateToIdCard(),
                                   tabletMode: true,
@@ -651,7 +651,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     indent: 16,
                                     endIndent: 16),
                                 _buildProfileOption(
-                                  icon: Icons.map_outlined,
+                                  icon: Icons.map_rounded,
                                   title: 'Mapa',
                                   onTap: () => _navigateToMap(),
                                   tabletMode: true,
@@ -665,7 +665,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     indent: 16,
                                     endIndent: 16),
                                 _buildProfileOption(
-                                  icon: Icons.description_outlined,
+                                  icon: Icons.description_rounded,
                                   title: 'Términos y condiciones',
                                   onTap: () => _showTermsAndConditions(),
                                   tabletMode: true,
@@ -679,7 +679,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     indent: 16,
                                     endIndent: 16),
                                 _buildProfileOption(
-                                  icon: Icons.settings,
+                                  icon: Icons.settings_rounded,
                                   title: 'Configuración',
                                   onTap: () => _navigateToSettings(context),
                                   tabletMode: true,
@@ -783,7 +783,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: Icon(
                         Icons.person_outline,
-                        color: Colors.blueAccent[700],
+                        color:
+                            Colors.blueAccent[700],
                         size: 28,
                       ),
                     ),

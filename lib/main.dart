@@ -375,7 +375,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
   Widget _buildMobileLayout() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selectedColor = isDark ? Colors.blueAccent : Colors.blueAccent[700]!;
+    final selectedColor = Colors.blueAccent[700]!;
     final unselectedColor = isDark ? Colors.grey[500]! : Colors.grey[600]!;
 
     return Scaffold(
@@ -563,7 +563,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
   Widget _buildTabletLayout() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selectedColor = isDark ? Colors.blueAccent : Colors.blueAccent[700];
+    final selectedColor = Colors.blueAccent[700];
     final unselectedColor = isDark ? Colors.grey[500] : Colors.grey[600];
 
     return Scaffold(
@@ -699,14 +699,14 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         });
       },
       child: Container(
-        width: 50,
-        height: 50,
+        width: 42,
+        height: 42,
         decoration: BoxDecoration(
             color: Colors.blueAccent[700],
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.blueAccent.withOpacity(0.4),
+                color: Colors.blueAccent[700]!.withOpacity(0.4),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               )
@@ -714,7 +714,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         child: Icon(
           _isMenuOpen ? Icons.close_rounded : Icons.add_rounded,
           color: Colors.white,
-          size: 28,
+          size: 24,
         ),
       ),
     );
@@ -726,58 +726,57 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       child: Container(
         width: isTablet ? 220 : null,
         decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                )
-              ]),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: Icon(Icons.map_rounded, color: Colors.blueAccent[700]),
-                title: Text('Ir al mapa',
-                    style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
-                        fontWeight: FontWeight.w600)),
-                onTap: () {
-                  setState(() => _isMenuOpen = false);
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const MapScreen()));
-                },
-              ),
-              Divider(
-                  height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
-              ListTile(
-                leading: Icon(Icons.credit_card_rounded,
-                    color: Colors.blueAccent[700]),
-                title: Text('Mi tarjeta',
-                    style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
-                        fontWeight: FontWeight.w600)),
-                onTap: () {
-                  setState(() => _isMenuOpen = false);
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => IdCardScreen(
-                                userName: _userName,
-                                userEmail: _userEmail,
-                                userPhotoUrl: _userPhotoUrl,
-                                userId: _userId,
-                                userPhone: _userPhone,
-                                userRegistrationDate: _userRegistrationDate,
-                                userType: _userType,
-                              )));
-                },
-              ),
-            ],
-          ),
+            color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              )
+            ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.map_rounded, color: Colors.blueAccent[700]),
+              title: Text('Ir al mapa',
+                  style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
+                      fontWeight: FontWeight.w600)),
+              onTap: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const MapScreen()));
+              },
+            ),
+            Divider(
+                height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
+            ListTile(
+              leading: Icon(Icons.badge_rounded, color: Colors.blueAccent[700]),
+              title: Text('Mi tarjeta',
+                  style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black87,
+                      fontWeight: FontWeight.w600)),
+              onTap: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => IdCardScreen(
+                              userName: _userName,
+                              userEmail: _userEmail,
+                              userPhotoUrl: _userPhotoUrl,
+                              userId: _userId,
+                              userPhone: _userPhone,
+                              userRegistrationDate: _userRegistrationDate,
+                              userType: _userType,
+                            )));
+              },
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 }
