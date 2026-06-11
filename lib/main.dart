@@ -739,11 +739,11 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.map_rounded, color: Colors.blueAccent[700]),
+              leading: Icon(Icons.map_outlined, color: isDark ? Colors.grey[500] : Colors.grey[600]),
               title: Text('Ir al mapa',
                   style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.w600)),
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                      fontWeight: FontWeight.normal)),
               onTap: () {
                 setState(() => _isMenuOpen = false);
                 Navigator.push(context,
@@ -753,11 +753,11 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             Divider(
                 height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
             ListTile(
-              leading: Icon(Icons.badge_rounded, color: Colors.blueAccent[700]),
+              leading: Icon(Icons.badge_outlined, color: isDark ? Colors.grey[500] : Colors.grey[600]),
               title: Text('Mi tarjeta',
                   style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.w600)),
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                      fontWeight: FontWeight.normal)),
               onTap: () {
                 setState(() => _isMenuOpen = false);
                 Navigator.push(

@@ -1252,8 +1252,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                       children: [
                         Row(children: [
                           Icon(Icons.calendar_month_rounded,
-                              size: 20,
-                              color: Colors.blueAccent),
+                              size: 20, color: Colors.blueAccent),
                           const SizedBox(width: 8),
                           Text('Horarios disponibles',
                               style: Theme.of(context)
@@ -2129,12 +2128,35 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    Text('Horarios disponibles:',
-                        key: _schedulesTitleKey,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : Colors.black)),
+                    Row(
+                      key: _schedulesTitleKey,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Horarios disponibles:',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.blueAccent.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            '${uniqueSchedules.length}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: isDark
+                                  ? Colors.blueAccent[100]
+                                  : Colors.blueAccent[700],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 20),
                     Builder(
                       builder: (context) {
@@ -2177,9 +2199,17 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                                       ? null
                                       : Border.all(
                                           color: Colors.grey[300]!, width: 1),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black
+                                          .withOpacity(isDark ? 0.3 : 0.1),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 8),
+                                    horizontal: 6, vertical: 6),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -2193,7 +2223,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                                           : null,
                                       borderRadius: BorderRadius.circular(20),
                                       child: Container(
-                                        padding: const EdgeInsets.all(10),
+                                        padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           color: _currentSchedulePage > 0
                                               ? Colors.blueAccent[700]
@@ -2211,7 +2241,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 20),
+                                    const SizedBox(width: 12),
                                     Text(
                                       'Página ${_currentSchedulePage + 1} de $totalPages',
                                       style: TextStyle(
@@ -2222,7 +2252,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                                             : Colors.grey[800],
                                       ),
                                     ),
-                                    const SizedBox(width: 20),
+                                    const SizedBox(width: 12),
                                     InkWell(
                                       onTap: _currentSchedulePage <
                                               totalPages - 1
@@ -2234,7 +2264,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                                           : null,
                                       borderRadius: BorderRadius.circular(20),
                                       child: Container(
-                                        padding: const EdgeInsets.all(10),
+                                        padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           color: _currentSchedulePage <
                                                   totalPages - 1
@@ -2257,6 +2287,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                                   ],
                                 ),
                               ),
+                            const SizedBox(height: 24),
                           ],
                         );
                       },

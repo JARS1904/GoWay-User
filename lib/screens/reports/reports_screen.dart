@@ -16,7 +16,47 @@ class _ReportsScreenState extends State<ReportsScreen> {
   String _userId = '';
   bool _loadingReports = false;
 
+  String _searchQuery = '';
+  String _selectedFilter = 'Todas';
+  int _currentPage = 0;
+  final int _itemsPerPage = 10;
+
   bool get _isTablet => MediaQuery.of(context).size.width >= 600;
+
+  List<Map<String, dynamic>> get _filteredReports {
+    return _userReports.where((r) {
+      final searchLower = _searchQuery.toLowerCase();
+      final tipo = (r['tipo_incidente'] as String? ?? '').toLowerCase();
+      final desc = (r['descripcion'] as String? ?? '').toLowerCase();
+      final ruta = (r['ruta_nombre'] as String? ?? '').toLowerCase();
+
+      final matchesSearch = tipo.contains(searchLower) ||
+          desc.contains(searchLower) ||
+          ruta.contains(searchLower);
+
+      final gravedad = (r['gravedad'] as String? ?? '').toLowerCase();
+      bool matchesFilter = true;
+      if (_selectedFilter != 'Todas') {
+        String filterValue = _selectedFilter.toLowerCase();
+        if (filterValue == 'crítica') filterValue = 'critica';
+        matchesFilter = gravedad == filterValue;
+      }
+
+      return matchesSearch && matchesFilter;
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> get _paginatedReports {
+    final filtered = _filteredReports;
+    final startIndex = _currentPage * _itemsPerPage;
+    if (startIndex >= filtered.length) return [];
+    return filtered.skip(startIndex).take(_itemsPerPage).toList();
+  }
+
+  int get _totalPages {
+    final length = _filteredReports.length;
+    return (length == 0) ? 1 : (length / _itemsPerPage).ceil();
+  }
 
   void refresh() => _loadReportsFromServer();
 
@@ -72,6 +112,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             _userReports
               ..clear()
               ..addAll(list);
+            _currentPage = 0;
             _loadingReports = false;
           });
         }
@@ -120,6 +161,27 @@ class _ReportsScreenState extends State<ReportsScreen> {
         elevation: 0,
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
         foregroundColor: isDark ? Colors.white : Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search_rounded),
+            onPressed: () async {
+              final result = await showSearch<String>(
+                context: context,
+                delegate: ReportSearchDelegate(
+                  initialSearchQuery: _searchQuery,
+                  reports: _userReports,
+                ),
+              );
+              if (result != null) {
+                setState(() {
+                  _searchQuery = result;
+                  _currentPage = 0;
+                });
+              }
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 90.0),
@@ -133,19 +195,31 @@ class _ReportsScreenState extends State<ReportsScreen> {
       ),
       body: _loadingReports
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _loadReportsFromServer,
-              color: isDark ? Colors.white : Colors.blueAccent[700],
-              backgroundColor:
-                  isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-              child: _userReports.isEmpty
-                  ? _buildEmptyState(isDark)
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                      itemCount: _userReports.length,
-                      itemBuilder: (context, index) =>
-                          _buildReportCard(_userReports[index], isDark),
-                    ),
+          : Column(
+              children: [
+                _buildSearchAndFilter(isDark),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _loadReportsFromServer,
+                    color: isDark ? Colors.white : Colors.blueAccent[700],
+                    backgroundColor:
+                        isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
+                    child: _userReports.isEmpty
+                        ? _buildEmptyState(isDark, false)
+                        : (_filteredReports.isEmpty
+                            ? _buildEmptyState(isDark, true)
+                            : ListView(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                                children: [
+                                  ..._paginatedReports.map((report) =>
+                                      _buildReportCard(report, isDark)),
+                                  _buildPaginationControls(isDark),
+                                ],
+                              )),
+                  ),
+                ),
+              ],
             ),
     );
   }
@@ -172,24 +246,37 @@ class _ReportsScreenState extends State<ReportsScreen> {
       ),
       body: _loadingReports
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _loadReportsFromServer,
-              color: isDark ? Colors.white : Colors.blueAccent[700],
-              backgroundColor:
-                  isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-              child: _userReports.isEmpty
-                  ? _buildEmptyState(isDark)
-                  : Center(
-                      child: Container(
-                        constraints: const BoxConstraints(maxWidth: 1000),
-                        child: ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
-                          itemCount: _userReports.length,
-                          itemBuilder: (context, index) =>
-                              _buildReportCard(_userReports[index], isDark),
-                        ),
-                      ),
-                    ),
+          : Column(
+              children: [
+                _buildSearchAndFilter(isDark),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _loadReportsFromServer,
+                    color: isDark ? Colors.white : Colors.blueAccent[700],
+                    backgroundColor:
+                        isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
+                    child: _userReports.isEmpty
+                        ? _buildEmptyState(isDark, false)
+                        : (_filteredReports.isEmpty
+                            ? _buildEmptyState(isDark, true)
+                            : Center(
+                                child: Container(
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 1000),
+                                  child: ListView(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        24, 24, 24, 100),
+                                    children: [
+                                      ..._paginatedReports.map((report) =>
+                                          _buildReportCard(report, isDark)),
+                                      _buildPaginationControls(isDark),
+                                    ],
+                                  ),
+                                ),
+                              )),
+                  ),
+                ),
+              ],
             ),
     );
   }
@@ -197,7 +284,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget _buildReportCard(Map<String, dynamic> report, bool isDark) =>
       _ReportCard(report: report, isDark: isDark);
 
-  Widget _buildEmptyState(bool isDark) {
+  Widget _buildEmptyState(bool isDark, [bool isFilterEmpty = false]) {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
@@ -219,14 +306,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.assignment_outlined,
+                      isFilterEmpty
+                          ? Icons.search_off_rounded
+                          : Icons.assignment_outlined,
                       size: 48,
-                      color: isDark ? Colors.blueAccent[100] : Colors.blueAccent[700],
+                      color: Colors.blueAccent[700],
                     ),
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Sin reportes aun',
+                    isFilterEmpty ? 'Sin coincidencias' : 'Sin reportes aun',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: isDark ? Colors.white : Colors.black87,
@@ -234,7 +323,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Registra incidencias en las rutas para que el equipo pueda atenderlas.',
+                    isFilterEmpty
+                        ? 'No se encontraron reportes con los filtros actuales.'
+                        : 'Registra incidencias en las rutas para que el equipo pueda atenderlas.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: isDark ? Colors.grey[400] : Colors.grey[600],
                           height: 1.4,
@@ -247,6 +338,166 @@ class _ReportsScreenState extends State<ReportsScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSearchAndFilter(bool isDark) {
+    return Column(
+      children: [
+        if (_searchQuery.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Resultados para: "$_searchQuery"',
+                    style: TextStyle(
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.clear, size: 20),
+                  onPressed: () => setState(() {
+                    _searchQuery = '';
+                    _currentPage = 0;
+                  }),
+                ),
+              ],
+            ),
+          ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(
+            children: [
+              _buildFilterChip('Todas', isDark),
+              _buildFilterChip('Crítica', isDark),
+              _buildFilterChip('Alta', isDark),
+              _buildFilterChip('Media', isDark),
+              _buildFilterChip('Baja', isDark),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterChip(String label, bool isDark) {
+    final isSelected = _selectedFilter == label;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedFilter = label;
+          _currentPage = 0;
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.blueAccent[700]
+              : (isDark ? const Color(0xFF2A2A2A) : Colors.grey[100]),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected
+                ? Colors.white
+                : (isDark ? Colors.grey[300] : Colors.black87),
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaginationControls(bool isDark) {
+    if (_totalPages <= 1) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0, bottom: 12.0),
+      child: Center(
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+            borderRadius: BorderRadius.circular(30),
+            border:
+                isDark ? null : Border.all(color: Colors.grey[300]!, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              InkWell(
+                onTap: _currentPage > 0
+                    ? () => setState(() => _currentPage--)
+                    : null,
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _currentPage > 0
+                        ? Colors.blueAccent[700]
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_ios_rounded,
+                    size: 16,
+                    color: _currentPage > 0
+                        ? Colors.white
+                        : (isDark ? Colors.grey[600] : Colors.grey[400]),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Página ${_currentPage + 1} de $_totalPages',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.grey[300] : Colors.grey[800],
+                ),
+              ),
+              const SizedBox(width: 12),
+              InkWell(
+                onTap: _currentPage < _totalPages - 1
+                    ? () => setState(() => _currentPage++)
+                    : null,
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _currentPage < _totalPages - 1
+                        ? Colors.blueAccent[700]
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                    color: _currentPage < _totalPages - 1
+                        ? Colors.white
+                        : (isDark ? Colors.grey[600] : Colors.grey[400]),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -1174,7 +1425,9 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                       // Tipo de incidente
                       FormField<String>(
                         initialValue: _selectedTipoIncidente,
-                        validator: (v) => v == null ? 'Selecciona el tipo de incidente' : null,
+                        validator: (v) => v == null
+                            ? 'Selecciona el tipo de incidente'
+                            : null,
                         builder: (state) {
                           return DropdownMenu<String>(
                             requestFocusOnTap: false,
@@ -1185,16 +1438,25 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                             label: const Text('Tipo de incidente'),
                             errorText: state.errorText,
                             leadingIcon: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                              child: Icon(Icons.warning_amber_rounded, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Icon(Icons.warning_amber_rounded,
+                                  size: 20,
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600]),
                             ),
                             inputDecorationTheme: InputDecorationTheme(
                               isDense: true,
-                              constraints: state.hasError ? null : const BoxConstraints(maxHeight: 48),
+                              constraints: state.hasError
+                                  ? null
+                                  : const BoxConstraints(maxHeight: 48),
                               border: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(20))),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(20)),
                                 borderSide: BorderSide(
                                   color: Theme.of(context)
                                       .colorScheme
@@ -1203,26 +1465,33 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(Radius.circular(20)),
-                                borderSide:
-                                    BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(
+                                    color: Colors.blueAccent[700]!, width: 1.8),
                               ),
                               errorBorder: const OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
-                                borderSide: BorderSide(color: Colors.redAccent, width: 1.2),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(
+                                    color: Colors.redAccent, width: 1.2),
                               ),
                               focusedErrorBorder: const OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
-                                borderSide: BorderSide(color: Colors.redAccent, width: 1.8),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(
+                                    color: Colors.redAccent, width: 1.8),
                               ),
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 16),
                             ),
                             menuStyle: MenuStyle(
-                              backgroundColor: WidgetStatePropertyAll(
-                                  isDark ? const Color(0xFF1E1E1E) : Colors.white),
-                              shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20))),
+                              backgroundColor: WidgetStatePropertyAll(isDark
+                                  ? const Color(0xFF1E1E1E)
+                                  : Colors.white),
+                              shape: WidgetStatePropertyAll(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20))),
                               elevation: const WidgetStatePropertyAll(8),
                             ),
                             dropdownMenuEntries: _tiposIncidente
@@ -1230,10 +1499,13 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                                       value: t['id']!,
                                       label: t['nombre']!,
                                       style: MenuItemButton.styleFrom(
-                                        foregroundColor:
-                                            isDark ? Colors.white : Colors.black87,
-                                        textStyle: const TextStyle(fontSize: 14),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        foregroundColor: isDark
+                                            ? Colors.white
+                                            : Colors.black87,
+                                        textStyle:
+                                            const TextStyle(fontSize: 14),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16),
                                       ),
                                     ))
                                 .toList(),
@@ -1251,7 +1523,8 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                       // Gravedad
                       FormField<String>(
                         initialValue: _selectedGravedad,
-                        validator: (v) => v == null ? 'Selecciona la gravedad' : null,
+                        validator: (v) =>
+                            v == null ? 'Selecciona la gravedad' : null,
                         builder: (state) {
                           return DropdownMenu<String>(
                             requestFocusOnTap: false,
@@ -1262,16 +1535,25 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                             label: const Text('Gravedad'),
                             errorText: state.errorText,
                             leadingIcon: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                              child: Icon(Icons.bar_chart_rounded, size: 20, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Icon(Icons.bar_chart_rounded,
+                                  size: 20,
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600]),
                             ),
                             inputDecorationTheme: InputDecorationTheme(
                               isDense: true,
-                              constraints: state.hasError ? null : const BoxConstraints(maxHeight: 48),
+                              constraints: state.hasError
+                                  ? null
+                                  : const BoxConstraints(maxHeight: 48),
                               border: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(20))),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(20)),
                                 borderSide: BorderSide(
                                   color: Theme.of(context)
                                       .colorScheme
@@ -1280,26 +1562,33 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(Radius.circular(20)),
-                                borderSide:
-                                    BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(
+                                    color: Colors.blueAccent[700]!, width: 1.8),
                               ),
                               errorBorder: const OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
-                                borderSide: BorderSide(color: Colors.redAccent, width: 1.2),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(
+                                    color: Colors.redAccent, width: 1.2),
                               ),
                               focusedErrorBorder: const OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
-                                borderSide: BorderSide(color: Colors.redAccent, width: 1.8),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(
+                                    color: Colors.redAccent, width: 1.8),
                               ),
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 16),
                             ),
                             menuStyle: MenuStyle(
-                              backgroundColor: WidgetStatePropertyAll(
-                                  isDark ? const Color(0xFF1E1E1E) : Colors.white),
-                              shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20))),
+                              backgroundColor: WidgetStatePropertyAll(isDark
+                                  ? const Color(0xFF1E1E1E)
+                                  : Colors.white),
+                              shape: WidgetStatePropertyAll(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20))),
                               elevation: const WidgetStatePropertyAll(8),
                             ),
                             dropdownMenuEntries: _gravedades
@@ -1307,10 +1596,13 @@ class _CreateReportDialogState extends State<_CreateReportDialog> {
                                       value: g['id']!,
                                       label: g['nombre']!,
                                       style: MenuItemButton.styleFrom(
-                                        foregroundColor:
-                                            isDark ? Colors.white : Colors.black87,
-                                        textStyle: const TextStyle(fontSize: 14),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        foregroundColor: isDark
+                                            ? Colors.white
+                                            : Colors.black87,
+                                        textStyle:
+                                            const TextStyle(fontSize: 14),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16),
                                       ),
                                     ))
                                 .toList(),
@@ -1513,6 +1805,156 @@ class _InfoLine extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class ReportSearchDelegate extends SearchDelegate<String> {
+  final String initialSearchQuery;
+  final List<Map<String, dynamic>> reports;
+
+  ReportSearchDelegate({this.initialSearchQuery = '', required this.reports}) {
+    query = initialSearchQuery;
+  }
+
+  @override
+  String get searchFieldLabel => 'Buscar reportes...';
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+
+    return theme.copyWith(
+      appBarTheme: AppBarTheme(
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[50],
+        elevation: 0,
+        toolbarHeight: 64,
+        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        isDense: true,
+        filled: true,
+        fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          borderSide: BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+        ),
+        hintStyle: TextStyle(
+          color: isDark ? Colors.grey[500] : Colors.grey[600],
+          fontSize: 16,
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      ),
+    );
+  }
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      if (query.isNotEmpty)
+        IconButton(
+          icon: const Icon(Icons.clear_rounded),
+          onPressed: () {
+            query = '';
+            showSuggestions(context);
+          },
+        ),
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+      onPressed: () => close(context, query),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      close(context, query);
+    });
+    return const SizedBox.shrink();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (query.trim().isEmpty) {
+      return Container(
+        color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+        child: Center(
+          child: Text(
+            'Busca por tipo, descripción o ruta',
+            style: TextStyle(color: isDark ? Colors.grey[500] : Colors.grey[600]),
+          ),
+        ),
+      );
+    }
+
+    final searchLower = query.toLowerCase();
+    final filtered = reports.where((r) {
+      final tipo = (r['tipo_incidente'] as String? ?? '').toLowerCase();
+      final desc = (r['descripcion'] as String? ?? '').toLowerCase();
+      final ruta = (r['ruta_nombre'] as String? ?? '').toLowerCase();
+
+      return tipo.contains(searchLower) ||
+          desc.contains(searchLower) ||
+          ruta.contains(searchLower);
+    }).toList();
+
+    if (filtered.isEmpty) {
+      return Container(
+        color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+        child: Center(
+          child: Text(
+            'No se encontraron reportes',
+            style: TextStyle(color: isDark ? Colors.grey[500] : Colors.grey[600]),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      color: isDark ? const Color(0xFF121212) : Colors.grey[50],
+      child: ListView.separated(
+        itemCount: filtered.length,
+        separatorBuilder: (context, index) => const Divider(height: 1),
+        itemBuilder: (context, index) {
+          final report = filtered[index];
+          final tipoOriginal = report['tipo_incidente'] as String? ?? '-';
+          final tipo = tipoOriginal.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' ');
+
+          return ListTile(
+            leading: Icon(Icons.assignment_outlined, color: isDark ? Colors.grey[300] : Colors.grey[700]),
+            title: Text(tipo,
+                style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.bold)),
+            subtitle: Text(report['ruta_nombre'] ?? '-',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600])),
+            onTap: () {
+              query = tipoOriginal;
+              close(context, query);
+            },
+          );
+        },
+      ),
     );
   }
 }
