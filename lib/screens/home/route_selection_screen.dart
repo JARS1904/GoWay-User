@@ -1909,9 +1909,9 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
       }
     }
 
-    if (!updated) {
-      await Future.delayed(const Duration(seconds: 1));
-      if (mounted) setState(() {});
+    await Future.delayed(const Duration(seconds: 1));
+    if (!updated && mounted) {
+      setState(() {});
     }
   }
 
@@ -1959,344 +1959,353 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
           onRefresh: _refreshRouteData,
           color: isDark ? Colors.white : Colors.blueAccent[700],
           backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.grey[50],
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
+          child: ListView(
             padding: EdgeInsets.all(isTablet ? 24.0 : 16.0),
-            child: Center(
-              child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: isTablet ? 800 : double.infinity),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (route['es_tramo'] != 1) ...[
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text(route['origen'] ?? '',
-                              style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.black)),
-                          Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 6),
-                              child: Icon(Icons.arrow_forward_rounded,
-                                  size: 22,
-                                  color: isDark
-                                      ? Colors.grey[500]
-                                      : Colors.grey[600])),
-                          Text(route['destino'] ?? '',
-                              style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.black)),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                    if (route['es_tramo'] == 1) ...[
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text(route['parada_embarque'] ?? '-',
-                              style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.black)),
-                          Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 6),
-                              child: Icon(Icons.arrow_forward_rounded,
-                                  size: 22,
-                                  color: isDark
-                                      ? Colors.grey[500]
-                                      : Colors.grey[600])),
-                          Text(route['parada_bajada'] ?? '-',
-                              style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.black)),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(8)),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.content_cut_rounded,
-                                  size: 14,
-                                  color: isDark
-                                      ? Colors.orange[300]
-                                      : Colors.orange[800]),
-                              const SizedBox(width: 4),
-                              Text('Tramo parcial',
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark
-                                          ? Colors.orange[300]
-                                          : Colors.orange[800])),
-                            ],
-                          )),
-                      const SizedBox(height: 6),
-                      Row(children: [
-                        Text('Ruta completa: ',
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: isDark
-                                    ? Colors.grey[500]
-                                    : Colors.grey[600])),
-                        Flexible(
-                            child: Text(route['origen'],
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: isDark
-                                        ? Colors.grey[500]
-                                        : Colors.grey[600]),
-                                overflow: TextOverflow.ellipsis)),
-                        Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(Icons.arrow_forward_rounded,
-                                size: 14,
-                                color: isDark
-                                    ? Colors.grey[500]
-                                    : Colors.grey[500])),
-                        Flexible(
-                            child: Text(route['destino'],
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: isDark
-                                        ? Colors.grey[500]
-                                        : Colors.grey[600]),
-                                overflow: TextOverflow.ellipsis))
-                      ]),
-                    ],
-                    const SizedBox(height: 32),
-                    Container(
-                      margin: EdgeInsets.zero,
-                      decoration: BoxDecoration(
-                          color:
-                              isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: isDark
-                              ? null
-                              : Border.all(
-                                  color: Colors.grey[200]!, width: 1.5),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black
-                                    .withOpacity(isDark ? 0.3 : 0.05),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8))
-                          ]),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                      maxWidth: isTablet ? 800 : double.infinity),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (route['es_tramo'] != 1) ...[
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            Text('Información de la empresa:',
+                            Text(route['origen'] ?? '',
                                 style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                     color:
                                         isDark ? Colors.white : Colors.black)),
-                            const SizedBox(height: 12),
-                            _buildInfoRow(Icons.business_rounded, 'Nombre:',
-                                route['empresa_nombre'],
-                                isDark: isDark),
-                            _buildInfoRow(Icons.phone_rounded, 'Teléfono:',
-                                route['empresa_telefono'],
-                                isDark: isDark),
-                            _buildInfoRow(
-                                Icons.location_on_rounded,
-                                'Dirección:',
-                                route['empresa_direccion'] ?? 'No especificada',
-                                isDark: isDark),
-                            _buildInfoRow(Icons.email_rounded, 'Email:',
-                                route['empresa_email'] ?? 'No especificado',
-                                isDark: isDark),
+                            Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 6),
+                                child: Icon(Icons.arrow_forward_rounded,
+                                    size: 22,
+                                    color: isDark
+                                        ? Colors.grey[500]
+                                        : Colors.grey[600])),
+                            Text(route['destino'] ?? '',
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        isDark ? Colors.white : Colors.black)),
                           ],
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      if (route['es_tramo'] == 1) ...[
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(route['parada_embarque'] ?? '-',
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        isDark ? Colors.white : Colors.black)),
+                            Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 6),
+                                child: Icon(Icons.arrow_forward_rounded,
+                                    size: 22,
+                                    color: isDark
+                                        ? Colors.grey[500]
+                                        : Colors.grey[600])),
+                            Text(route['parada_bajada'] ?? '-',
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        isDark ? Colors.white : Colors.black)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                                color: Colors.orange.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.content_cut_rounded,
+                                    size: 14,
+                                    color: isDark
+                                        ? Colors.orange[300]
+                                        : Colors.orange[800]),
+                                const SizedBox(width: 4),
+                                Text('Tramo parcial',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark
+                                            ? Colors.orange[300]
+                                            : Colors.orange[800])),
+                              ],
+                            )),
+                        const SizedBox(height: 6),
+                        Row(children: [
+                          Text('Ruta completa: ',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark
+                                      ? Colors.grey[500]
+                                      : Colors.grey[600])),
+                          Flexible(
+                              child: Text(route['origen'],
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: isDark
+                                          ? Colors.grey[500]
+                                          : Colors.grey[600]),
+                                  overflow: TextOverflow.ellipsis)),
+                          Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: Icon(Icons.arrow_forward_rounded,
+                                  size: 14,
+                                  color: isDark
+                                      ? Colors.grey[500]
+                                      : Colors.grey[500])),
+                          Flexible(
+                              child: Text(route['destino'],
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: isDark
+                                          ? Colors.grey[500]
+                                          : Colors.grey[600]),
+                                  overflow: TextOverflow.ellipsis))
+                        ]),
+                      ],
+                      const SizedBox(height: 32),
+                      Container(
+                        margin: EdgeInsets.zero,
+                        decoration: BoxDecoration(
+                            color:
+                                isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: isDark
+                                ? null
+                                : Border.all(
+                                    color: Colors.grey[200]!, width: 1.5),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black
+                                      .withOpacity(isDark ? 0.3 : 0.05),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8))
+                            ]),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Información de la empresa:',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark
+                                          ? Colors.white
+                                          : Colors.black)),
+                              const SizedBox(height: 12),
+                              _buildInfoRow(Icons.business_rounded, 'Nombre:',
+                                  route['empresa_nombre'],
+                                  isDark: isDark),
+                              _buildInfoRow(Icons.phone_rounded, 'Teléfono:',
+                                  route['empresa_telefono'],
+                                  isDark: isDark),
+                              _buildInfoRow(
+                                  Icons.location_on_rounded,
+                                  'Dirección:',
+                                  route['empresa_direccion'] ??
+                                      'No especificada',
+                                  isDark: isDark),
+                              _buildInfoRow(Icons.email_rounded, 'Email:',
+                                  route['empresa_email'] ?? 'No especificado',
+                                  isDark: isDark),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 32),
-                    Row(
-                      key: _schedulesTitleKey,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Horarios disponibles:',
-                            style: TextStyle(
-                                fontSize: 18,
+                      const SizedBox(height: 32),
+                      Row(
+                        key: _schedulesTitleKey,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Horarios disponibles:',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : Colors.black)),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.blueAccent.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              '${uniqueSchedules.length}',
+                              style: TextStyle(
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.black)),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.blueAccent.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            '${uniqueSchedules.length}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: isDark
-                                  ? Colors.blueAccent[100]
-                                  : Colors.blueAccent[700],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Builder(
-                      builder: (context) {
-                        final totalPages =
-                            (uniqueSchedules.length / _schedulesPerPage).ceil();
-                        final startIndex =
-                            _currentSchedulePage * _schedulesPerPage;
-                        final endIndex = (startIndex + _schedulesPerPage)
-                            .clamp(0, uniqueSchedules.length);
-                        final paginatedSchedules =
-                            uniqueSchedules.sublist(startIndex, endIndex);
-
-                        return Column(
-                          children: [
-                            Column(
-                              children: paginatedSchedules
-                                  .asMap()
-                                  .entries
-                                  .map((entry) => _StaggeredItem(
-                                        key: ValueKey(
-                                            '${_currentSchedulePage}_${entry.key}'),
-                                        index: entry.key,
-                                        pageKey: _currentSchedulePage,
-                                        child: _ScheduleCard(
-                                            route: route,
-                                            horario: entry.value,
-                                            isDark: isDark),
-                                      ))
-                                  .toList(),
-                            ),
-                            const SizedBox(height: 24),
-                            if (totalPages > 1)
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? const Color(0xFF2A2A2A)
-                                      : Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(30),
-                                  border: isDark
-                                      ? null
-                                      : Border.all(
-                                          color: Colors.grey[300]!, width: 1),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black
-                                          .withOpacity(isDark ? 0.3 : 0.1),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 6),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    InkWell(
-                                      onTap: _currentSchedulePage > 0
-                                          ? () {
-                                              setState(
-                                                  () => _currentSchedulePage--);
-                                              _scrollToSchedules();
-                                            }
-                                          : null,
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: _currentSchedulePage > 0
-                                              ? Colors.blueAccent[700]
-                                              : Colors.transparent,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(
-                                          Icons.arrow_back_ios_rounded,
-                                          size: 16,
-                                          color: _currentSchedulePage > 0
-                                              ? Colors.white
-                                              : (isDark
-                                                  ? Colors.grey[600]
-                                                  : Colors.grey[400]),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Página ${_currentSchedulePage + 1} de $totalPages',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: isDark
-                                            ? Colors.grey[300]
-                                            : Colors.grey[800],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    InkWell(
-                                      onTap: _currentSchedulePage <
-                                              totalPages - 1
-                                          ? () {
-                                              setState(
-                                                  () => _currentSchedulePage++);
-                                              _scrollToSchedules();
-                                            }
-                                          : null,
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: _currentSchedulePage <
-                                                  totalPages - 1
-                                              ? Colors.blueAccent[700]
-                                              : Colors.transparent,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(
-                                          Icons.arrow_forward_ios_rounded,
-                                          size: 16,
-                                          color: _currentSchedulePage <
-                                                  totalPages - 1
-                                              ? Colors.white
-                                              : (isDark
-                                                  ? Colors.grey[600]
-                                                  : Colors.grey[400]),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                color: isDark
+                                    ? Colors.blueAccent[100]
+                                    : Colors.blueAccent[700],
                               ),
-                            if (totalPages > 1) const SizedBox(height: 24),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Builder(
+                        builder: (context) {
+                          final totalPages =
+                              (uniqueSchedules.length / _schedulesPerPage)
+                                  .ceil();
+                          final startIndex =
+                              _currentSchedulePage * _schedulesPerPage;
+                          final endIndex = (startIndex + _schedulesPerPage)
+                              .clamp(0, uniqueSchedules.length);
+                          final paginatedSchedules =
+                              uniqueSchedules.sublist(startIndex, endIndex);
+
+                          return Column(
+                            children: [
+                              Column(
+                                children: paginatedSchedules
+                                    .asMap()
+                                    .entries
+                                    .map((entry) => _StaggeredItem(
+                                          key: ValueKey(
+                                              '${_currentSchedulePage}_${entry.key}'),
+                                          index: entry.key,
+                                          pageKey: _currentSchedulePage,
+                                          child: _ScheduleCard(
+                                              route: route,
+                                              horario: entry.value,
+                                              isDark: isDark),
+                                        ))
+                                    .toList(),
+                              ),
+                              const SizedBox(height: 24),
+                              if (totalPages > 1)
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? const Color(0xFF2A2A2A)
+                                        : Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: isDark
+                                        ? null
+                                        : Border.all(
+                                            color: Colors.grey[300]!, width: 1),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black
+                                            .withOpacity(isDark ? 0.3 : 0.1),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 6),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      InkWell(
+                                        onTap: _currentSchedulePage > 0
+                                            ? () {
+                                                setState(() =>
+                                                    _currentSchedulePage--);
+                                                _scrollToSchedules();
+                                              }
+                                            : null,
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: _currentSchedulePage > 0
+                                                ? Colors.blueAccent[700]
+                                                : Colors.transparent,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.arrow_back_ios_rounded,
+                                            size: 16,
+                                            color: _currentSchedulePage > 0
+                                                ? Colors.white
+                                                : (isDark
+                                                    ? Colors.grey[600]
+                                                    : Colors.grey[400]),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        'Página ${_currentSchedulePage + 1} de $totalPages',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark
+                                              ? Colors.grey[300]
+                                              : Colors.grey[800],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      InkWell(
+                                        onTap: _currentSchedulePage <
+                                                totalPages - 1
+                                            ? () {
+                                                setState(() =>
+                                                    _currentSchedulePage++);
+                                                _scrollToSchedules();
+                                              }
+                                            : null,
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: _currentSchedulePage <
+                                                    totalPages - 1
+                                                ? Colors.blueAccent[700]
+                                                : Colors.transparent,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.arrow_forward_ios_rounded,
+                                            size: 16,
+                                            color: _currentSchedulePage <
+                                                    totalPages - 1
+                                                ? Colors.white
+                                                : (isDark
+                                                    ? Colors.grey[600]
+                                                    : Colors.grey[400]),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              if (totalPages > 1) const SizedBox(height: 24),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ));
   }

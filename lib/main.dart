@@ -727,7 +727,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       child: Container(
         width: isTablet ? 220 : null,
         decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+            color: isDark ? const Color(0xFF1F1F1F) : Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -740,11 +740,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.map_outlined,
-                  color: isDark ? Colors.grey[500] : Colors.grey[600]),
+              leading: Icon(Icons.map_outlined, color: Colors.blueAccent[700]),
               title: Text('Ir al mapa',
                   style: TextStyle(
-                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                      color: isDark ? Colors.grey[300] : Colors.grey[800],
                       fontWeight: FontWeight.normal)),
               onTap: () {
                 setState(() => _isMenuOpen = false);
@@ -755,11 +754,11 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             Divider(
                 height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
             ListTile(
-              leading: Icon(Icons.badge_outlined,
-                  color: isDark ? Colors.grey[500] : Colors.grey[600]),
+              leading:
+                  Icon(Icons.badge_outlined, color: Colors.blueAccent[700]),
               title: Text('Mi tarjeta',
                   style: TextStyle(
-                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                      color: isDark ? Colors.grey[300] : Colors.grey[800],
                       fontWeight: FontWeight.normal)),
               onTap: () {
                 setState(() => _isMenuOpen = false);
@@ -780,11 +779,11 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             Divider(
                 height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
             ListTile(
-              leading: Icon(Icons.volume_up_outlined,
-                  color: isDark ? Colors.grey[500] : Colors.grey[600]),
+              leading:
+                  Icon(Icons.volume_up_outlined, color: Colors.blueAccent[700]),
               title: Text('Bajan por favor',
                   style: TextStyle(
-                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                      color: isDark ? Colors.grey[300] : Colors.grey[800],
                       fontWeight: FontWeight.normal)),
               onTap: () async {
                 setState(() => _isMenuOpen = false);
