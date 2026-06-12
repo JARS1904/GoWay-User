@@ -19,6 +19,7 @@ import 'package:goway_user/screens/reports/reports_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:goway_user/screens/map/map_screen.dart';
 import 'package:goway_user/screens/profile/id_card_screen.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -772,6 +773,21 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                               userRegistrationDate: _userRegistrationDate,
                               userType: _userType,
                             )));
+              },
+            ),
+            Divider(
+                height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
+            ListTile(
+              leading: Icon(Icons.volume_up_outlined, color: isDark ? Colors.grey[500] : Colors.grey[600]),
+              title: Text('Bajan por favor',
+                  style: TextStyle(
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                      fontWeight: FontWeight.normal)),
+              onTap: () async {
+                setState(() => _isMenuOpen = false);
+                final player = AudioPlayer();
+                await player.setVolume(1.0);
+                await player.play(AssetSource('sounds/ElevenLabs_Bajan_por_favor.mp3'));
               },
             ),
           ],

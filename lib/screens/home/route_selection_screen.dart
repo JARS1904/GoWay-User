@@ -2287,7 +2287,9 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                                   ],
                                 ),
                               ),
-                            const SizedBox(height: 24),
+                            const SizedBox(
+                                height:
+                                    60), // Espacio adicional en la parte inferior
                           ],
                         );
                       },
