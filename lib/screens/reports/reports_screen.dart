@@ -1899,7 +1899,8 @@ class ReportSearchDelegate extends SearchDelegate<String> {
         child: Center(
           child: Text(
             'Busca por tipo, descripción o ruta',
-            style: TextStyle(color: isDark ? Colors.grey[500] : Colors.grey[600]),
+            style:
+                TextStyle(color: isDark ? Colors.grey[500] : Colors.grey[600]),
           ),
         ),
       );
@@ -1922,7 +1923,8 @@ class ReportSearchDelegate extends SearchDelegate<String> {
         child: Center(
           child: Text(
             'No se encontraron reportes',
-            style: TextStyle(color: isDark ? Colors.grey[500] : Colors.grey[600]),
+            style:
+                TextStyle(color: isDark ? Colors.grey[500] : Colors.grey[600]),
           ),
         ),
       );
@@ -1936,10 +1938,16 @@ class ReportSearchDelegate extends SearchDelegate<String> {
         itemBuilder: (context, index) {
           final report = filtered[index];
           final tipoOriginal = report['tipo_incidente'] as String? ?? '-';
-          final tipo = tipoOriginal.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' ');
+          final tipo = tipoOriginal
+              .split(' ')
+              .map((w) => w.isEmpty
+                  ? ''
+                  : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+              .join(' ');
 
           return ListTile(
-            leading: Icon(Icons.assignment_outlined, color: isDark ? Colors.grey[300] : Colors.grey[700]),
+            leading: Icon(Icons.assignment_outlined,
+                color: isDark ? Colors.grey[300] : Colors.grey[700]),
             title: Text(tipo,
                 style: TextStyle(
                     color: isDark ? Colors.white : Colors.black87,
@@ -1947,7 +1955,8 @@ class ReportSearchDelegate extends SearchDelegate<String> {
             subtitle: Text(report['ruta_nombre'] ?? '-',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600])),
+                style: TextStyle(
+                    color: isDark ? Colors.grey[400] : Colors.grey[600])),
             onTap: () {
               query = tipoOriginal;
               close(context, query);

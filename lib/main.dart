@@ -740,7 +740,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.map_outlined, color: isDark ? Colors.grey[500] : Colors.grey[600]),
+              leading: Icon(Icons.map_outlined,
+                  color: isDark ? Colors.grey[500] : Colors.grey[600]),
               title: Text('Ir al mapa',
                   style: TextStyle(
                       color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -754,7 +755,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             Divider(
                 height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
             ListTile(
-              leading: Icon(Icons.badge_outlined, color: isDark ? Colors.grey[500] : Colors.grey[600]),
+              leading: Icon(Icons.badge_outlined,
+                  color: isDark ? Colors.grey[500] : Colors.grey[600]),
               title: Text('Mi tarjeta',
                   style: TextStyle(
                       color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -778,7 +780,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             Divider(
                 height: 1, color: isDark ? Colors.white12 : Colors.grey[200]),
             ListTile(
-              leading: Icon(Icons.volume_up_outlined, color: isDark ? Colors.grey[500] : Colors.grey[600]),
+              leading: Icon(Icons.volume_up_outlined,
+                  color: isDark ? Colors.grey[500] : Colors.grey[600]),
               title: Text('Bajan por favor',
                   style: TextStyle(
                       color: isDark ? Colors.grey[500] : Colors.grey[600],
@@ -787,7 +790,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 setState(() => _isMenuOpen = false);
                 final player = AudioPlayer();
                 await player.setVolume(1.0);
-                await player.play(AssetSource('sounds/ElevenLabs_Bajan_por_favor.mp3'));
+                await player
+                    .play(AssetSource('sounds/ElevenLabs_Bajan_por_favor.mp3'));
               },
             ),
           ],
