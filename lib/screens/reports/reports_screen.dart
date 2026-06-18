@@ -301,8 +301,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     height: 96,
                     decoration: BoxDecoration(
                       color: isDark
-                          ? Colors.blueAccent.withOpacity(0.12)
-                          : Colors.blueAccent.withOpacity(0.08),
+                          ? Colors.blueAccent.withValues(alpha: 0.12)
+                          : Colors.blueAccent.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -430,7 +430,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 isDark ? null : Border.all(color: Colors.grey[300]!, width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -563,7 +563,7 @@ class _ReportCardState extends State<_ReportCard> {
             isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -585,7 +585,7 @@ class _ReportCardState extends State<_ReportCard> {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: severityColor.withOpacity(0.12),
+                      color: severityColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(Icons.warning_amber_rounded,
@@ -616,7 +616,7 @@ class _ReportCardState extends State<_ReportCard> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: severityColor.withOpacity(0.12),
+                                color: severityColor.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
@@ -659,12 +659,12 @@ class _ReportCardState extends State<_ReportCard> {
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: isDark
-                              ? Colors.orange.withOpacity(0.15)
+                              ? Colors.orange.withValues(alpha: 0.15)
                               : Colors.orange[50],
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: isDark
-                                ? Colors.orange.withOpacity(0.3)
+                                ? Colors.orange.withValues(alpha: 0.3)
                                 : Colors.orange[200]!,
                           ),
                         ),

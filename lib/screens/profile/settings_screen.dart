@@ -216,7 +216,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   : Border.all(color: Colors.grey[200]!, width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -279,7 +279,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   : Border.all(color: Colors.grey[200]!, width: 1.5),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -387,7 +387,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       : Border.all(color: Colors.grey[200]!, width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -450,7 +451,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       : Border.all(color: Colors.grey[200]!, width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -522,7 +524,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),

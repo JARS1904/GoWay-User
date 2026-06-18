@@ -107,10 +107,13 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
           decoration: BoxDecoration(
             color: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: widget.isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
+            border: widget.isDark
+                ? null
+                : Border.all(color: Colors.grey[200]!, width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(widget.isDark ? 0.3 : 0.05),
+                color:
+                    Colors.black.withValues(alpha: widget.isDark ? 0.3 : 0.05),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               )
@@ -155,9 +158,11 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
                     ],
                   ),
                   child: IconButton(
-                    icon: Icon(Icons.fullscreen, color: widget.isDark ? Colors.white : Colors.black87),
+                    icon: Icon(Icons.fullscreen,
+                        color: widget.isDark ? Colors.white : Colors.black87),
                     onPressed: () {
-                      _showFullScreenMap(context, points, markers, _darkMapEnabled);
+                      _showFullScreenMap(
+                          context, points, markers, _darkMapEnabled);
                     },
                   ),
                 ),
@@ -169,11 +174,13 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
     );
   }
 
-  void _showFullScreenMap(BuildContext context, List<LatLng> points, List<Marker> markers, bool darkMapEnabled) {
+  void _showFullScreenMap(BuildContext context, List<LatLng> points,
+      List<Marker> markers, bool darkMapEnabled) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => Scaffold(
         appBar: AppBar(
-          backgroundColor: widget.isDark ? const Color(0xFF121212) : Colors.grey[50],
+          backgroundColor:
+              widget.isDark ? const Color(0xFF121212) : Colors.grey[50],
           elevation: 0,
           foregroundColor: widget.isDark ? Colors.white : Colors.black,
           leading: IconButton(
@@ -188,7 +195,8 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
               color: widget.isDark ? Colors.white : Colors.black,
             ),
           ),
-          iconTheme: IconThemeData(color: widget.isDark ? Colors.white : Colors.black),
+          iconTheme:
+              IconThemeData(color: widget.isDark ? Colors.white : Colors.black),
         ),
         body: FlutterMap(
           options: MapOptions(
@@ -217,8 +225,10 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
   List<dynamic> _getParadasFiltradas() {
     final paradas = widget.paradasRuta;
     if (widget.paradaEmbarque != null && widget.paradaBajada != null) {
-      int startIndex = paradas.indexWhere((p) => p['nombre'] == widget.paradaEmbarque);
-      int endIndex = paradas.indexWhere((p) => p['nombre'] == widget.paradaBajada);
+      int startIndex =
+          paradas.indexWhere((p) => p['nombre'] == widget.paradaEmbarque);
+      int endIndex =
+          paradas.indexWhere((p) => p['nombre'] == widget.paradaBajada);
 
       if (startIndex != -1 && endIndex != -1) {
         if (startIndex <= endIndex) {

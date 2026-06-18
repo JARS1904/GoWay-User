@@ -163,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ? []
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -288,18 +288,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               });
             }
           } else {
-            if (mounted)
+            if (mounted) {
               setState(() {
                 _localImageFile = File(pickedFile.path);
                 _photoLoadError = false;
               });
+            }
           }
         } else {
-          if (mounted)
+          if (mounted) {
             setState(() {
               _localImageFile = File(pickedFile.path);
               _photoLoadError = false;
             });
+          }
         }
 
         _showSuccessSnackbar('Foto de perfil actualizada');
@@ -481,7 +483,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? []
                     : [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black.withValues(alpha: 0.04),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -783,8 +785,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: Icon(
                         Icons.person_outline,
-                        color:
-                            Colors.blueAccent[700],
+                        color: Colors.blueAccent[700],
                         size: 28,
                       ),
                     ),

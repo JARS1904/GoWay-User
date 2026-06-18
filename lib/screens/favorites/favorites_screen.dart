@@ -51,7 +51,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
-        _hideUnassignedSchedules = prefs.getBool('hideUnassignedSchedules') ?? false;
+        _hideUnassignedSchedules =
+            prefs.getBool('hideUnassignedSchedules') ?? false;
       });
     }
   }
@@ -260,7 +261,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
     if (_hideUnassignedSchedules) {
       uniqueSchedules = uniqueSchedules.where((s) {
-        return scheduleEstadoDisplayLabel(Map<String, dynamic>.from(s as Map)) != 'Sin asignación';
+        return scheduleEstadoDisplayLabel(
+                Map<String, dynamic>.from(s as Map)) !=
+            'Sin asignación';
       }).toList();
     }
 
@@ -278,7 +281,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -312,7 +315,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent.withOpacity(0.12),
+                      color: Colors.blueAccent.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(Icons.directions_bus_rounded,
@@ -408,8 +411,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       Row(
                         children: [
                           Icon(Icons.calendar_month_rounded,
-                              size: 20,
-                              color: Colors.blueAccent),
+                              size: 20, color: Colors.blueAccent),
                           const SizedBox(width: 8),
                           Text(
                             'Horarios disponibles',
@@ -428,7 +430,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Colors.blueAccent.withOpacity(0.12),
+                          color: Colors.blueAccent.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -566,8 +568,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               height: 96,
               decoration: BoxDecoration(
                 color: isDark
-                    ? Colors.blueAccent.withOpacity(0.12)
-                    : Colors.blueAccent.withOpacity(0.08),
+                    ? Colors.blueAccent.withValues(alpha: 0.12)
+                    : Colors.blueAccent.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(

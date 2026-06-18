@@ -116,8 +116,8 @@ class _GetStartedScreenState extends State<GetStartedScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  _pages[_currentPage].color.withOpacity(0.08),
-                  _pages[_currentPage].gradientEnd.withOpacity(0.04),
+                  _pages[_currentPage].color.withValues(alpha: 0.08),
+                  _pages[_currentPage].gradientEnd.withValues(alpha: 0.04),
                 ],
               ),
             ),
@@ -141,8 +141,8 @@ class _GetStartedScreenState extends State<GetStartedScreen>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          _pages[_currentPage].color.withOpacity(0.1),
-                          _pages[_currentPage].color.withOpacity(0),
+                          _pages[_currentPage].color.withValues(alpha: 0.1),
+                          _pages[_currentPage].color.withValues(alpha: 0),
                         ],
                       ),
                     ),
@@ -169,8 +169,10 @@ class _GetStartedScreenState extends State<GetStartedScreen>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          _pages[_currentPage].gradientEnd.withOpacity(0.08),
-                          _pages[_currentPage].gradientEnd.withOpacity(0),
+                          _pages[_currentPage]
+                              .gradientEnd
+                              .withValues(alpha: 0.08),
+                          _pages[_currentPage].gradientEnd.withValues(alpha: 0),
                         ],
                       ),
                     ),
@@ -223,7 +225,7 @@ class _GetStartedScreenState extends State<GetStartedScreen>
                                 border: Border.all(
                                   color: _pages[_currentPage]
                                       .color
-                                      .withOpacity(0.3),
+                                      .withValues(alpha: 0.3),
                                   width: 1.5,
                                 ),
                               ),
@@ -295,7 +297,7 @@ class _GetStartedScreenState extends State<GetStartedScreen>
                                         BoxShadow(
                                           color: _pages[_currentPage]
                                               .color
-                                              .withOpacity(0.5),
+                                              .withValues(alpha: 0.5),
                                           blurRadius: 12,
                                           spreadRadius: 3,
                                         ),
@@ -325,9 +327,10 @@ class _GetStartedScreenState extends State<GetStartedScreen>
                                       BoxShadow(
                                         color: _pages[_currentPage]
                                             .color
-                                            .withOpacity(0.4 +
-                                                (_buttonController.value *
-                                                    0.2)),
+                                            .withValues(
+                                                alpha: 0.4 +
+                                                    (_buttonController.value *
+                                                        0.2)),
                                         blurRadius:
                                             20 + (_buttonController.value * 10),
                                         spreadRadius: 3,
@@ -363,14 +366,14 @@ class _GetStartedScreenState extends State<GetStartedScreen>
                                                     end: Alignment.centerRight,
                                                     colors: [
                                                       Colors.white
-                                                          .withOpacity(0),
-                                                      Colors.white.withOpacity(
-                                                          0.3 +
+                                                          .withValues(alpha: 0),
+                                                      Colors.white.withValues(
+                                                          alpha: 0.3 +
                                                               (_buttonController
                                                                       .value *
                                                                   0.3)),
                                                       Colors.white
-                                                          .withOpacity(0),
+                                                          .withValues(alpha: 0),
                                                     ],
                                                     stops: const [0, 0.5, 1],
                                                   ).createShader(bounds);
@@ -464,14 +467,14 @@ class _GetStartedScreenState extends State<GetStartedScreen>
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            page.color.withOpacity(0.2),
-                            page.gradientEnd.withOpacity(0.08),
+                            page.color.withValues(alpha: 0.2),
+                            page.gradientEnd.withValues(alpha: 0.08),
                           ],
                         ),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: page.color.withOpacity(0.25),
+                            color: page.color.withValues(alpha: 0.25),
                             blurRadius: 40,
                             spreadRadius: 8,
                           ),
@@ -506,7 +509,7 @@ class _GetStartedScreenState extends State<GetStartedScreen>
                     height: 1.3,
                     shadows: [
                       Shadow(
-                        color: page.color.withOpacity(0.1),
+                        color: page.color.withValues(alpha: 0.1),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),

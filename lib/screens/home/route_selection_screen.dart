@@ -7,7 +7,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:goway_user/services/api_service.dart';
 import 'notifications_screen.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+//import 'package:flutter_slidable/flutter_slidable.dart';
 //import 'share_trip_bottom_sheet.dart';
 import 'route_map_preview.dart';
 import 'package:http/http.dart' as http;
@@ -83,37 +83,37 @@ String _titleCaseFromSnakeOrPlain(String t) {
   switch (displayLabel) {
     case 'Sin asignación':
       return (
-        background: Colors.grey.withOpacity(0.12),
+        background: Colors.grey.withValues(alpha: 0.12),
         foreground: isDark ? Colors.grey[300]! : Colors.grey[700]!,
       );
     case 'Programado':
       return (
-        background: Colors.grey.withOpacity(0.12),
+        background: Colors.grey.withValues(alpha: 0.12),
         foreground: isDark ? Colors.grey[300]! : Colors.grey[700]!,
       );
     case 'En Ruta':
       return (
-        background: Colors.blue.withOpacity(0.12),
+        background: Colors.blue.withValues(alpha: 0.12),
         foreground: isDark ? Colors.blue[300]! : Colors.blue[800]!,
       );
     case 'Retrasado':
       return (
-        background: Colors.amber.withOpacity(0.12),
+        background: Colors.amber.withValues(alpha: 0.12),
         foreground: isDark ? Colors.amber[300]! : Colors.amber[800]!,
       );
     case 'Cancelado':
       return (
-        background: Colors.red.withOpacity(0.12),
+        background: Colors.red.withValues(alpha: 0.12),
         foreground: isDark ? Colors.red[300]! : Colors.red[800]!,
       );
     case 'Completado':
       return (
-        background: Colors.green.withOpacity(0.12),
+        background: Colors.green.withValues(alpha: 0.12),
         foreground: isDark ? Colors.green[300]! : Colors.green[800]!,
       );
     default:
       return (
-        background: Colors.grey.withOpacity(0.12),
+        background: Colors.grey.withValues(alpha: 0.12),
         foreground: isDark ? Colors.grey[300]! : Colors.grey[700]!,
       );
   }
@@ -221,7 +221,9 @@ class StopsTimeline extends StatelessWidget {
                   if (!isFirst ||
                       (highlightStart != null && highlightEnd != null))
                     Container(
-                        width: 5, height: 22, color: lineColor.withOpacity(0.4))
+                        width: 5,
+                        height: 22,
+                        color: lineColor.withValues(alpha: 0.4))
                   else
                     const SizedBox(height: 14),
                   Container(
@@ -238,7 +240,9 @@ class StopsTimeline extends StatelessWidget {
                   if (!isLast ||
                       (highlightStart != null && highlightEnd != null))
                     Container(
-                        width: 5, height: 22, color: lineColor.withOpacity(0.4))
+                        width: 5,
+                        height: 22,
+                        color: lineColor.withValues(alpha: 0.4))
                   else
                     const SizedBox(height: 14),
                 ],
@@ -1078,7 +1082,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
               isDark ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                 blurRadius: 20,
                 offset: const Offset(0, 8))
           ],
@@ -1113,7 +1117,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                         width: 42,
                         height: 42,
                         decoration: BoxDecoration(
-                            color: Colors.blueAccent.withOpacity(0.12),
+                            color: Colors.blueAccent.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10)),
                         child: Icon(Icons.directions_bus_rounded,
                             color: Colors.blueAccent[700], size: 22)),
@@ -1181,7 +1185,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
-                                        color: Colors.orange.withOpacity(0.15),
+                                        color: Colors.orange
+                                            .withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(8)),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -1272,7 +1277,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 3),
                             decoration: BoxDecoration(
-                                color: Colors.blueAccent.withOpacity(0.12),
+                                color:
+                                    Colors.blueAccent.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(20)),
                             child: Text('${uniqueSchedules.length}',
                                 style: TextStyle(
@@ -1473,7 +1479,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.15),
+                    color: Colors.orange.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1528,7 +1534,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                     : Border.all(color: Colors.grey[200]!, width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                       blurRadius: 20,
                       offset: const Offset(0, 8))
                 ]),
@@ -1575,7 +1582,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withOpacity(0.12),
+                  color: Colors.blueAccent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -2036,7 +2043,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                                color: Colors.orange.withOpacity(0.15),
+                                color: Colors.orange.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8)),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -2107,7 +2114,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                             boxShadow: [
                               BoxShadow(
                                   color: Colors.black
-                                      .withOpacity(isDark ? 0.3 : 0.05),
+                                      .withValues(alpha: isDark ? 0.3 : 0.05),
                                   blurRadius: 20,
                                   offset: const Offset(0, 8))
                             ]),
@@ -2148,8 +2155,12 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                         RouteMapPreview(
                           paradasRuta: route['paradas_ruta'] as List,
                           isDark: isDark,
-                          paradaEmbarque: route['es_tramo'] == 1 ? route['parada_embarque'] : null,
-                          paradaBajada: route['es_tramo'] == 1 ? route['parada_bajada'] : null,
+                          paradaEmbarque: route['es_tramo'] == 1
+                              ? route['parada_embarque']
+                              : null,
+                          paradaBajada: route['es_tramo'] == 1
+                              ? route['parada_bajada']
+                              : null,
                         ),
                       Row(
                         key: _schedulesTitleKey,
@@ -2164,7 +2175,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.blueAccent.withOpacity(0.12),
+                              color: Colors.blueAccent.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
@@ -2225,8 +2236,8 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                                             color: Colors.grey[300]!, width: 1),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black
-                                            .withOpacity(isDark ? 0.3 : 0.1),
+                                        color: Colors.black.withValues(
+                                            alpha: isDark ? 0.3 : 0.1),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -2472,13 +2483,13 @@ class _ScheduleCardState extends State<_ScheduleCard> {
 
     if (isDark) {
       if (ratio > 0.5) {
-        pillBgColor = const Color(0xFFE8F5E9).withOpacity(0.15);
+        pillBgColor = const Color(0xFFE8F5E9).withValues(alpha: 0.15);
         pillTextColor = const Color(0xFFA5D6A7);
       } else if (ratio > 0.15) {
-        pillBgColor = const Color(0xFFFFF9C4).withOpacity(0.15);
+        pillBgColor = const Color(0xFFFFF9C4).withValues(alpha: 0.15);
         pillTextColor = const Color(0xFFFFF59D);
       } else if (ratio > 0) {
-        pillBgColor = const Color(0xFFFBE9E7).withOpacity(0.15);
+        pillBgColor = const Color(0xFFFBE9E7).withValues(alpha: 0.15);
         pillTextColor = const Color(0xFFFFAB91);
       } else {
         pillBgColor = Colors.grey[800]!;
@@ -2626,7 +2637,8 @@ class _ScheduleCardState extends State<_ScheduleCard> {
               ? []
               : [
                   BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                      color:
+                          Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                       blurRadius: 20,
                       offset: const Offset(0, 8))
                 ],
@@ -2648,7 +2660,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                         width: 42,
                         height: 42,
                         decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.12),
+                            color: Colors.green.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10)),
                         child: Icon(Icons.calendar_month_rounded,
                             color: Colors.green[700], size: 22)),
@@ -2720,7 +2732,7 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                                color: Colors.green.withOpacity(0.12),
+                                color: Colors.green.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(20)),
                             child: Text(tipoDiaStr,
                                 style: TextStyle(

@@ -215,31 +215,39 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             isDense: true,
                             hintText: 'Buscar',
                             hintStyle: TextStyle(
-                              color: isDark
-                                  ? Colors.grey[500]
-                                  : Colors.grey[600],
+                              color:
+                                  isDark ? Colors.grey[500] : Colors.grey[600],
                             ),
                             prefixIcon: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12.0),
                               child: Icon(Icons.search,
                                   size: 20,
-                                  color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600]),
                             ),
-                            prefixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 48),
+                            prefixIconConstraints: const BoxConstraints(
+                                minWidth: 44, minHeight: 48),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                               borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline
+                                    .withValues(alpha: 0.4),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide(color: Colors.blueAccent[700]!, width: 1.8),
+                              borderSide: BorderSide(
+                                  color: Colors.blueAccent[700]!, width: 1.8),
                             ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 10),
                           ),
                         ),
                       ),
@@ -530,7 +538,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
           color: isDark
-              ? const Color(0xFF7C3AED).withOpacity(0.2)
+              ? const Color(0xFF7C3AED).withValues(alpha: 0.2)
               : const Color(0xFFEDE9FE),
           borderRadius: BorderRadius.circular(6),
         ),
@@ -564,7 +572,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
           color: isDark
-              ? const Color(0xFFEA580C).withOpacity(0.2)
+              ? const Color(0xFFEA580C).withValues(alpha: 0.2)
               : const Color(0xFFFFF7ED),
           borderRadius: BorderRadius.circular(6),
         ),
@@ -646,18 +654,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'urgente':
       case 'seguridad':
         return isDark
-            ? const Color(0xFFDC2626).withOpacity(0.2)
+            ? const Color(0xFFDC2626).withValues(alpha: 0.2)
             : const Color(0xFFFEE2E2);
       case 'cierre':
       case 'cierres':
       case 'cierre vial':
         return isDark
-            ? const Color(0xFF4F46E5).withOpacity(0.2)
+            ? const Color(0xFF4F46E5).withValues(alpha: 0.2)
             : const Color(0xFFE0E7FF);
       case 'trafico':
       case 'trafico pesado':
         return isDark
-            ? const Color(0xFFEA580C).withOpacity(0.2)
+            ? const Color(0xFFEA580C).withValues(alpha: 0.2)
             : const Color(0xFFFFF7ED);
       case 'general':
       case 'info':
@@ -666,7 +674,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'aviso general':
       default:
         return isDark
-            ? const Color(0xFF374151).withOpacity(0.5)
+            ? const Color(0xFF374151).withValues(alpha: 0.5)
             : const Color(0xFFF3F4F6);
     }
   }

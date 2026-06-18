@@ -193,7 +193,7 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               // Capa de tiles
               TileLayer(
-                urlTemplate: _darkMapEnabled 
+                urlTemplate: _darkMapEnabled
                     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
                     : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.goway_user',
@@ -233,7 +233,7 @@ class _MapScreenState extends State<MapScreen> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -261,7 +261,7 @@ class _MapScreenState extends State<MapScreen> {
                     color: isDark ? const Color(0xFF1F1F1F) : Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -270,7 +270,8 @@ class _MapScreenState extends State<MapScreen> {
                   padding: const EdgeInsets.all(8),
                   child: Transform.rotate(
                     angle: -_rotation * (math.pi / 180.0),
-                    child: Icon(Icons.explore, color: Colors.blueAccent[700], size: 28),
+                    child: Icon(Icons.explore,
+                        color: Colors.blueAccent[700], size: 28),
                   ),
                 ),
               ),
@@ -290,7 +291,7 @@ class _MapScreenState extends State<MapScreen> {
                     color: isDark ? const Color(0xFF1F1F1F) : Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -310,7 +311,7 @@ class _MapScreenState extends State<MapScreen> {
                     color: isDark ? const Color(0xFF1F1F1F) : Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -375,4 +376,3 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 }
-

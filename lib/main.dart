@@ -167,7 +167,7 @@ class _MyAppState extends State<MyApp> {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
-        indicatorColor: Colors.blueAccent.withOpacity(0.2),
+        indicatorColor: Colors.blueAccent.withValues(alpha: 0.2),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return TextStyle(
@@ -205,7 +205,7 @@ class _MyAppState extends State<MyApp> {
         unselectedLabelTextStyle: const TextStyle(color: Colors.grey),
         elevation: 4,
         useIndicator: true,
-        indicatorColor: Colors.blueAccent.withOpacity(0.2),
+        indicatorColor: Colors.blueAccent.withValues(alpha: 0.2),
       ),
     );
   }
@@ -235,7 +235,7 @@ class _MyAppState extends State<MyApp> {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: const Color(0xFF1F1F1F),
-        indicatorColor: Colors.blueAccent.withOpacity(0.3),
+        indicatorColor: Colors.blueAccent.withValues(alpha: 0.3),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const TextStyle(
@@ -273,7 +273,7 @@ class _MyAppState extends State<MyApp> {
         unselectedLabelTextStyle: const TextStyle(color: Colors.grey),
         elevation: 4,
         useIndicator: true,
-        indicatorColor: Colors.blueAccent.withOpacity(0.2),
+        indicatorColor: Colors.blueAccent.withValues(alpha: 0.2),
       ),
     );
   }
@@ -413,7 +413,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 opacity: _isMenuOpen ? 1.0 : 0.0,
                 child: GestureDetector(
                   onTap: () => setState(() => _isMenuOpen = false),
-                  child: Container(color: Colors.black.withOpacity(0.3)),
+                  child: Container(color: Colors.black.withValues(alpha: 0.3)),
                 ),
               ),
             ),
@@ -444,7 +444,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.18),
+                    color: Colors.black.withValues(alpha: 0.18),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -668,7 +668,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 opacity: _isMenuOpen ? 1.0 : 0.0,
                 child: GestureDetector(
                   onTap: () => setState(() => _isMenuOpen = false),
-                  child: Container(color: Colors.black.withOpacity(0.3)),
+                  child: Container(color: Colors.black.withValues(alpha: 0.3)),
                 ),
               ),
             ),
@@ -707,7 +707,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.blueAccent[700]!.withOpacity(0.4),
+                color: Colors.blueAccent[700]!.withValues(alpha: 0.4),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               )
@@ -731,7 +731,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               )
