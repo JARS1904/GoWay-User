@@ -6,7 +6,10 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:goway_user/services/api_service.dart';
-import 'package:goway_user/screens/home/notifications_screen.dart';
+import 'notifications_screen.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+//import 'share_trip_bottom_sheet.dart';
+import 'route_map_preview.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:goway_user/services/audio_service.dart';
@@ -1557,6 +1560,11 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             ),
           ),
           const SizedBox(height: 32),
+          if ((route['paradas_ruta'] as List?)?.isNotEmpty == true)
+            RouteMapPreview(
+              paradasRuta: route['paradas_ruta'] as List,
+              isDark: isDark,
+            ),
           Row(
             key: _schedulesTitleKey,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2136,6 +2144,13 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
                         ),
                       ),
                       const SizedBox(height: 32),
+                      if ((route['paradas_ruta'] as List?)?.isNotEmpty == true)
+                        RouteMapPreview(
+                          paradasRuta: route['paradas_ruta'] as List,
+                          isDark: isDark,
+                          paradaEmbarque: route['es_tramo'] == 1 ? route['parada_embarque'] : null,
+                          paradaBajada: route['es_tramo'] == 1 ? route['parada_bajada'] : null,
+                        ),
                       Row(
                         key: _schedulesTitleKey,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
