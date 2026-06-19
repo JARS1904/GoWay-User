@@ -186,6 +186,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.pop(context),
+          color: isDark ? Colors.white : Colors.black87,
+        ),
         title: Text(
           'Notificaciones',
           style: TextStyle(

@@ -210,13 +210,24 @@ class _MapScreenState extends State<MapScreen> {
                 markers: [
                   Marker(
                     point: _currentLocation,
-                    width: 32,
-                    height: 32,
-                    child: Image.asset(
-                      'lib/assets/icons/icons8-marcador-filled.png',
-                      color: Colors.redAccent[700],
-                      width: 32,
-                      height: 32,
+                    width: 24,
+                    height: 24,
+                    child: Tooltip(
+                      message: 'Mi Ubicación',
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent[700],
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            )
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -271,7 +282,7 @@ class _MapScreenState extends State<MapScreen> {
                   child: Transform.rotate(
                     angle: -_rotation * (math.pi / 180.0),
                     child: Icon(Icons.explore,
-                        color: Colors.blueAccent[700], size: 28),
+                        color: const Color(0xFFF70000), size: 28),
                   ),
                 ),
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
 
 class RouteMapPreview extends StatefulWidget {
   final List<dynamic> paradasRuta;
@@ -23,11 +24,13 @@ class RouteMapPreview extends StatefulWidget {
 
 class _RouteMapPreviewState extends State<RouteMapPreview> {
   bool _darkMapEnabled = false;
+  LatLng? _currentLocation;
 
   @override
   void initState() {
     super.initState();
     _loadPreferences();
+    _initLocation();
   }
 
   Future<void> _loadPreferences() async {
@@ -36,6 +39,30 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
       setState(() {
         _darkMapEnabled = prefs.getBool('darkMapEnabled') ?? false;
       });
+    }
+  }
+
+  Future<void> _initLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+      if (permission == LocationPermission.deniedForever) return;
+
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      if (mounted) {
+        setState(() {
+          _currentLocation = LatLng(position.latitude, position.longitude);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error getting location: $e');
     }
   }
 
@@ -63,28 +90,75 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
           final isStart = i == 0;
           final isEnd = i == paradasActivas.length - 1;
 
-          Color markerColor = Colors.blueAccent[700]!;
-          if (isStart) markerColor = Colors.green[600]!;
-          if (isEnd) markerColor = Colors.red[600]!;
+          Color? markerColor;
+          String iconPath;
+
+          if (isStart) {
+            markerColor = Colors.green[600];
+            iconPath = 'lib/assets/icons/icons8-marcador-filled.png';
+          } else if (isEnd) {
+            markerColor = Colors.red[600];
+            iconPath = 'lib/assets/icons/icons8-marcador-filled.png';
+          } else {
+            markerColor = null; // No color override for the bus stop icon
+            iconPath = 'lib/assets/icons/icons8-parada-autobus.png';
+          }
 
           markers.add(
             Marker(
               point: point,
-              width: 30,
-              height: 30,
+              width: 40,
+              height: 40,
               child: Tooltip(
                 message: parada['nombre'] ?? 'Parada',
-                child: Image.asset(
-                  'lib/assets/icons/icons8-marcador-filled.png',
-                  width: isStart || isEnd ? 30 : 20,
-                  height: isStart || isEnd ? 30 : 20,
-                  color: markerColor,
+                triggerMode: TooltipTriggerMode.tap,
+                preferBelow: false,
+                decoration: BoxDecoration(
+                  color: widget.isDark ? Colors.grey[800] : Colors.black87,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                textStyle: const TextStyle(color: Colors.white, fontSize: 12),
+                child: Center(
+                  child: Image.asset(
+                    iconPath,
+                    width: 30,
+                    height: 30,
+                    color: markerColor,
+                  ),
                 ),
               ),
             ),
           );
         }
       }
+    }
+
+    if (_currentLocation != null) {
+      markers.add(
+        Marker(
+          point: _currentLocation!,
+          width: 24,
+          height: 24,
+          child: Tooltip(
+            message: 'Mi Ubicación',
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.blueAccent[700],
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 3),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      points.add(_currentLocation!);
     }
 
     if (points.isEmpty) return const SizedBox.shrink();
