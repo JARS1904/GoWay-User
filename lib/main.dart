@@ -728,7 +728,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         width: isTablet ? 220 : null,
         decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1F1F1F) : Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.2),

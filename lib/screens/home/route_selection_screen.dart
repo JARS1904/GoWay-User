@@ -1159,8 +1159,8 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                                       ? Colors.grey[500]
                                       : Colors.grey[600]),
                               const SizedBox(width: 4),
-                              const Icon(Icons.location_on_rounded,
-                                  size: 13, color: Colors.red),
+                              Icon(Icons.location_on_rounded,
+                                  size: 13, color: Colors.red[600]),
                               const SizedBox(width: 2),
                               Flexible(
                                   child: Text(route['destino'],
@@ -2701,8 +2701,8 @@ class _ScheduleCardState extends State<_ScheduleCard> {
                                       ? Colors.grey[500]
                                       : Colors.grey[600]),
                               const SizedBox(width: 4),
-                              const Icon(Icons.location_on_rounded,
-                                  size: 12, color: Colors.red),
+                              Icon(Icons.location_on_rounded,
+                                  size: 12, color: Colors.red[600]),
                               const SizedBox(width: 2),
                               Flexible(
                                   child: Text(route['destino'],

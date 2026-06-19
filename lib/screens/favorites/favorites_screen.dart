@@ -366,7 +366,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                     : Colors.grey[600]),
                             const SizedBox(width: 4),
                             Icon(Icons.location_on_rounded,
-                                size: 13, color: Colors.red),
+                                size: 13, color: Colors.red[600]),
                             const SizedBox(width: 2),
                             Flexible(
                               child: Text(

@@ -35,6 +35,9 @@ class _MapScreenState extends State<MapScreen> {
   double _rotation = 0.0;
   StreamSubscription<MapEvent>? _mapEventSubscription;
   bool _darkMapEnabled = false;
+  
+  StreamSubscription<Position>? _positionStreamSubscription;
+  bool _isTracking = false;
 
   @override
   void initState() {
@@ -58,6 +61,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
+    _positionStreamSubscription?.cancel();
     _mapEventSubscription?.cancel();
     _mapController.dispose();
     super.dispose();
@@ -140,6 +144,78 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  void _toggleTracking() async {
+    if (_isTracking) {
+      // Detener seguimiento
+      await _positionStreamSubscription?.cancel();
+      setState(() {
+        _isTracking = false;
+      });
+    } else {
+      // Iniciar seguimiento
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Los servicios de ubicación están deshabilitados.')),
+        );
+        return;
+      }
+
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Los permisos de ubicación fueron denegados')),
+          );
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Permisos denegados permanentemente.')),
+        );
+        return;
+      }
+
+      setState(() {
+        _isTracking = true;
+      });
+
+      _positionStreamSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.best, // Máxima precisión
+          distanceFilter: 0, // 0 metros de filtro: actualiza a cada segundo
+        ),
+      ).listen((Position position) {
+        LatLng newLocation = LatLng(position.latitude, position.longitude);
+        if (mounted) {
+          setState(() {
+            _currentLocation = newLocation;
+          });
+          if (_isTracking) {
+             _mapController.move(newLocation, _zoom);
+          }
+        }
+      }, onError: (e) {
+        if (!mounted) return;
+        setState(() {
+          _isTracking = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error en seguimiento: $e')),
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -184,7 +260,7 @@ class _MapScreenState extends State<MapScreen> {
               initialCenter: _currentLocation,
               initialZoom: _zoom,
               minZoom: 2,
-              maxZoom: 19,
+              maxZoom: 18,
               keepAlive: true,
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all,
@@ -197,7 +273,7 @@ class _MapScreenState extends State<MapScreen> {
                     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
                     : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.goway_user',
-                maxZoom: 19,
+                maxZoom: 18,
                 minZoom: 2,
                 retinaMode: true,
                 tileProvider: NetworkTileProvider(),
@@ -282,7 +358,7 @@ class _MapScreenState extends State<MapScreen> {
                   child: Transform.rotate(
                     angle: -_rotation * (math.pi / 180.0),
                     child: Icon(Icons.explore,
-                        color: const Color(0xFFF70000), size: 28),
+                        color: Colors.red[600], size: 28),
                   ),
                 ),
               ),
@@ -338,48 +414,76 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // BotÃ³n Mi UbicaciÃ³n
+          // Botones Inferiores
           Positioned(
             bottom: 32,
             left: 16,
             right: 16,
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                setState(() => _isLoading = true);
-                try {
-                  Position position = await _determinePosition();
-                  LatLng loc = LatLng(position.latitude, position.longitude);
-                  _centerMap(loc);
-                } catch (e) {
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('$e')),
-                  );
-                } finally {
-                  if (mounted) setState(() => _isLoading = false);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent[700],
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      setState(() => _isLoading = true);
+                      try {
+                        Position position = await _determinePosition();
+                        LatLng loc = LatLng(position.latitude, position.longitude);
+                        _centerMap(loc);
+                      } catch (e) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('$e')),
+                        );
+                      } finally {
+                        if (mounted) setState(() => _isLoading = false);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent[700],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 4,
+                    ),
+                    icon: Image.asset(
+                      'lib/assets/icons/icons8-marcador.png',
+                      color: Colors.white,
+                      width: 24,
+                      height: 24,
+                    ),
+                    label: const Text(
+                      'Mi ubicación',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
-                elevation: 4,
-              ),
-              icon: Image.asset(
-                'lib/assets/icons/icons8-marcador.png',
-                color: Colors.white,
-                width: 24,
-                height: 24,
-              ),
-              label: const Text(
-                'Mi Ubicación',
-                style: TextStyle(
-                  fontSize: 16,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _toggleTracking,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isTracking ? Colors.red[600] : Colors.blueAccent[700],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 4,
+                    ),
+                    icon: Icon(
+                      _isTracking ? Icons.stop_rounded : Icons.directions_walk_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    label: Text(
+                      _isTracking ? 'Detener' : 'Seguir viaje',
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
