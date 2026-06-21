@@ -15,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:goway_user/services/nominatim_service.dart';
 import 'package:goway_user/screens/map/map_search_delegate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -191,8 +190,8 @@ class _MapScreenState extends State<MapScreen> {
 
       _positionStreamSubscription = Geolocator.getPositionStream(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.best, // Máxima precisión
-          distanceFilter: 0, // 0 metros de filtro: actualiza a cada segundo
+          accuracy: LocationAccuracy.high, // Alta precisión (ahorra batería)
+          distanceFilter: 5, // Filtro de 5 metros
         ),
       ).listen((Position position) {
         LatLng newLocation = LatLng(position.latitude, position.longitude);
@@ -243,8 +242,8 @@ class _MapScreenState extends State<MapScreen> {
                 context: context,
                 delegate: MapSearchDelegate(),
               );
-              if (result != null && result is LatLng) {
-                _centerMap(result);
+              if (result != null) {
+                _centerMap(result as LatLng);
               }
             },
           ),
@@ -358,7 +357,7 @@ class _MapScreenState extends State<MapScreen> {
                   child: Transform.rotate(
                     angle: -_rotation * (math.pi / 180.0),
                     child: Icon(Icons.explore,
-                        color: Colors.red[600], size: 28),
+                        color: isDark ? Colors.white : Colors.red[600], size: 28),
                   ),
                 ),
               ),
@@ -430,7 +429,7 @@ class _MapScreenState extends State<MapScreen> {
                         LatLng loc = LatLng(position.latitude, position.longitude);
                         _centerMap(loc);
                       } catch (e) {
-                        if (!mounted) return;
+                        if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('$e')),
                         );

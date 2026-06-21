@@ -299,6 +299,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   List<String> _locations = [];
   List<dynamic> _routes = [];
   bool _loading = false;
+  bool _hasSearched = false;
   late String _userId;
   String _userName = 'Usuario';
   String? _userPhotoUrl;
@@ -477,6 +478,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
       _routes = [];
       _selectedRoute = null;
       _currentSchedulePage = 0;
+      _hasSearched = true;
     });
 
     try {
@@ -750,6 +752,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   _routes = [];
                   _selectedRoute = null;
                   _currentSchedulePage = 0;
+                  _hasSearched = false;
                 }),
               ),
               const SizedBox(height: 16),
@@ -815,6 +818,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                   _routes = [];
                   _selectedRoute = null;
                   _currentSchedulePage = 0;
+                  _hasSearched = false;
                 }),
               ),
               const SizedBox(height: 24),
@@ -857,7 +861,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                         itemCount: _routes.length,
                         itemBuilder: (context, index) =>
                             _buildRouteCard(_routes[index])))
-              else if (_origin != null && _destination != null && !_loading)
+              else if (_hasSearched && _routes.isEmpty && !_loading)
                 const Center(
                     child: Padding(
                         padding: EdgeInsets.only(
@@ -926,6 +930,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                               _routes = [];
                               _selectedRoute = null;
                               _currentSchedulePage = 0;
+                              _hasSearched = false;
                             }),
                         isDark),
                     const SizedBox(height: 16),
@@ -937,6 +942,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                               _routes = [];
                               _selectedRoute = null;
                               _currentSchedulePage = 0;
+                              _hasSearched = false;
                             }),
                         isDark),
                     const SizedBox(height: 24),
@@ -982,9 +988,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
                               itemBuilder: (context, index) => _buildRouteCard(
                                   _routes[index],
                                   forTablet: true)))
-                    else if (_origin != null &&
-                        _destination != null &&
-                        !_loading)
+                    else if (_hasSearched && _routes.isEmpty && !_loading)
                       const Center(
                           child: Text(
                               'No se encontraron rutas para esta combinación')),

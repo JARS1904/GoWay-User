@@ -464,7 +464,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       (_routeSelectionKey.currentState as dynamic)?.refresh();
-                      setState(() => _currentIndex = 0);
+                      setState(() {
+                        _currentIndex = 0;
+                        _isMenuOpen = false;
+                      });
                     },
                   ),
                   _buildFloatingNavItem(
@@ -478,7 +481,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       (_favoritesKey.currentState as dynamic)?.refresh();
-                      setState(() => _currentIndex = 1);
+                      setState(() {
+                        _currentIndex = 1;
+                        _isMenuOpen = false;
+                      });
                     },
                   ),
                   _buildCenterActionButton(isDark),
@@ -493,7 +499,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       (_reportsKey.currentState as dynamic)?.refresh();
-                      setState(() => _currentIndex = 2);
+                      setState(() {
+                        _currentIndex = 2;
+                        _isMenuOpen = false;
+                      });
                     },
                   ),
                   _buildFloatingNavItem(
@@ -507,7 +516,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       (_profileKey.currentState as dynamic)?.refresh();
-                      setState(() => _currentIndex = 3);
+                      setState(() {
+                        _currentIndex = 3;
+                        _isMenuOpen = false;
+                      });
                     },
                   ),
                 ],
@@ -586,7 +598,10 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   } else if (index == 3) {
                     (_profileKey.currentState as dynamic)?.refresh();
                   }
-                  setState(() => _currentIndex = index);
+                  setState(() {
+                    _currentIndex = index;
+                    _isMenuOpen = false;
+                  });
                 },
                 labelType: NavigationRailLabelType.all,
                 backgroundColor:
