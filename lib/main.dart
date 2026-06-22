@@ -463,7 +463,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                     unselectedColor: unselectedColor,
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
-                      (_routeSelectionKey.currentState as dynamic)?.refresh();
+                      (_routeSelectionKey.currentState
+                              as RouteSelectionScreenState?)
+                          ?.refresh();
                       setState(() {
                         _currentIndex = 0;
                         _isMenuOpen = false;
@@ -590,7 +592,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 onDestinationSelected: (index) {
                   FocusManager.instance.primaryFocus?.unfocus();
                   if (index == 0) {
-                    (_routeSelectionKey.currentState as dynamic)?.refresh();
+                    (_routeSelectionKey.currentState
+                            as RouteSelectionScreenState?)
+                        ?.refresh();
                   } else if (index == 1) {
                     (_favoritesKey.currentState as dynamic)?.refresh();
                   } else if (index == 2) {

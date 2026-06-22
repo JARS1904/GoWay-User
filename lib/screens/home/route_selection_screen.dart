@@ -289,10 +289,10 @@ class RouteSelectionScreen extends StatefulWidget {
   const RouteSelectionScreen({super.key, this.userPhotoUrl, this.userName});
 
   @override
-  State<RouteSelectionScreen> createState() => _RouteSelectionScreenState();
+  State<RouteSelectionScreen> createState() => RouteSelectionScreenState();
 }
 
-class _RouteSelectionScreenState extends State<RouteSelectionScreen>
+class RouteSelectionScreenState extends State<RouteSelectionScreen>
     with WidgetsBindingObserver {
   String? _origin;
   String? _destination;
@@ -310,6 +310,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
   Timer? _notificationTimer;
   bool _photoLoadError = false;
   bool _hideUnassignedSchedules = false;
+  bool _showWelcomeBanner = true;
   int _currentSchedulePage = 0;
   final int _schedulesPerPage = 5;
   final GlobalKey _schedulesTitleKey = GlobalKey();
@@ -367,6 +368,7 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
       setState(() {
         _hideUnassignedSchedules =
             prefs.getBool('hideUnassignedSchedules') ?? false;
+        _showWelcomeBanner = prefs.getBool('showWelcomeBanner') ?? true;
       });
     }
   }
@@ -675,10 +677,37 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (_showWelcomeBanner)
+                Container(
+                  height: 36,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: Marquee(
+                    text: 'Bienvenido a GoWay, tu app de búsqueda de rutas y horarios :)',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.blueAccent[100] : Colors.blueAccent[700],
+                    ),
+                    scrollAxis: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    blankSpace: 60.0,
+                    velocity: 30.0,
+                    startPadding: 10.0,
+                  ),
+                ),
+              ),
+              if (_showWelcomeBanner)
+                const SizedBox(height: 10),
               Text('Hola, $_userName 👋',
                   style: TextStyle(
                       fontSize: 20,
@@ -906,10 +935,37 @@ class _RouteSelectionScreenState extends State<RouteSelectionScreen>
             Expanded(
               flex: 2,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (_showWelcomeBanner)
+                      Container(
+                        height: 36,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Marquee(
+                          text: 'Bienvenido a GoWay, tu app de búsqueda de rutas y horarios :)',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.blueAccent[100] : Colors.blueAccent[700],
+                          ),
+                          scrollAxis: Axis.horizontal,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          blankSpace: 60.0,
+                          velocity: 30.0,
+                          startPadding: 10.0,
+                        ),
+                      ),
+                    ),
+                    if (_showWelcomeBanner)
+                      const SizedBox(height: 10),
                     Text('Hola, $_userName 👋',
                         style: TextStyle(
                             fontSize: 20,

@@ -128,7 +128,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _zoomIn() {
-    if (_zoom < 18) {
+    if (_zoom < 22) {
       _zoom += 1;
       _mapController.move(_currentLocation, _zoom);
       setState(() {});
@@ -259,25 +259,25 @@ class _MapScreenState extends State<MapScreen> {
               initialCenter: _currentLocation,
               initialZoom: _zoom,
               minZoom: 2,
-              maxZoom: 18,
+              maxZoom: 22,
               keepAlive: true,
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all,
               ),
             ),
             children: [
-              // Capa de tiles
               TileLayer(
                 urlTemplate: _darkMapEnabled
                     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
                     : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.goway_user',
-                maxZoom: 18,
+                maxNativeZoom: 19,
+                maxZoom: 22,
                 minZoom: 2,
                 retinaMode: true,
                 tileProvider: NetworkTileProvider(),
                 additionalOptions: const {
-                  'attribution': 'Â© OpenStreetMap contributors',
+                  'attribution': '© OpenStreetMap contributors',
                 },
                 wmsOptions: null,
               ),

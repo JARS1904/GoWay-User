@@ -43,6 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isDarkMode = false;
   bool _hideUnassignedSchedules = false;
   bool _darkMapEnabled = false;
+  bool _showWelcomeBanner = true;
 
   @override
   void initState() {
@@ -61,6 +62,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _hideUnassignedSchedules =
           prefs.getBool('hideUnassignedSchedules') ?? false;
       _darkMapEnabled = prefs.getBool('darkMapEnabled') ?? false;
+      _showWelcomeBanner = prefs.getBool('showWelcomeBanner') ?? true;
     });
   }
 
@@ -113,6 +115,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _darkMapEnabled = value;
     });
     _saveDarkMapPreference(value);
+  }
+
+  Future<void> _saveShowWelcomeBannerPreference(bool show) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('showWelcomeBanner', show);
+  }
+
+  void _toggleShowWelcomeBanner(bool value) {
+    setState(() {
+      _showWelcomeBanner = value;
+    });
+    _saveShowWelcomeBannerPreference(value);
   }
 
   @override
@@ -191,6 +205,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: _darkMapEnabled,
               onChanged: _toggleDarkMap,
+              activeColor: Colors.blueAccent[700],
+              inactiveThumbColor: Colors.grey[400],
+            ),
+            isDark: isDark,
+          ),
+          _buildSettingOption(
+            icon: Icons.campaign_rounded,
+            title: 'Mostrar avisos en inicio',
+            subtitle: _showWelcomeBanner
+                ? 'Los avisos se mostrarán en inicio'
+                : 'Los avisos estarán ocultos',
+            trailing: Switch(
+              value: _showWelcomeBanner,
+              onChanged: _toggleShowWelcomeBanner,
               activeColor: Colors.blueAccent[700],
               inactiveThumbColor: Colors.grey[400],
             ),
@@ -362,6 +390,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 trailing: Switch(
                   value: _hideUnassignedSchedules,
                   onChanged: _toggleHideUnassignedSchedules,
+                  activeColor: Colors.blueAccent[700],
+                  inactiveThumbColor: Colors.grey[400],
+                ),
+                isDark: isDark,
+              ),
+              _buildSettingOption(
+                icon: Icons.campaign_rounded,
+                title: 'Mostrar avisos en inicio',
+                subtitle: _showWelcomeBanner
+                    ? 'Los avisos se mostrarán en inicio'
+                    : 'Los avisos estarán ocultos',
+                trailing: Switch(
+                  value: _showWelcomeBanner,
+                  onChanged: _toggleShowWelcomeBanner,
                   activeColor: Colors.blueAccent[700],
                   inactiveThumbColor: Colors.grey[400],
                 ),
