@@ -299,6 +299,7 @@ class RouteSelectionScreenState extends State<RouteSelectionScreen>
   List<String> _locations = [];
   List<dynamic> _routes = [];
   bool _loading = false;
+  List<dynamic> _recentDestinations = [];
   bool _hasSearched = false;
   late String _userId;
   String _userName = 'Usuario';
@@ -310,7 +311,6 @@ class RouteSelectionScreenState extends State<RouteSelectionScreen>
   Timer? _notificationTimer;
   bool _photoLoadError = false;
   bool _hideUnassignedSchedules = false;
-  bool _showWelcomeBanner = true;
   int _currentSchedulePage = 0;
   final int _schedulesPerPage = 5;
   final GlobalKey _schedulesTitleKey = GlobalKey();
@@ -368,7 +368,6 @@ class RouteSelectionScreenState extends State<RouteSelectionScreen>
       setState(() {
         _hideUnassignedSchedules =
             prefs.getBool('hideUnassignedSchedules') ?? false;
-        _showWelcomeBanner = prefs.getBool('showWelcomeBanner') ?? true;
       });
     }
   }
@@ -681,33 +680,6 @@ class RouteSelectionScreenState extends State<RouteSelectionScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (_showWelcomeBanner)
-                Container(
-                  height: 36,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.blueAccent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: Marquee(
-                    text: 'Bienvenido a GoWay, tu app de búsqueda de rutas y horarios :)',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.blueAccent[100] : Colors.blueAccent[700],
-                    ),
-                    scrollAxis: Axis.horizontal,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    blankSpace: 60.0,
-                    velocity: 30.0,
-                    startPadding: 10.0,
-                  ),
-                ),
-              ),
-              if (_showWelcomeBanner)
-                const SizedBox(height: 10),
               Text('Hola, $_userName 👋',
                   style: TextStyle(
                       fontSize: 20,
@@ -939,33 +911,6 @@ class RouteSelectionScreenState extends State<RouteSelectionScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (_showWelcomeBanner)
-                      Container(
-                        height: 36,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Marquee(
-                          text: 'Bienvenido a GoWay, tu app de búsqueda de rutas y horarios :)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.blueAccent[100] : Colors.blueAccent[700],
-                          ),
-                          scrollAxis: Axis.horizontal,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          blankSpace: 60.0,
-                          velocity: 30.0,
-                          startPadding: 10.0,
-                        ),
-                      ),
-                    ),
-                    if (_showWelcomeBanner)
-                      const SizedBox(height: 10),
                     Text('Hola, $_userName 👋',
                         style: TextStyle(
                             fontSize: 20,
@@ -2025,7 +1970,7 @@ class _RouteDetailsScreenState extends State<RouteDetailsScreen> {
           ),
           title: Text(route['empresa_nombre'],
               style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : Colors.black)),
           iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black),

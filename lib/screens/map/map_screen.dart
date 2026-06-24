@@ -224,7 +224,7 @@ class _MapScreenState extends State<MapScreen> {
       appBar: AppBar(
         title: const Text(
           'Mapa',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: false,
         elevation: 0,

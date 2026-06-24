@@ -94,38 +94,50 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
           String iconPath;
 
           if (isStart) {
-            markerColor = Colors.green[600];
-            iconPath = 'lib/assets/icons/icons8-marcador-filled.png';
+            markerColor = null;
+            iconPath = 'lib/assets/icons/icons8-place-marker-origen.png';
           } else if (isEnd) {
-            markerColor = Colors.red[600];
-            iconPath = 'lib/assets/icons/icons8-marcador-filled.png';
+            markerColor = null;
+            iconPath = 'lib/assets/icons/icons8-place-marker-destino.png';
           } else {
             markerColor = null; // No color override for the bus stop icon
-            iconPath = 'lib/assets/icons/icons8-parada-autobus.png';
+            iconPath = 'lib/assets/icons/icons8-bus-stop.png';
           }
 
           markers.add(
             Marker(
               point: point,
-              width: 40,
-              height: 40,
-              child: Tooltip(
-                message: parada['nombre'] ?? 'Parada',
-                triggerMode: TooltipTriggerMode.tap,
-                preferBelow: false,
-                decoration: BoxDecoration(
-                  color: widget.isDark ? Colors.grey[800] : Colors.black87,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                textStyle: const TextStyle(color: Colors.white, fontSize: 12),
-                child: Center(
-                  child: Image.asset(
+              width: 120,
+              height: 80,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
                     iconPath,
-                    width: 30,
-                    height: 30,
+                    width: 42,
+                    height: 42,
                     color: markerColor,
                   ),
-                ),
+                  const SizedBox(height: 2),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      parada['nombre'] ?? 'Parada',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -222,7 +234,7 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: widget.isDark ? Colors.black87 : Colors.white,
-                    borderRadius: BorderRadius.circular(8),
+                    shape: BoxShape.circle,
                     boxShadow: const [
                       BoxShadow(
                         color: Colors.black26,
@@ -233,7 +245,7 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
                   ),
                   child: IconButton(
                     icon: Icon(Icons.fullscreen,
-                        color: widget.isDark ? Colors.white : Colors.black87),
+                        color: Colors.blueAccent[700]!),
                     onPressed: () {
                       _showFullScreenMap(
                           context, points, markers, _darkMapEnabled);
@@ -264,7 +276,7 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
           title: Text(
             'Paradas de la ruta',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: widget.isDark ? Colors.white : Colors.black,
             ),

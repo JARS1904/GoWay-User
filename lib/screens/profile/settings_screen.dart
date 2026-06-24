@@ -43,7 +43,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isDarkMode = false;
   bool _hideUnassignedSchedules = false;
   bool _darkMapEnabled = false;
-  bool _showWelcomeBanner = true;
 
   @override
   void initState() {
@@ -62,7 +61,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _hideUnassignedSchedules =
           prefs.getBool('hideUnassignedSchedules') ?? false;
       _darkMapEnabled = prefs.getBool('darkMapEnabled') ?? false;
-      _showWelcomeBanner = prefs.getBool('showWelcomeBanner') ?? true;
     });
   }
 
@@ -117,17 +115,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _saveDarkMapPreference(value);
   }
 
-  Future<void> _saveShowWelcomeBannerPreference(bool show) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('showWelcomeBanner', show);
-  }
-
-  void _toggleShowWelcomeBanner(bool value) {
-    setState(() {
-      _showWelcomeBanner = value;
-    });
-    _saveShowWelcomeBannerPreference(value);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: const Text(
           'Configuración',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: false,
         elevation: 0,
@@ -210,20 +197,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             isDark: isDark,
           ),
-          _buildSettingOption(
-            icon: Icons.campaign_rounded,
-            title: 'Mostrar avisos en inicio',
-            subtitle: _showWelcomeBanner
-                ? 'Los avisos se mostrarán en inicio'
-                : 'Los avisos estarán ocultos',
-            trailing: Switch(
-              value: _showWelcomeBanner,
-              onChanged: _toggleShowWelcomeBanner,
-              activeColor: Colors.blueAccent[700],
-              inactiveThumbColor: Colors.grey[400],
-            ),
-            isDark: isDark,
-          ),
+
           const SizedBox(height: 40),
           Text(
             'Información',
@@ -395,20 +369,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 isDark: isDark,
               ),
-              _buildSettingOption(
-                icon: Icons.campaign_rounded,
-                title: 'Mostrar avisos en inicio',
-                subtitle: _showWelcomeBanner
-                    ? 'Los avisos se mostrarán en inicio'
-                    : 'Los avisos estarán ocultos',
-                trailing: Switch(
-                  value: _showWelcomeBanner,
-                  onChanged: _toggleShowWelcomeBanner,
-                  activeColor: Colors.blueAccent[700],
-                  inactiveThumbColor: Colors.grey[400],
-                ),
-                isDark: isDark,
-              ),
+
               const SizedBox(height: 60),
               Text(
                 'Información',

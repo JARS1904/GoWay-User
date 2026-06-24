@@ -194,6 +194,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         title: Text(
           'Notificaciones',
           style: TextStyle(
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: isDark ? Colors.white : Colors.black87,
           ),

@@ -51,7 +51,7 @@ class TermsAndConditionsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Términos y Condiciones',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: false,
         elevation: 0,

@@ -89,7 +89,7 @@ class _IdCardScreenState extends State<IdCardScreen>
       appBar: AppBar(
         title: const Text(
           'Mi Tarjeta',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: false,
         elevation: 0,
