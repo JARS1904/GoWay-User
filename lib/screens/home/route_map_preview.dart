@@ -24,6 +24,7 @@ class RouteMapPreview extends StatefulWidget {
 
 class _RouteMapPreviewState extends State<RouteMapPreview> {
   bool _darkMapEnabled = false;
+  bool _showStopNamesOnMap = true;
   LatLng? _currentLocation;
 
   @override
@@ -38,6 +39,7 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
     if (mounted) {
       setState(() {
         _darkMapEnabled = prefs.getBool('darkMapEnabled') ?? false;
+        _showStopNamesOnMap = prefs.getBool('showStopNamesOnMap') ?? true;
       });
     }
   }
@@ -118,25 +120,27 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
                     height: 42,
                     color: markerColor,
                   ),
-                  const SizedBox(height: 2),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      parada['nombre'] ?? 'Parada',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                  if (_showStopNamesOnMap) ...[
+                    const SizedBox(height: 2),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      child: Text(
+                        parada['nombre'] ?? 'Parada',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -144,6 +148,8 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
         }
       }
     }
+
+    if (points.isEmpty) return const SizedBox.shrink();
 
     if (_currentLocation != null) {
       markers.add(

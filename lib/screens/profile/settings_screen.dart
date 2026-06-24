@@ -43,6 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isDarkMode = false;
   bool _hideUnassignedSchedules = false;
   bool _darkMapEnabled = false;
+  bool _showStopNamesOnMap = true;
 
   @override
   void initState() {
@@ -61,6 +62,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _hideUnassignedSchedules =
           prefs.getBool('hideUnassignedSchedules') ?? false;
       _darkMapEnabled = prefs.getBool('darkMapEnabled') ?? false;
+      _showStopNamesOnMap = prefs.getBool('showStopNamesOnMap') ?? true;
     });
   }
 
@@ -115,6 +117,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _saveDarkMapPreference(value);
   }
 
+  Future<void> _saveShowStopNamesPreference(bool show) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('showStopNamesOnMap', show);
+  }
+
+  void _toggleShowStopNames(bool value) {
+    setState(() {
+      _showStopNamesOnMap = value;
+    });
+    _saveShowStopNamesPreference(value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -192,6 +205,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: _darkMapEnabled,
               onChanged: _toggleDarkMap,
+              activeColor: Colors.blueAccent[700],
+              inactiveThumbColor: Colors.grey[400],
+            ),
+            isDark: isDark,
+          ),
+          _buildSettingOption(
+            icon: Icons.pin_drop_rounded,
+            title: 'Nombres de paradas',
+            subtitle: _showStopNamesOnMap
+                ? 'Mostrando nombres en el mapa'
+                : 'Ocultando nombres en el mapa',
+            trailing: Switch(
+              value: _showStopNamesOnMap,
+              onChanged: _toggleShowStopNames,
               activeColor: Colors.blueAccent[700],
               inactiveThumbColor: Colors.grey[400],
             ),
