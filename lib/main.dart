@@ -21,8 +21,11 @@ import 'package:goway_user/screens/map/map_screen.dart';
 import 'package:goway_user/screens/profile/id_card_screen.dart';
 import 'package:audioplayers/audioplayers.dart';
 
+import 'package:goway_user/services/local_db_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LocalDbService.init(); // Inicializar Hive para la caché
   runApp(const MyApp());
 }
 

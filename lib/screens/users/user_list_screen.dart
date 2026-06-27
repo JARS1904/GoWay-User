@@ -114,8 +114,10 @@ class _UserListScreenState extends State<UserListScreen> {
             {'nombre': user.name, 'email': user.email, 'password': password}),
       );
 
-      print('Response status: ${response.statusCode}'); // Debug
-      print('Response body: ${response.body}'); // Debug
+      // Cambio: Reemplazo de print() por debugPrint() para evitar saturar
+      // la consola y generar lag en modo Producción.
+      debugPrint('Response status: ${response.statusCode}'); // Debug
+      debugPrint('Response body: ${response.body}'); // Debug
 
       if (response.statusCode == 201) {
         // 201 es el código para creación exitosa
@@ -126,7 +128,7 @@ class _UserListScreenState extends State<UserListScreen> {
       }
     } catch (e) {
       _showSnackbar('Error al agregar: $e');
-      print('Error detallado: $e'); // Debug
+      debugPrint('Error detallado: $e'); // Debug
     }
   }
 

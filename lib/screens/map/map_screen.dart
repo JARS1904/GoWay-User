@@ -27,8 +27,11 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   late MapController _mapController;
-  LatLng _currentLocation =
-      const LatLng(18.17678, -93.06376); // Jalpa de MÃ©ndez
+  // Cambio: Aislamiento del marcador GPS con ValueNotifier.
+  // En lugar de usar setState y repintar todo el mapa/pantalla, solo 
+  // notificamos el cambio a la capa del marcador (optimiza batería y CPU).
+  final ValueNotifier<LatLng> _currentLocationNotifier = 
+      ValueNotifier(const LatLng(18.17678, -93.06376)); // Jalpa de Méndez
   double _zoom = 15;
   bool _isLoading = true;
   double _rotation = 0.0;
@@ -77,11 +80,37 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _initLocation() async {
     try {
-      Position position = await _determinePosition();
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return Future.error('Los servicios de ubicación están deshabilitados.');
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return Future.error('Los permisos de ubicación fueron denegados');
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error('Permisos denegados permanentemente.');
+      }
+
+      // Cambio: Para igualar la alta precisión de goway_card_test, usamos
+      // el stream del GPS que fuerza una nueva lectura del satélite,
+      // ignorando la ubicación vieja guardada en la caché del celular.
+      Position position = await Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 10,
+        ),
+      ).first;
+      
       LatLng newLocation = LatLng(position.latitude, position.longitude);
       if (mounted) {
+        _currentLocationNotifier.value = newLocation;
         setState(() {
-          _currentLocation = newLocation;
           _isLoading = false;
         });
         _mapController.move(newLocation, _zoom);
@@ -122,24 +151,20 @@ class _MapScreenState extends State<MapScreen> {
 
   void _centerMap(LatLng location) {
     _mapController.move(location, _zoom);
-    setState(() {
-      _currentLocation = location;
-    });
+    _currentLocationNotifier.value = location;
   }
 
   void _zoomIn() {
     if (_zoom < 22) {
       _zoom += 1;
-      _mapController.move(_currentLocation, _zoom);
-      setState(() {});
+      _mapController.move(_currentLocationNotifier.value, _zoom);
     }
   }
 
   void _zoomOut() {
     if (_zoom > 2) {
       _zoom -= 1;
-      _mapController.move(_currentLocation, _zoom);
-      setState(() {});
+      _mapController.move(_currentLocationNotifier.value, _zoom);
     }
   }
 
@@ -196,9 +221,7 @@ class _MapScreenState extends State<MapScreen> {
       ).listen((Position position) {
         LatLng newLocation = LatLng(position.latitude, position.longitude);
         if (mounted) {
-          setState(() {
-            _currentLocation = newLocation;
-          });
+          _currentLocationNotifier.value = newLocation;
           if (_isTracking) {
              _mapController.move(newLocation, _zoom);
           }
@@ -256,7 +279,7 @@ class _MapScreenState extends State<MapScreen> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: _currentLocation,
+              initialCenter: _currentLocationNotifier.value,
               initialZoom: _zoom,
               minZoom: 2,
               maxZoom: 22,
@@ -267,9 +290,12 @@ class _MapScreenState extends State<MapScreen> {
             ),
             children: [
               TileLayer(
+                // Cambio: Migración a CartoCDN en ambos modos (claro y oscuro)
+                // Se reemplazó OpenStreetMap por la versión light_all de Carto para evitar bloqueos
+                // de IP y garantizar estabilidad en producción según requerimientos.
                 urlTemplate: _darkMapEnabled
                     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-                    : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.goway_user',
                 maxNativeZoom: 19,
                 maxZoom: 22,
@@ -281,31 +307,36 @@ class _MapScreenState extends State<MapScreen> {
                 },
                 wmsOptions: null,
               ),
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: _currentLocation,
-                    width: 24,
-                    height: 24,
-                    child: Tooltip(
-                      message: 'Mi Ubicación',
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.blueAccent[700],
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            )
-                          ],
+              ValueListenableBuilder<LatLng>(
+                valueListenable: _currentLocationNotifier,
+                builder: (context, currentLocation, _) {
+                  return MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: currentLocation,
+                        width: 24,
+                        height: 24,
+                        child: Tooltip(
+                          message: 'Mi Ubicación',
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blueAccent[700],
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 3),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                }
               ),
             ],
           ),

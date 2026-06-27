@@ -180,13 +180,18 @@ class _LoginScreenState extends State<LoginScreen>
 
       final responseData = json.decode(response.body);
       debugPrint('Respuesta de login: $responseData');
-      print('========== LOGIN RESPONSE ==========');
-      print('Full response: $responseData');
+      
+      // Cambio: Limpieza de la consola para Producción (Evita micro-lag).
+      // Se reemplazaron todos los print() puros por debugPrint(), de manera que
+      // el framework Flutter omita automáticamente estos logs cuando el app corra
+      // en modo Release, liberando carga a la CPU.
+      debugPrint('========== LOGIN RESPONSE ==========');
+      debugPrint('Full response: $responseData');
       if (responseData['user'] != null) {
-        print('User object: ${responseData['user']}');
-        print('User ID: ${responseData['user']['id']}');
+        debugPrint('User object: ${responseData['user']}');
+        debugPrint('User ID: ${responseData['user']['id']}');
       }
-      print('========== END LOGIN ==========');
+      debugPrint('========== END LOGIN ==========');
 
       if (response.statusCode == 200 && responseData['success'] == true) {
         final prefs = await SharedPreferences.getInstance();

@@ -12,6 +12,8 @@ import 'notifications_screen.dart';
 import 'route_map_preview.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:goway_user/services/api_service.dart';
+import 'package:goway_user/services/local_db_service.dart';
 import 'package:goway_user/services/audio_service.dart';
 import 'package:marquee/marquee.dart';
 
@@ -445,6 +447,12 @@ class RouteSelectionScreenState extends State<RouteSelectionScreen>
   }
 
   Future<void> _fetchLocations() async {
+    // Cambio: Mostrar inmediatamente desde caché si existe
+    final cached = LocalDbService.getCachedLocations();
+    if (cached != null && cached.isNotEmpty && mounted) {
+      setState(() => _locations = cached);
+    }
+
     try {
       final url = Uri.parse('${ApiService.routesUrl}?action=locations');
       final response = await http.get(url, headers: {
@@ -454,7 +462,10 @@ class RouteSelectionScreenState extends State<RouteSelectionScreen>
       if (response.statusCode == 200) {
         final dynamic data = jsonDecode(response.body);
         if (data is List && mounted) {
-          setState(() => _locations = data.cast<String>());
+          final newLocations = data.cast<String>();
+          setState(() => _locations = newLocations);
+          // Guardar en Hive
+          LocalDbService.cacheLocations(newLocations);
           return;
         } else if (data is Map && data.containsKey('error')) {
           throw Exception(data['error']);
@@ -482,6 +493,17 @@ class RouteSelectionScreenState extends State<RouteSelectionScreen>
       _hasSearched = true;
     });
 
+    // Cambio: Intentar cargar la búsqueda desde Hive para respuesta inmediata
+    final cachedRoutes = LocalDbService.getCachedRoutes(_origin!, _destination!);
+    if (cachedRoutes != null && cachedRoutes.isNotEmpty && mounted) {
+      final processed = _processRoutes(cachedRoutes.cast<Map<String, dynamic>>());
+      setState(() {
+        _routes = processed;
+        _loading = false;
+      });
+      // Aún así hacemos la petición en background por si hay actualizaciones
+    }
+
     try {
       final response = await http.post(
         Uri.parse(ApiService.routesUrl),
@@ -500,6 +522,9 @@ class RouteSelectionScreenState extends State<RouteSelectionScreen>
           final processedRoutes =
               _processRoutes(responseData.cast<Map<String, dynamic>>());
           if (mounted) setState(() => _routes = processedRoutes);
+          
+          // Guardamos las rutas obtenidas en caché local (Hive)
+          LocalDbService.cacheRoutes(_origin!, _destination!, responseData);
         } else if (responseData is Map && responseData.containsKey('error')) {
           _showError(responseData['error']);
         } else {

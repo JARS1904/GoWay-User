@@ -56,8 +56,14 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
       }
       if (permission == LocationPermission.deniedForever) return;
 
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+      // Cambio: Igual que en map_screen y goway_card_test, usamos
+      // el stream para evadir la caché y forzar alta precisión del GPS.
+      Position position = await Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 10,
+        ),
+      ).first;
       if (mounted) {
         setState(() {
           _currentLocation = LatLng(position.latitude, position.longitude);
@@ -226,9 +232,11 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
                 ),
                 children: [
                   TileLayer(
+                    // Cambio: Se unifica el proveedor de mapas a CartoCDN
+                    // Usamos light_all para el modo claro (reemplaza a OSM) y dark_all para oscuro.
                     urlTemplate: _darkMapEnabled
                         ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-                        : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.example.goway_user',
                   ),
                   MarkerLayer(markers: markers),
@@ -302,9 +310,10 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
           ),
           children: [
             TileLayer(
+              // Cambio: Se usa CartoCDN light_all para modo claro, igual que en el mapa preview.
               urlTemplate: darkMapEnabled
                   ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-                  : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.example.goway_user',
             ),
             MarkerLayer(markers: markers),
