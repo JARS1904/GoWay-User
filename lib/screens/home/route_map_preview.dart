@@ -232,11 +232,10 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
                 ),
                 children: [
                   TileLayer(
-                    // Cambio: Se unifica el proveedor de mapas a CartoCDN
-                    // Usamos light_all para el modo claro (reemplaza a OSM) y dark_all para oscuro.
+                    // Cambio: Modo claro usa Carto Voyager, modo oscuro usa Carto Dark All
                     urlTemplate: _darkMapEnabled
                         ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-                        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.example.goway_user',
                   ),
                   MarkerLayer(markers: markers),
@@ -310,10 +309,10 @@ class _RouteMapPreviewState extends State<RouteMapPreview> {
           ),
           children: [
             TileLayer(
-              // Cambio: Se usa CartoCDN light_all para modo claro, igual que en el mapa preview.
+              // Cambio: Modo claro usa Carto Voyager, modo oscuro usa Carto Dark All
               urlTemplate: darkMapEnabled
                   ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-                  : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                  : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.example.goway_user',
             ),
             MarkerLayer(markers: markers),

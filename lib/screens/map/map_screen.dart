@@ -290,12 +290,10 @@ class _MapScreenState extends State<MapScreen> {
             ),
             children: [
               TileLayer(
-                // Cambio: Migración a CartoCDN en ambos modos (claro y oscuro)
-                // Se reemplazó OpenStreetMap por la versión light_all de Carto para evitar bloqueos
-                // de IP y garantizar estabilidad en producción según requerimientos.
+                // Cambio: Modo claro usa Carto Voyager, modo oscuro usa Carto Dark All
                 urlTemplate: _darkMapEnabled
                     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-                    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.goway_user',
                 maxNativeZoom: 19,
                 maxZoom: 22,
@@ -478,7 +476,7 @@ class _MapScreenState extends State<MapScreen> {
                       elevation: 4,
                     ),
                     icon: Image.asset(
-                      'lib/assets/icons/icons8-marcador.png',
+                      'lib/assets/icons/icons8-marcador-filled.png',
                       color: Colors.white,
                       width: 24,
                       height: 24,
@@ -494,7 +492,7 @@ class _MapScreenState extends State<MapScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _toggleTracking,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isTracking ? Colors.red[600] : Colors.blueAccent[700],
+                      backgroundColor: _isTracking ? Colors.red[600] : const Color(0xFF25D366),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
